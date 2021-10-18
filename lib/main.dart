@@ -36,16 +36,6 @@ class MyApp extends StatelessWidget {
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -65,7 +55,9 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    // Client class is the interface for HTTP clients that take care of maintaining persistent connections
     httpClient = Client();
+    // Web3Client class used for for sending requests over an HTTP JSON-RPC API endpoint to Ethereum clients
     ethClient = Web3Client(dotenv.get('Ganache_API'), httpClient);
     // getBalance(dotenv.get('My_Address'));
     _getBlkNum();
@@ -87,40 +79,15 @@ class _MyHomePageState extends State<MyHomePage> {
     //     .getValueInUnit(EtherUnit.ether)} ether)');
   }
 
-  // void _getBalance() async {
-  //   var credentials = EthPrivateKey.fromHex(
-  //       "d183f4ad08c7937fb769947be3bc85037c48e521b196e6e20b4c2b0c079a7f09");
-  //   // var address = await credentials.extractAddress();
-  //   lst.add(await credentials.extractAddress());
-  //   print('address: $lst[0]');
-  //   // get native balance
-  //   // var balance = await ethClient.getBalance(address);
-  //   lst.add(await ethClient.getBalance(lst[0]));
-  //   print('balance before transaction: ${lst[1].getInWei} wei (${lst[1]
-  //       .getValueInUnit(EtherUnit.ether)} ether)');
-  // }
-
-  // Future<List> _getBalance() async {
-  //   var credentials = EthPrivateKey.fromHex(
-  //       "d183f4ad08c7937fb769947be3bc85037c48e521b196e6e20b4c2b0c079a7f09");
-  //   var address = await credentials.extractAddress();
-  //   print('address: $address');
-  //   // get native balance
-  //   var balance = await ethClient.getBalance(address);
-  //   print('balance before transaction: ${balance.getInWei} wei (${balance
-  //       .getValueInUnit(EtherUnit.ether)} ether)');
-  //
-  //   return [address, balance];
-  // }
-
+  // Functions for reading the smart contract and submitting a transaction.
   Future<DeployedContract> loadContract() async {
     String abiCode = await rootBundle.loadString("assets/abi.json");
-    String contractAddress = "0x2208f78D1CF9DA01D4B0cFa7505eF4890Df380b0";
+    String contractAddress = dotenv.get('Contract_Address');
     final contract = DeployedContract(ContractAbi.fromJson(abiCode, "TotoSlots"), EthereumAddress.fromHex(contractAddress));
-
     return contract;
   }
 
+  // The submit() function essentially signs and sends a transaction to the blockchain network from web3dart library.
   Future<String> submit(String functionName, List<dynamic> args) async {
     EthPrivateKey credentials = EthPrivateKey.fromHex(dotenv.get('Private_Key'));
     DeployedContract contract = await loadContract();
@@ -135,11 +102,19 @@ class _MyHomePageState extends State<MyHomePage> {
     return result;
   }
 
+  Future<String> _pushArrayData(List<List<dynamic>> args) async {
+    // array_pushData transaction
+    var response = await submit("array_pushData", [[args]]);
+    // hash of the transaction
+    print(response);
+    return response;
+  }
+
+  // the query() function stores the result using the Web3Client call method, which Calls a function defined in the smart contract and returns it's result.
   Future<List<dynamic>> query(String functionName, List<dynamic> args) async {
     final contract = await loadContract();
     final ethFunction = contract.function(functionName);
     final data = await ethClient.call(contract: contract, function: ethFunction, params: args);
-
     return data;
   }
 
@@ -183,25 +158,26 @@ class _MyHomePageState extends State<MyHomePage> {
               textScaleFactor: 2,
             ),
           ),
-          const SizedBox(height: 30),
-          ElevatedButton(
-            child: const Text("Connect Wallet"),
-            onPressed: () {
-              _getBalance();
-              _getBlkNum();
-              _getArrayLength();
-              _getArray(1);
-              _getAllArray();
-              setState(() {
-                // lst[0];
-                blkNum;
-                myAddress;
-                balanceEther;
-                arrayLength;
-              });
-            },
-          ),
+          const SizedBox(height: 50),
         ],
+      ),
+      floatingActionButton: ElevatedButton(
+        child: const Text("Connect Wallet"),
+        onPressed: () {
+          _getBalance();
+          _getBlkNum();
+          _pushArrayData([[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12]]);
+          _getArrayLength();
+          _getArray(1);
+          _getAllArray();
+          setState(() {
+            // lst[0];
+            blkNum;
+            myAddress;
+            balanceEther;
+            arrayLength;
+          });
+        },
       ),
     );
   }
