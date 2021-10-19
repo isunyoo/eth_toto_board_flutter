@@ -46,10 +46,10 @@ class _MyHomePageState extends State<MyHomePage> {
   late Web3Client ethClient;
   int myAmount = 0;
   int blkNum = 0;
-  late List<dynamic> arrayLength = [];
+  // late List<dynamic> arrayLength = [];
+  var arrayLength;
   var myAddress;
   var balanceEther;
-  List<dynamic> lst = [];
 
   @override
   void initState() {
@@ -97,14 +97,27 @@ class _MyHomePageState extends State<MyHomePage> {
         contract: contract,
         function: ethFunction,
         parameters: args,
-      ),
+        maxGas: 100000
+      ), chainId: 1337
     );
     return result;
   }
 
-  Future<String> _pushArrayData(List<List<dynamic>> args) async {
+  Future<String> _pushArrayData(List<dynamic> args) async {
+    var response = 'test';
+    print(args);
+    print(args.runtimeType);
     // array_pushData transaction
-    var response = await submit("array_pushData", [[args]]);
+    // var response = await submit("array_pushData", [args]);
+    // hash of the transaction
+    print(response);
+    return response;
+  }
+
+  Future<String> _addData(int num) async {
+    var bigNum = BigInt.from(num);
+    // array_pushData transaction
+    var response = await submit("addData", [bigNum]);
     // hash of the transaction
     print(response);
     return response;
@@ -122,16 +135,16 @@ class _MyHomePageState extends State<MyHomePage> {
     // array_getLength transaction
     List<dynamic> result = await query("array_getLength", []);
     // returns list of results, in this case a list with only the array length
-    arrayLength = result;
+    arrayLength = result[0].toString();
     return result;
   }
 
   Future<List<dynamic>> _getArray(int index) async {
-    var bigAmount = BigInt.from(index);
+    var bigIndex = BigInt.from(index);
     // array_getArray transaction
-    List<dynamic> result = await query("array_getArray", [bigAmount]);
+    List<dynamic> result = await query("array_getArray", [bigIndex]);
     // returns list of results, in this case a list with only the array[index]
-    print(result);
+    print(result[0]);
     return result;
   }
 
@@ -139,7 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
     // array_popAllData transaction
     List<dynamic> result = await query("array_popAllData", []);
     // returns list of results, in this case a list with all the arrays
-    print(result);
+    print(result[0]);
     return result;
   }
 
@@ -154,7 +167,6 @@ class _MyHomePageState extends State<MyHomePage> {
           Expanded(
             child: Text(
               "BlockNum: $blkNum \nAddress: $myAddress \nBalance: $balanceEther(ETH) \nArray_Length: $arrayLength",
-              // "$lst[0]",
               textScaleFactor: 2,
             ),
           ),
@@ -166,12 +178,12 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: () {
           _getBalance();
           _getBlkNum();
-          _pushArrayData([[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12]]);
           _getArrayLength();
           _getArray(1);
           _getAllArray();
+          // _pushArrayData([[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12]]);
+          _addData(1);
           setState(() {
-            // lst[0];
             blkNum;
             myAddress;
             balanceEther;
