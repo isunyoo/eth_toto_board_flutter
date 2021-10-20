@@ -18,15 +18,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Ether Toto',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.blue,
       ),
       home: const MyHomePage(title: 'Flutter Ether Toto'),
@@ -54,15 +45,19 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     // TODO: implement initState
+    initialSetup();
     super.initState();
+  }
+
+  Future<void> initialSetup() async {
     // Initialize the httpClient and ethCLient in the initState() method.
     // Client class is the interface for HTTP clients that take care of maintaining persistent connections
     httpClient = Client();
     // Web3Client class used for for sending requests over an HTTP JSON-RPC API endpoint to Ethereum clients
     ethClient = Web3Client(dotenv.get('Ganache_API'), httpClient);
-    // getBalance(dotenv.get('My_Address'));
-    _getBalance();
-    _getBlkNum();
+    await _getBalance();
+    await _getBlkNum();
+    await _getArrayLength();
   }
 
   Future<void> _getBlkNum() async {
@@ -74,11 +69,10 @@ class _MyHomePageState extends State<MyHomePage> {
     var _credentials = EthPrivateKey.fromHex(dotenv.get('Private_Key'));
     myAddress = await _credentials.extractAddress();
     // print('address: $_address');
-    // get native balance
+    // Get native balance
     var balanceObj = await ethClient.getBalance(myAddress);
     balanceEther = balanceObj.getValueInUnit(EtherUnit.ether);
-    // print('balance before transaction: ${balanceObj.getInWei} wei (${balanceObj
-    //     .getValueInUnit(EtherUnit.ether)} ether)');
+    // print('balance before transaction: ${balanceObj.getInWei} wei (${balanceObj.getValueInUnit(EtherUnit.ether)} ether)');
   }
 
   // Functions for reading the smart contract and submitting a transaction.
@@ -106,28 +100,28 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<String> _pushArrayData(List<dynamic> args) async {
-    var response = 'test';
-    print(args);
-    print(args.runtimeType);
-    // array_pushData transaction
-    // var response = await submit("array_pushData", [args]);
-    // hash of the transaction
+    // var response = 'test';
+    // print(args);
+    // print(args.runtimeType);
+
+    // Transaction of array_pushData
+    var response = await submit("array_pushData", [args]);
+    // Hash of the transaction
     print(response);
     return response;
   }
 
   Future<String> _addData(int num) async {
-    // EthereumAddress address = EthereumAddress.fromHex(dotenv.get('Private_Key'));
     // uint in smart contract means BigInt
     var bigNum = BigInt.from(num);
-    // array_pushData transaction
+    // Transaction of array_pushData
     var response = await submit("addData", [bigNum]);
-    // hash of the transaction
-    print(response);
+    // Hash of the transaction
+    // print(response);
     return response;
   }
 
-  // the query() function stores the result using the Web3Client call method, which Calls a function defined in the smart contract and returns it's result.
+  // The query() function stores the result using the Web3Client call method, which Calls a function defined in the smart contract and returns it's result.
   Future<List<dynamic>> query(String functionName, List<dynamic> args) async {
     final contract = await loadContract();
     final ethFunction = contract.function(functionName);
@@ -136,9 +130,9 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<List<dynamic>> _getArrayLength() async {
-    // array_getLength transaction
+    // Transaction of array_getLength
     List<dynamic> result = await query("array_getLength", []);
-    // returns list of results, in this case a list with only the array length
+    // Returns list of results, in this case a list with only the array length
     arrayLength = result[0].toString();
     return result;
   }
@@ -146,17 +140,17 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<List<dynamic>> _getArray(int index) async {
     // uint in smart contract means BigInt
     var bigIndex = BigInt.from(index);
-    // array_getArray transaction
+    // Transaction of array_getArray
     List<dynamic> result = await query("array_getArray", [bigIndex]);
-    // returns list of results, in this case a list with only the array[index]
+    // Returns list of results, in this case a list with only the array[index]
     print(result[0]);
     return result;
   }
 
   Future<List<dynamic>> _getAllArray() async {
-    // array_popAllData transaction
+    // Transaction of array_popAllData
     List<dynamic> result = await query("array_popAllData", []);
-    // returns list of results, in this case a list with all the arrays
+    // Returns list of results, in this case a list with all the arrays
     print(result[0]);
     return result;
   }
@@ -181,11 +175,10 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: ElevatedButton(
         child: const Text("Connect Wallet"),
         onPressed: () {
-          _getArrayLength();
           _getArray(1);
           _getAllArray();
-          // _pushArrayData([[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12]]);
-          _addData(11);
+          _pushArrayData([[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12]]);
+          _addData(3);
           setState(() {
             blkNum;
             myAddress;
