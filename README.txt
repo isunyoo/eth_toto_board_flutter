@@ -12,3 +12,5 @@ $ adb -s emulator-5554 reverse tcp:8545 tcp:8545
 $ adb reverse --list
 $ adb reverse --remove tcp:8545
 
+truffle(development)> accounts
+truffle(development)> opcode TotoSlots

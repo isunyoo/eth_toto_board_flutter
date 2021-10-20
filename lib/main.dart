@@ -55,20 +55,22 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    // Initialize the httpClient and ethCLient in the initState() method.
     // Client class is the interface for HTTP clients that take care of maintaining persistent connections
     httpClient = Client();
     // Web3Client class used for for sending requests over an HTTP JSON-RPC API endpoint to Ethereum clients
     ethClient = Web3Client(dotenv.get('Ganache_API'), httpClient);
     // getBalance(dotenv.get('My_Address'));
+    _getBalance();
     _getBlkNum();
   }
 
-  void _getBlkNum() async {
+  Future<void> _getBlkNum() async {
     blkNum = await ethClient.getBlockNumber();
     // print('Current Block Number: $_blkNum');
   }
 
-  void _getBalance() async {
+  Future<void> _getBalance() async {
     var _credentials = EthPrivateKey.fromHex(dotenv.get('Private_Key'));
     myAddress = await _credentials.extractAddress();
     // print('address: $_address');
@@ -92,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
     EthPrivateKey credentials = EthPrivateKey.fromHex(dotenv.get('Private_Key'));
     DeployedContract contract = await loadContract();
     final ethFunction = contract.function(functionName);
-    var result = await ethClient.sendTransaction(credentials,
+    final result = await ethClient.sendTransaction(credentials,
       Transaction.callContract(
         contract: contract,
         function: ethFunction,
@@ -115,6 +117,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<String> _addData(int num) async {
+    // EthereumAddress address = EthereumAddress.fromHex(dotenv.get('Private_Key'));
+    // uint in smart contract means BigInt
     var bigNum = BigInt.from(num);
     // array_pushData transaction
     var response = await submit("addData", [bigNum]);
@@ -140,6 +144,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<List<dynamic>> _getArray(int index) async {
+    // uint in smart contract means BigInt
     var bigIndex = BigInt.from(index);
     // array_getArray transaction
     List<dynamic> result = await query("array_getArray", [bigIndex]);
@@ -176,13 +181,11 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: ElevatedButton(
         child: const Text("Connect Wallet"),
         onPressed: () {
-          _getBalance();
-          _getBlkNum();
           _getArrayLength();
           _getArray(1);
           _getAllArray();
           // _pushArrayData([[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12]]);
-          _addData(1);
+          _addData(11);
           setState(() {
             blkNum;
             myAddress;
