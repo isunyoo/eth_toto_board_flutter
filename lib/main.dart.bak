@@ -3,24 +3,19 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:eth_toto_board_flutter/output.dart';
 
-
-// Future main() async {
-//   await dotenv.load(fileName: "assets/.env");
-//   runApp(const MyApp());
-// }
-
-Future main() async {
+Future<void> main() async {
   await dotenv.load(fileName: "assets/.env");
   runApp(
     MaterialApp(
-      // Start the app with the "/" named route. In this case, the app starts on the FirstScreen widget.
+      // Start the app with the "/" named route. In this case, the app starts on the MyApp widget.
       initialRoute: '/',
       routes: {
-        // When navigating to the "/" route, build the FirstScreen widget.
+        // When navigating to the "/" route, build the MyApp widget.
         '/': (context) => const MyApp(),
-        // When navigating to the "/second" route, build the SecondScreen widget.
-        '/output': (context) => const SecondScreen(),
+        // When navigating to the "/output" route, build the Output widget.
+        // '/output': (context) => const Output(),
       },
     ),
   );
@@ -108,12 +103,12 @@ class _MyHomePageState extends State<MyHomePage> {
     DeployedContract contract = await loadContract();
     final ethFunction = contract.function(functionName);
     final result = await ethClient.sendTransaction(credentials,
-      Transaction.callContract(
-        contract: contract,
-        function: ethFunction,
-        parameters: args,
-        maxGas: 100000
-      ), chainId: 1337
+        Transaction.callContract(
+            contract: contract,
+            function: ethFunction,
+            parameters: args,
+            maxGas: 100000
+        ), chainId: 1337
     );
     return result;
   }
@@ -182,7 +177,8 @@ class _MyHomePageState extends State<MyHomePage> {
         children: <Widget>[
           Expanded(
             child: Text(
-              "BlockNum: $blkNum \nAddress: $myAddress \nBalance: $balanceEther(ETH) \nArray_Length: $arrayLength \nAll_ArrayData: $allArrayData \nArray_Data: $arrayData",
+              // "BlockNum: $blkNum \nAddress: $myAddress \nBalance: $balanceEther(ETH) \nArray_Length: $arrayLength \nAll_ArrayData: $allArrayData \nArray_Data: $arrayData",
+              "BlockNum: $blkNum \nAddress: $myAddress \nBalance: $balanceEther(ETH) \nArray_Length: $arrayLength",
               textScaleFactor: 2,
             ),
           ),
@@ -194,39 +190,15 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: () async {
           await _getAllArray();
           await _getArray(1);
-          await _addData(3);
+          // await _addData(3);
           // await _pushArrayData([[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12]]);
-          setState(() {
-            allArrayData;
-            arrayData;
-          });
-          // Navigate to the second screen using a named route.
-          Navigator.pushNamed(context, '/output');
+          // setState(() {
+          //   allArrayData;
+          //   arrayData;
+          // });
+          // Navigate to the output screen using a named route.
+          Navigator.push(context, MaterialPageRoute(builder: (_) => Output(passedValue1: allArrayData, passedValue2: arrayData),),);
         },
-      ),
-    );
-  }
-}
-
-class SecondScreen extends StatelessWidget {
-  const SecondScreen({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Second Screen'),
-      ),
-      body: Center(
-        child: ElevatedButton(
-          // Within the SecondScreen widget
-          onPressed: () {
-            // Navigate back to the first screen by popping the current route
-            // off the stack.
-            Navigator.pop(context);
-          },
-          child: const Text('Go back!'),
-        ),
       ),
     );
   }

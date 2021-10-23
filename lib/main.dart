@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:eth_toto_board_flutter/output.dart';
 
 Future<void> main() async {
   await dotenv.load(fileName: "assets/.env");
@@ -14,7 +15,7 @@ Future<void> main() async {
         // When navigating to the "/" route, build the MyApp widget.
         '/': (context) => const MyApp(),
         // When navigating to the "/output" route, build the Output widget.
-        '/output': (context) => const Output(),
+        // '/output': (context) => const Output(),
       },
     ),
   );
@@ -176,7 +177,8 @@ class _MyHomePageState extends State<MyHomePage> {
         children: <Widget>[
           Expanded(
             child: Text(
-              "BlockNum: $blkNum \nAddress: $myAddress \nBalance: $balanceEther(ETH) \nArray_Length: $arrayLength \nAll_ArrayData: $allArrayData \nArray_Data: $arrayData",
+              // "BlockNum: $blkNum \nAddress: $myAddress \nBalance: $balanceEther(ETH) \nArray_Length: $arrayLength \nAll_ArrayData: $allArrayData \nArray_Data: $arrayData",
+              "BlockNum: $blkNum \nAddress: $myAddress \nBalance: $balanceEther(ETH) \nArray_Length: $arrayLength",
               textScaleFactor: 2,
             ),
           ),
@@ -188,47 +190,14 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: () async {
           await _getAllArray();
           await _getArray(1);
-          await _addData(3);
+          // await _addData(3);
           // await _pushArrayData([[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12]]);
-          setState(() {
-            allArrayData;
-            arrayData;
-          });
+          // setState(() {
+          //   allArrayData;
+          //   arrayData;
+          // });
           // Navigate to the output screen using a named route.
-          Navigator.pushNamed(context, '/output', arguments: '1');
-        },
-      ),
-    );
-  }
-}
-
-class Output extends StatelessWidget {
-  const Output({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Output Data'),
-      ),
-      body: Row(
-        children: const <Widget>[
-          Expanded(
-            child: Text(
-              // "All_ArrayData: $allArrayData \nArray_Data: $arrayData",
-              "All_ArrayData: \nArray_Data: ",
-              textScaleFactor: 2,
-            ),
-          ),
-          SizedBox(height: 50),
-        ],
-      ),
-      floatingActionButton: ElevatedButton(
-        child: const Text('Main'),
-        // Within the OutputDataScreen widget
-        onPressed: () {
-          // Navigate back to the first screen by popping the current route off the stack.
-          Navigator.pop(context);
+          Navigator.push(context, MaterialPageRoute(builder: (_) => Output(passedValue1: allArrayData, passedValue2: arrayData),),);
         },
       ),
     );
