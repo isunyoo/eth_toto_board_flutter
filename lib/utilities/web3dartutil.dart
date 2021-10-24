@@ -18,6 +18,24 @@ class Web3DartHelper {
     ethClient = Web3Client(dotenv.get('Ganache_API'), httpClient);
   }
 
+  Future<void> initialSetup() async {
+    await dotenv.load(fileName: "assets/.env");
+    // Initialize the httpClient and ethCLient in the initState() method.
+    // Client class is the interface for HTTP clients that take care of maintaining persistent connections
+    httpClient = Client();
+    // Web3Client class used for for sending requests over an HTTP JSON-RPC API endpoint to Ethereum clients
+    ethClient = Web3Client(dotenv.get('Ganache_API'), httpClient);
+    await _getBalance();
+    await _getBlkNum();
+    await _getArrayLength();
+    setState(() {
+      blkNum;
+      myAddress;
+      balanceEther;
+      arrayLength;
+    });
+  }
+
   Future<int> _getBlkNum() async {
     int blkNum = await ethClient.getBlockNumber();
     // print('Current Block Number: $_blkNum');

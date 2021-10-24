@@ -113,13 +113,14 @@ class _MyHomePageState extends State<MyHomePage> {
     return result;
   }
 
-  Future<String> _pushArrayData(List<dynamic> args) async {
-    // var response = 'test';
-    // print(args);
-    // print(args.runtimeType);
-
+  Future<String> _pushArrayData(List args) async {
+    var response = 'test';
+    print(args);
+    print(args.length);
+    print(args.runtimeType);
+    // final transactionList = [args];
     // Transaction of array_pushData
-    var response = await submit("array_pushData", [args]);
+    // var response = await submit("array_pushData", [args]);
     // Hash of the transaction record return(String)
     return response;
   }
@@ -191,7 +192,7 @@ class _MyHomePageState extends State<MyHomePage> {
           await _getAllArray();
           await _getArray(1);
           // await _addData(3);
-          // await _pushArrayData([[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12]]);
+          await _pushArrayData([[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12]]);
           // setState(() {
           //   allArrayData;
           //   arrayData;
