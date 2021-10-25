@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:http/http.dart';
 import 'package:flutter/services.dart';
 import 'package:web3dart/web3dart.dart';
@@ -6,50 +7,37 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class Web3DartHelper {
   late Client httpClient;
   late Web3Client ethClient;
-  // int myAmount=0, blkNum=0;
-  int myAmount=0;
-  var arrayLength, myAddress, balanceEther, allArrayData, arrayData;
 
-  void initState() {
-    // Initialize the httpClient and ethCLient in the initState() method.
-    // Client class is the interface for HTTP clients that take care of maintaining persistent connections
-    httpClient = Client();
-    // Web3Client class used for for sending requests over an HTTP JSON-RPC API endpoint to Ethereum clients
-    ethClient = Web3Client(dotenv.get('Ganache_API'), httpClient);
-  }
-
-  Future<void> initialSetup() async {
+  Future<void> initState() async {
     await dotenv.load(fileName: "assets/.env");
     // Initialize the httpClient and ethCLient in the initState() method.
     // Client class is the interface for HTTP clients that take care of maintaining persistent connections
     httpClient = Client();
     // Web3Client class used for for sending requests over an HTTP JSON-RPC API endpoint to Ethereum clients
     ethClient = Web3Client(dotenv.get('Ganache_API'), httpClient);
-    await _getBalance();
-    await _getBlkNum();
-    await _getArrayLength();
-    setState(() {
-      blkNum;
-      myAddress;
-      balanceEther;
-      arrayLength;
-    });
   }
 
-  Future<int> _getBlkNum() async {
+  Future<int> getBlkNum() async {
     int blkNum = await ethClient.getBlockNumber();
     // print('Current Block Number: $_blkNum');
     return blkNum;
   }
 
-  Future<void> _getBalance() async {
+  Future<EthereumAddress> getAddress() async {
     var _credentials = EthPrivateKey.fromHex(dotenv.get('Private_Key'));
-    myAddress = await _credentials.extractAddress();
+    var myAddress = await _credentials.extractAddress();
+    return myAddress;
+  }
+
+  Future<num> getBalance() async {
+    var _credentials = EthPrivateKey.fromHex(dotenv.get('Private_Key'));
+    var myAddress = await _credentials.extractAddress();
     // print('address: $_address');
     // Get native balance
     var balanceObj = await ethClient.getBalance(myAddress);
-    balanceEther = balanceObj.getValueInUnit(EtherUnit.ether);
+    var balanceEther = balanceObj.getValueInUnit(EtherUnit.ether);
     // print('balance before transaction: ${balanceObj.getInWei} wei (${balanceObj.getValueInUnit(EtherUnit.ether)} ether)');
+    return balanceEther;
   }
 
   // Functions for reading the smart contract and submitting a transaction.
@@ -76,18 +64,17 @@ class Web3DartHelper {
     return result;
   }
 
-  Future<String> _pushArrayData(List<dynamic> args) async {
-    // var response = 'test';
-    // print(args);
-    // print(args.runtimeType);
-
+  Future<String> pushArrayData(List<dynamic> args) async {
+    var response = 'test';
+    print(args);
+    print(args.runtimeType);
     // Transaction of array_pushData
-    var response = await submit("array_pushData", [args]);
+    // var response = await submit("array_pushData", [args]);
     // Hash of the transaction record return(String)
     return response;
   }
 
-  Future<String> _addData(int num) async {
+  Future<String> addData(int num) async {
     // uint in smart contract means BigInt
     var bigNum = BigInt.from(num);
     // Transaction of array_pushData
@@ -104,29 +91,40 @@ class Web3DartHelper {
     return data;
   }
 
-  Future<List<dynamic>> _getArrayLength() async {
+  Future<String> getArrayLength() async {
     // Transaction of array_getLength
     List<dynamic> result = await query("array_getLength", []);
     // Returns list of results, in this case a list with only the array length
-    arrayLength = result[0].toString();
-    return result;
+    var arrayLength = result[0].toString();
+    return arrayLength;
   }
 
-  Future<List<dynamic>> _getArray(int index) async {
+  Future<List<dynamic>> getArray(int index) async {
     // uint in smart contract means BigInt
     var bigIndex = BigInt.from(index);
     // Transaction of array_getArray
     List<dynamic> result = await query("array_getArray", [bigIndex]);
     // Returns list of results, in this case a list with only the array[index]
-    arrayData = result[0];
-    return result;
+    var arrayData = result[0];
+    return arrayData;
   }
 
-  Future<List<dynamic>> _getAllArray() async {
+  Future<List<dynamic>> getAllArray() async {
     // Transaction of array_popAllData
     List<dynamic> result = await query("array_popAllData", []);
     // Returns list of results, in this case a list with all the arrays
-    allArrayData = result[0];
-    return result;
+    var allArrayData = result[0];
+    return allArrayData;
+  }
+
+  List<dynamic> generateSlots() {
+    var rng = Random();
+    var m = 3, n = 6;
+    // var randomSlots = List.generate(m, (_) => List.generate(n, (_) => rng.nextInt(45)));
+    var randomSlots = List.generate(m, (i) => List.generate(n, (j) => rng.nextInt(45)));
+    // var randomSlots = List.generate(m, (i) => List.generate(n, (j) => i * n + j));   // sorting
+    // var randomSlots = List.generate(m, (i) => List.generate(n, (j) => rng.nextInt(45)));
+    // randomSlots = randomSlots.shuffle();
+    return randomSlots;
   }
 }

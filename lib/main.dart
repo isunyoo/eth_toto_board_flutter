@@ -1,29 +1,18 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'utilities/web3dartutil.dart';
-// import 'package:http/http.dart';
-// import 'package:web3dart/web3dart.dart';
-// import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter/material.dart';
 import 'package:eth_toto_board_flutter/output.dart';
+import 'package:eth_toto_board_flutter/generate.dart';
 
-Future<void> main() async {
+void main() {
   runApp(
-    MaterialApp(
-      // Start the app with the "/" named route. In this case, the app starts on the MyApp widget.
-      initialRoute: '/',
-      routes: {
-        // When navigating to the "/" route, build the MyApp widget.
-        '/': (context) => const MyApp(),
-        // When navigating to the "/output" route, build the Output widget.
-        // '/output': (context) => const Output(),
-      },
+    const MaterialApp(
+        home: MyApp(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
-
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -45,17 +34,29 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  late Client httpClient;
-  late Web3Client ethClient;
-  int myAmount=0, blkNum=0;
-  var arrayLength, myAddress, balanceEther, allArrayData, arrayData;
+  // Initialize the Web3DartHelper class from utility packages
+  Web3DartHelper web3util = Web3DartHelper();
+  var blkNum=0, allArrayData=[], arrayData=[], arrayLength, myAddress, balanceEther;
 
   @override
   void initState() {
     // TODO: implement initState
-    Web3DartHelper web3util = Web3DartHelper();
-    web3util.initialSetup();
     super.initState();
+    initialSetup();
+  }
+
+  Future<void> initialSetup() async {
+    await web3util.initState();
+    myAddress = await web3util.getAddress();
+    balanceEther = await web3util.getBalance();
+    blkNum = await web3util.getBlkNum();
+    arrayLength = await web3util.getArrayLength();
+    setState(() {
+      blkNum;
+      myAddress;
+      balanceEther;
+      arrayLength;
+    });
   }
 
   @override
@@ -68,7 +69,6 @@ class _MyHomePageState extends State<MyHomePage> {
         children: <Widget>[
           Expanded(
             child: Text(
-              // "BlockNum: $blkNum \nAddress: $myAddress \nBalance: $balanceEther(ETH) \nArray_Length: $arrayLength \nAll_ArrayData: $allArrayData \nArray_Data: $arrayData",
               "BlockNum: $blkNum \nAddress: $myAddress \nBalance: $balanceEther(ETH) \nArray_Length: $arrayLength",
               textScaleFactor: 2,
             ),
@@ -76,21 +76,30 @@ class _MyHomePageState extends State<MyHomePage> {
           const SizedBox(height: 50),
         ],
       ),
-      floatingActionButton: ElevatedButton(
-        child: const Text("Submit"),
-        onPressed: () async {
-          await _getAllArray();
-          await _getArray(1);
-          // await _addData(3);
-          await _pushArrayData([[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12]]);
-          // setState(() {
-          //   allArrayData;
-          //   arrayData;
-          // });
-          // Navigate to the output screen using a named route.
-          Navigator.push(context, MaterialPageRoute(builder: (_) => Output(passedValue1: allArrayData, passedValue2: arrayData),),);
-        },
-      ),
+        floatingActionButton: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              ElevatedButton(
+                child: const Text("Submit"),
+                onPressed: () async {
+                  allArrayData = await web3util.getAllArray();
+                  arrayData = await web3util.getArray(1);
+                  // await web3util.addData(3);
+                  var slotData = [[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12]];
+                  await web3util.pushArrayData(slotData);
+                  // Navigate to the output screen using a named route.
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => Output(passedValue1: allArrayData, passedValue2: arrayData),),);
+                },
+              ),
+              ElevatedButton(
+                child: const Text("Generate"),
+                onPressed: (){
+                  var randomSlots = web3util.generateSlots();
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => GeneratedOutput(passedValue1: randomSlots),),);
+                }
+              )
+            ]
+        )
     );
   }
 }

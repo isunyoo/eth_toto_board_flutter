@@ -6,6 +6,9 @@ https://www.geeksforgeeks.org/flutter-and-blockchain-population-dapp/
 https://gist.github.com/anoochit/470e0ea6555f7822a1db02974f114f78
 https://github.com/simolus3/web3dart/issues/65
 
+dart multi dimensional list
+https://medium.com/flutter-community/working-with-multi-dimensional-list-in-dart-78ff332430a
+
 $ emulator -list-avds
 $ emulator -avd Pixel_XL_API_29 -port 5557
 $ adb devices
