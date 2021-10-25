@@ -118,13 +118,16 @@ class Web3DartHelper {
   }
 
   List<dynamic> generateSlots() {
-    var rng = Random();
-    var m = 3, n = 6;
-    // var randomSlots = List.generate(m, (_) => List.generate(n, (_) => rng.nextInt(45)));
-    var randomSlots = List.generate(m, (i) => List.generate(n, (j) => rng.nextInt(45)));
+    // Define min and max value inclusive
+    int min = 1, max = 45;
+    // A length x 6 matrix
+    var length = 3, matrix = 6;
+    var rnd = Random();
+    var randomSlots = List.generate(length, (_) => List.generate(matrix, (_) => min + rnd.nextInt(max - min)));
+    // var randomSlots = List.generate(length, (i) => List.generate(matrix, (j) => i * (min + rnd.nextInt(max - min)) + j));
     // var randomSlots = List.generate(m, (i) => List.generate(n, (j) => i * n + j));   // sorting
     // var randomSlots = List.generate(m, (i) => List.generate(n, (j) => rng.nextInt(45)));
-    // randomSlots = randomSlots.shuffle();
+    // randomSlots.sort();
     return randomSlots;
   }
 }
