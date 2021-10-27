@@ -125,15 +125,37 @@ class Web3DartHelper {
     Random random = Random();
     var randomSlots = List.generate(rows, (_) => List.generate(columns, (_) => min + random.nextInt(max - min)));
 
-    List<int> numberList=[];
-    for (var i=0; numberList.length<columns; i++){
-      int randomNumber = min + random.nextInt(max - min);
-      if (!numberList.contains(randomNumber)) {
-        numberList.add(randomNumber);
+    // List<int> numberList=[];
+    // for(var i=0; numberList.length<columns; i++){
+    //   int randomNumber = min + random.nextInt(max - min);
+    //   if(!numberList.contains(randomNumber)) {
+    //     numberList.add(randomNumber);
+    //   }
+    //   numberList.sort();
+    // }
+    // print(numberList);
+
+    var numberList = List.generate(rows, (_) => List.generate(columns, (_) => <int>[]));
+    // List<List<num>> numberList = List.generate(columns, (i) => new List(rows));
+    // var numberList = List.generate(columns, (i) => List(rows), growable: false);
+    // var numberList = List.generate(rows, (i) => [0,0,0,0,0,0], growable: false);
+    // var numberList = List.generate(rows, (i) => List.generate(columns, (j) => i * 4 + j));
+    for(int i=0; i<numberList.length; i++) {
+      for(int j=0; j<numberList[i].length; j++) {
+        int randomNumber = min + random.nextInt(max - min);
+        if(!numberList[i][j].contains(randomNumber)) {
+          print(randomNumber);
+          numberList[i][j].add(randomNumber);
+          // numberList[i] = randomNumber as List<List<int>>;
+        }
+        // numberList[i].add(numberList[i].sort());
+        numberList[i].sort();
       }
-      numberList.sort();
     }
     print(numberList);
+    print(numberList.length);
+    print(numberList[0].length);
+
 
     // https://stackoverflow.com/questions/57860596/creating-a-2d-array-in-flutter-dart
 
