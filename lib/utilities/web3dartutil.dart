@@ -120,25 +120,26 @@ class Web3DartHelper {
   List<dynamic> generateSlots() {
     // Define min and max value inclusive
     int min = 1, max = 45;
-    // A length(rows) x 6 matrix(columns)
-    var length = 3, matrix = 6;
+    // A rows(length) x 6 columns(matrix)
+    int rows = 3, columns = 6;
     Random random = Random();
-    var randomSlots = List.generate(length, (_) => List.generate(matrix, (_) => min + random.nextInt(max - min)));
-    // var randomSlots = List.generate(m, (i) => List.generate(n, (j) => i * n + j));   // sorting
-    // var randomSlots = List.generate(3, (i) => List.generate(3, (j) => List.generate(3, (k) => i + j + k)));
-    // var randomSlots = List.generate(m, (i) => List.generate(n, (j) => rng.nextInt(45)));
-    // randomSlots.sort();
+    var randomSlots = List.generate(rows, (_) => List.generate(columns, (_) => min + random.nextInt(max - min)));
 
     List<int> numberList=[];
-    numberList.clear();
-    for (var i=0; i<6; i++){
+    for (var i=0; numberList.length<columns; i++){
       int randomNumber = min + random.nextInt(max - min);
-      if (!numberList.contains(randomNumber)){
+      if (!numberList.contains(randomNumber)) {
         numberList.add(randomNumber);
       }
       numberList.sort();
     }
     print(numberList);
+
+    // https://stackoverflow.com/questions/57860596/creating-a-2d-array-in-flutter-dart
+
+    // List<List<int>> , twoDList[0][1]
+    // List<List<int>> numberList=[rows][columns] as List<List<int>>;
+
 
     // var nlist = [4,2,1,5];
     // print(nlist.sort((a, b) => a.compareTo(b)));
