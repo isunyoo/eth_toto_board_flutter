@@ -120,14 +120,33 @@ class Web3DartHelper {
   List<dynamic> generateSlots() {
     // Define min and max value inclusive
     int min = 1, max = 45;
-    // A length x 6 matrix
+    // A length(rows) x 6 matrix(columns)
     var length = 3, matrix = 6;
-    var rnd = Random();
-    var randomSlots = List.generate(length, (_) => List.generate(matrix, (_) => min + rnd.nextInt(max - min)));
-    // var randomSlots = List.generate(length, (i) => List.generate(matrix, (j) => i * (min + rnd.nextInt(max - min)) + j));
+    Random random = Random();
+    var randomSlots = List.generate(length, (_) => List.generate(matrix, (_) => min + random.nextInt(max - min)));
     // var randomSlots = List.generate(m, (i) => List.generate(n, (j) => i * n + j));   // sorting
+    // var randomSlots = List.generate(3, (i) => List.generate(3, (j) => List.generate(3, (k) => i + j + k)));
     // var randomSlots = List.generate(m, (i) => List.generate(n, (j) => rng.nextInt(45)));
     // randomSlots.sort();
+
+    List<int> numberList=[];
+    numberList.clear();
+    for (var i=0; i<6; i++){
+      int randomNumber = min + random.nextInt(max - min);
+      if (!numberList.contains(randomNumber)){
+        numberList.add(randomNumber);
+      }
+      numberList.sort();
+    }
+    print(numberList);
+
+    // var nlist = [4,2,1,5];
+    // print(nlist.sort((a, b) => a.compareTo(b)));
+    // print(randomSlots.runtimeType);
+    // print(randomSlots.length);
+    // print(randomSlots[0]);
+    // print(randomSlots[0].runtimeType);
+    // print(randomSlots[0].sort((a, b) => a.compareTo(b)));
     return randomSlots;
   }
 }
