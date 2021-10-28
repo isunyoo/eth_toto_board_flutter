@@ -135,34 +135,37 @@ class Web3DartHelper {
     // }
     // print(numberList);
 
-    var numberList = List.generate(rows, (_) => List.generate(columns, (_) => 0));
-    // List<List<num>> numberList = List.generate(columns, (i) => new List(rows));
-    // var numberList = List.generate(columns, (i) => List(rows), growable: false);
-    // var numberList = List.generate(rows, (i) => [0,0,0,0,0,0], growable: false);
-    // var numberList = List.generate(rows, (i) => List.generate(columns, (j) => i * 4 + j));
-    for(int i=0; i<numberList.length; i++) {
-      for(int j=0; j<numberList[i].length; j++) {
-        int randomNumber = min + random.nextInt(max - min);
-        // print(randomNumber);
-        if(!numberList[i].contains(randomNumber)) {
-          // numberList[i].add(randomNumber);
-          numberList[i][j] = randomNumber;
-        }
-        // numberList[i].add(numberList[i].sort());
-        numberList[i].sort();
-      }
-    }
-    print(numberList);
+    // var numberList = List.generate(rows, (_) => List.generate(columns, (_) => 0));
+    var numberList = List.generate(rows, (i) => List.filled(columns, 0, growable: false), growable: false);
     print(numberList.length);
     print(numberList[0].length);
+    for(int i=0; i<numberList.length; i++) {
+      // for(int j=0; j<numberList[i].length; j++) {
+      //   int randomNumber = min + random.nextInt(max - min);
+      //   // print(randomNumber);
+      //   if(!numberList[i].contains(randomNumber)) {
+      //     numberList[i][j] = randomNumber;
+      //   }
+      //   numberList[i].sort();
+      // }
+      while(!numberList[i].contains(0)) {
+        int j=0;
+        int randomNumber = min + random.nextInt(max - min);
+        if(!numberList[i].contains(randomNumber)) {
+          numberList[i][j] = randomNumber;
+        }
+        numberList[i].sort();
+        j++;
+      }
+    }
+    print(numberList.runtimeType);
+    print(numberList);
 
 
     // https://stackoverflow.com/questions/57860596/creating-a-2d-array-in-flutter-dart
 
     // List<List<int>> , twoDList[0][1]
     // List<List<int>> numberList=[rows][columns] as List<List<int>>;
-
-
     // var nlist = [4,2,1,5];
     // print(nlist.sort((a, b) => a.compareTo(b)));
     // print(randomSlots.runtimeType);
