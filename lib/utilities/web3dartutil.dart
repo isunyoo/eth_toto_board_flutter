@@ -120,59 +120,66 @@ class Web3DartHelper {
   List<dynamic> generateSlots() {
     // Define min and max value inclusive
     int min = 1, max = 45;
-    // A rows(length) x 6 columns(matrix)
-    int rows = 3, columns = 6;
+    // Requested rows(length) x 6 columns(matrix)
+    int maxRows = 3, maxColumns = 6;
     Random random = Random();
-    var randomSlots = List.generate(rows, (_) => List.generate(columns, (_) => min + random.nextInt(max - min)));
 
-    // List<int> numberList=[];
-    // for(var i=0; numberList.length<columns; i++){
-    //   int randomNumber = min + random.nextInt(max - min);
-    //   if(!numberList.contains(randomNumber)) {
-    //     numberList.add(randomNumber);
-    //   }
-    //   numberList.sort();
-    // }
-    // print(numberList);
-
-    // var numberList = List.generate(rows, (_) => List.generate(columns, (_) => 0));
-    var numberList = List.generate(rows, (i) => List.filled(columns, 0, growable: false), growable: false);
-    print(numberList.length);
-    print(numberList[0].length);
-    for(int i=0; i<numberList.length; i++) {
-      // for(int j=0; j<numberList[i].length; j++) {
-      //   int randomNumber = min + random.nextInt(max - min);
-      //   // print(randomNumber);
-      //   if(!numberList[i].contains(randomNumber)) {
-      //     numberList[i][j] = randomNumber;
-      //   }
-      //   numberList[i].sort();
-      // }
-      while(!numberList[i].contains(0)) {
-        int j=0;
+    var randomSlots=[];
+    for(var row=0; row<maxRows; row++){
+      List<int> numberList=[];
+      for(var column=0; numberList.length<maxColumns; column++){
         int randomNumber = min + random.nextInt(max - min);
-        if(!numberList[i].contains(randomNumber)) {
-          numberList[i][j] = randomNumber;
+        if(!numberList.contains(randomNumber)) {
+          numberList.add(randomNumber);
         }
-        numberList[i].sort();
-        j++;
+        numberList.sort();
       }
+      // print(numberList.runtimeType);
+      // print(numberList);
+      randomSlots.add(numberList);
     }
-    print(numberList.runtimeType);
-    print(numberList);
+    print(randomSlots);
+    print(randomSlots.runtimeType);
 
 
-    // https://stackoverflow.com/questions/57860596/creating-a-2d-array-in-flutter-dart
+    // int randomNumber;
+    // var matrix = [
+    //   for(var row = 0; row < maxRows; row += 1)
+    //     [for(var column = 0; column < maxColumns; column += 1)
+    //       // 1 + row + column * maxRows
+    //        min + random.nextInt(max - min)
+    //     ],
+    // ];
+    // print(matrix);
+    // print(matrix.runtimeType);
 
-    // List<List<int>> , twoDList[0][1]
-    // List<List<int>> numberList=[rows][columns] as List<List<int>>;
-    // var nlist = [4,2,1,5];
-    // print(nlist.sort((a, b) => a.compareTo(b)));
-    // print(randomSlots.runtimeType);
-    // print(randomSlots.length);
-    // print(randomSlots[0]);
-    // print(randomSlots[0].runtimeType);
-    // print(randomSlots[0].sort((a, b) => a.compareTo(b)));
+
+
+    // // var numberList = List.generate(rows, (_) => List.generate(columns, (_) => 0));
+    // var numberList = List.generate(rows, (i) => List.filled(columns, 0, growable: false), growable: false);
+    // print(numberList.length);
+    // print(numberList[0].length);
+    // for(int i=0; i<numberList.length; i++) {
+    //   for(int j=0; j<numberList[i].length; j++) {
+    //     int randomNumber = min + random.nextInt(max - min);
+    //     // print(randomNumber);
+    //     if(!numberList[i].contains(randomNumber)) {
+    //       numberList[i][j] = randomNumber;
+    //     }
+    //     numberList[i].sort();
+    //   }
+    //   // while(!numberList[i].contains(0)) {
+    //   //   int j=0;
+    //   //   int randomNumber = min + random.nextInt(max - min);
+    //   //   if(!numberList[i].contains(randomNumber)) {
+    //   //     numberList[i][j] = randomNumber;
+    //   //   }
+    //   //   numberList[i].sort();
+    //   //   j++;
+    //   // }
+    // }
+
+
     return randomSlots;
   }
 }

@@ -8,6 +8,7 @@ https://github.com/simolus3/web3dart/issues/65
 
 dart multi dimensional list
 https://medium.com/flutter-community/working-with-multi-dimensional-list-in-dart-78ff332430a
+https://stackoverflow.com/questions/57860596/creating-a-2d-array-in-flutter-dart
 
 $ emulator -list-avds
 $ emulator -avd Pixel_XL_API_29 -port 5557
