@@ -135,7 +135,7 @@ class Web3DartHelper {
     // }
     // print(numberList);
 
-    var numberList = List.generate(rows, (_) => List.generate(columns, (_) => <int>[]));
+    var numberList = List.generate(rows, (_) => List.generate(columns, (_) => 0));
     // List<List<num>> numberList = List.generate(columns, (i) => new List(rows));
     // var numberList = List.generate(columns, (i) => List(rows), growable: false);
     // var numberList = List.generate(rows, (i) => [0,0,0,0,0,0], growable: false);
@@ -143,10 +143,10 @@ class Web3DartHelper {
     for(int i=0; i<numberList.length; i++) {
       for(int j=0; j<numberList[i].length; j++) {
         int randomNumber = min + random.nextInt(max - min);
-        if(!numberList[i][j].contains(randomNumber)) {
-          print(randomNumber);
-          numberList[i][j].add(randomNumber);
-          // numberList[i] = randomNumber as List<List<int>>;
+        // print(randomNumber);
+        if(!numberList[i].contains(randomNumber)) {
+          // numberList[i].add(randomNumber);
+          numberList[i][j] = randomNumber;
         }
         // numberList[i].add(numberList[i].sort());
         numberList[i].sort();
