@@ -2,11 +2,12 @@ import 'utilities/web3dartutil.dart';
 import 'package:flutter/material.dart';
 import 'package:eth_toto_board_flutter/output.dart';
 import 'package:eth_toto_board_flutter/generate.dart';
+import 'package:flutter_number_picker/flutter_number_picker.dart';
 
 void main() {
   runApp(
     const MaterialApp(
-        home: MyApp(),
+      home: MyApp(),
     ),
   );
 }
@@ -36,7 +37,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   // Initialize the Web3DartHelper class from utility packages
   Web3DartHelper web3util = Web3DartHelper();
-  var blkNum=0, allArrayData=[], arrayData=[], arrayLength, myAddress, balanceEther;
+  var blkNum=0, requestedRows = 1, allArrayData=[], arrayData=[], arrayLength, myAddress, balanceEther;
 
   @override
   void initState() {
@@ -62,20 +63,31 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Row(
-        children: <Widget>[
-          Expanded(
-            child: Text(
-              "BlockNum: $blkNum \nAddress: $myAddress \nBalance: $balanceEther(ETH) \nArray_Length: $arrayLength",
-              textScaleFactor: 2,
+        appBar: AppBar(
+          title: Text(widget.title),
+        ),
+        body: Row(
+          children: <Widget>[
+            Expanded(
+              child: Text(
+                "BlockNum: $blkNum \nAddress: $myAddress \nBalance: $balanceEther(ETH) \nArray_Length: $arrayLength",
+                textScaleFactor: 2,
+              ),
             ),
-          ),
-          const SizedBox(height: 50),
-        ],
-      ),
+            const SizedBox(height: 50),
+            CustomNumberPicker(
+              initialValue: 1,
+              maxValue: 10,
+              minValue: 1,
+              step: 1,
+              enable: true,
+              onValue: (value) {
+                // print(value.toString());
+                requestedRows = int.parse(value.toString());
+              },
+            ),
+          ],
+        ),
         floatingActionButton: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -92,11 +104,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
               ),
               ElevatedButton(
-                child: const Text("Generate"),
-                onPressed: (){
-                  var randomSlots = web3util.generateSlots();
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => GeneratedOutput(passedValue1: randomSlots),),);
-                }
+                  child: const Text("Generate"),
+                  onPressed: (){
+                    var randomSlots = web3util.generateSlots(requestedRows);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => GeneratedOutput(passedValue1: randomSlots),),);
+                  }
               )
             ]
         )

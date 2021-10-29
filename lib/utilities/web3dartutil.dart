@@ -117,13 +117,13 @@ class Web3DartHelper {
     return allArrayData;
   }
 
-  List<dynamic> generateSlots() {
+  List<dynamic> generateSlots(int maxRows) {
+    // Requested rows(length) x 6 columns(matrix)
+    int maxColumns = 6;
     // Define min and max value inclusive
     int min = 1, max = 45;
-    // Requested rows(length) x 6 columns(matrix)
-    int maxRows = 3, maxColumns = 6;
-    Random random = Random();
 
+    Random random = Random();
     var randomSlots=[];
     for(var row=0; row<maxRows; row++){
       List<int> numberList=[];
@@ -134,52 +134,10 @@ class Web3DartHelper {
         }
         numberList.sort();
       }
-      // print(numberList.runtimeType);
-      // print(numberList);
       randomSlots.add(numberList);
     }
-    print(randomSlots);
-    print(randomSlots.runtimeType);
-
-
-    // int randomNumber;
-    // var matrix = [
-    //   for(var row = 0; row < maxRows; row += 1)
-    //     [for(var column = 0; column < maxColumns; column += 1)
-    //       // 1 + row + column * maxRows
-    //        min + random.nextInt(max - min)
-    //     ],
-    // ];
-    // print(matrix);
-    // print(matrix.runtimeType);
-
-
-
-    // // var numberList = List.generate(rows, (_) => List.generate(columns, (_) => 0));
-    // var numberList = List.generate(rows, (i) => List.filled(columns, 0, growable: false), growable: false);
-    // print(numberList.length);
-    // print(numberList[0].length);
-    // for(int i=0; i<numberList.length; i++) {
-    //   for(int j=0; j<numberList[i].length; j++) {
-    //     int randomNumber = min + random.nextInt(max - min);
-    //     // print(randomNumber);
-    //     if(!numberList[i].contains(randomNumber)) {
-    //       numberList[i][j] = randomNumber;
-    //     }
-    //     numberList[i].sort();
-    //   }
-    //   // while(!numberList[i].contains(0)) {
-    //   //   int j=0;
-    //   //   int randomNumber = min + random.nextInt(max - min);
-    //   //   if(!numberList[i].contains(randomNumber)) {
-    //   //     numberList[i][j] = randomNumber;
-    //   //   }
-    //   //   numberList[i].sort();
-    //   //   j++;
-    //   // }
-    // }
-
-
+    // print(randomSlots);
+    // print(randomSlots.runtimeType);
     return randomSlots;
   }
 }
