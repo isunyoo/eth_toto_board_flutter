@@ -66,28 +66,43 @@ class _MyHomePageState extends State<MyHomePage> {
         appBar: AppBar(
           title: Text(widget.title),
         ),
-        body: Row(
-          children: <Widget>[
-            Expanded(
+        body: Column(children: <Widget>[
+          Row(
+            children: <Widget>[ Expanded(
+                child: Text(
+                  "BlockNum: $blkNum \nAddress: $myAddress \nBalance: $balanceEther(ETH) \nArray_Length: $arrayLength \n",
+                  textScaleFactor: 1.5,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: const <Widget>[ Expanded(
               child: Text(
-                "BlockNum: $blkNum \nAddress: $myAddress \nBalance: $balanceEther(ETH) \nArray_Length: $arrayLength",
-                textScaleFactor: 2,
+                "How Many Slots to generate:",
+                textScaleFactor: 1.5,
               ),
             ),
-            const SizedBox(height: 50),
-            CustomNumberPicker(
-              initialValue: 1,
-              maxValue: 10,
-              minValue: 1,
-              step: 1,
-              enable: true,
-              onValue: (value) {
-                // print(value.toString());
-                requestedRows = int.parse(value.toString());
-              },
-            ),
-          ],
-        ),
+            ],
+          ),
+          Row(
+            children: <Widget>[ Expanded(
+              child: Center(
+                child: CustomNumberPicker(
+                  initialValue: 1,
+                  maxValue: 10,
+                  minValue: 1,
+                  step: 1,
+                  enable: true,
+                  onValue: (value) {
+                  // print(value.toString());
+                  requestedRows = int.parse(value.toString());
+                  },
+                ),
+              )
+            ),],
+          ),
+        ],),
         floatingActionButton: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
