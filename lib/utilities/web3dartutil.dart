@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:flutter/services.dart';
 import 'package:web3dart/web3dart.dart';
@@ -29,7 +30,7 @@ class Web3DartHelper {
     return myAddress;
   }
 
-  Future<num> getBalance() async {
+  Future<num> getEthBalance() async {
     var _credentials = EthPrivateKey.fromHex(dotenv.get('Private_Key'));
     var myAddress = await _credentials.extractAddress();
     // print('address: $_address');
@@ -140,4 +141,26 @@ class Web3DartHelper {
     // print(randomSlots.runtimeType);
     return randomSlots;
   }
+
+  // Function to return USD conversion values
+  Future<String> getConvUSD() async {
+    num balanceUSD;
+    var balanceEther = await getEthBalance();
+    // Make a network request
+    Response response = await get(Uri.parse(dotenv.get('ETHSCAN_URL')));
+    // If the server did return a 200 OK response then parse the JSON.
+    if (response.statusCode == 200) {
+      // print(jsonDecode(response.body));
+      // print(jsonDecode(response.body)["USD"]);
+      // print(jsonDecode(response.body)["USD"].runtimeType);
+      // Get the current USD price of cryptocurrency conversion from API URL
+      balanceUSD = balanceEther * jsonDecode(response.body)["USD"];
+    } else {
+      // If the server did not return a 200 OK response then throw an exception.
+      throw Exception('Failed to load album');
+    }
+    // String roundedX = balanceUSD.toStringAsFixed(2);
+    return balanceUSD.toStringAsFixed(2);
+  }
+
 }

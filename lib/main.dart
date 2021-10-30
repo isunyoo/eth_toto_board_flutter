@@ -37,7 +37,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   // Initialize the Web3DartHelper class from utility packages
   Web3DartHelper web3util = Web3DartHelper();
-  var blkNum=0, requestedRows = 1, allArrayData=[], arrayData=[], arrayLength, myAddress, balanceEther;
+  late num blkNum=0, balanceEther=0;
+  late String balanceUsd='', arrayLength='';
+  var requestedRows=1, allArrayData=[], arrayData=[], myAddress;
 
   @override
   void initState() {
@@ -48,14 +50,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> initialSetup() async {
     await web3util.initState();
-    myAddress = await web3util.getAddress();
-    balanceEther = await web3util.getBalance();
     blkNum = await web3util.getBlkNum();
+    myAddress = await web3util.getAddress();
+    balanceEther = await web3util.getEthBalance();
+    balanceUsd = await web3util.getConvUSD();
     arrayLength = await web3util.getArrayLength();
     setState(() {
       blkNum;
       myAddress;
       balanceEther;
+      balanceUsd;
       arrayLength;
     });
   }
@@ -70,7 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Row(
             children: <Widget>[ Expanded(
                 child: Text(
-                  "BlockNum: $blkNum \nAddress: $myAddress \nBalance: $balanceEther(ETH) \nArray_Length: $arrayLength \n",
+                  "BlockNum: $blkNum \nAddress: $myAddress \nETH Balance: $balanceEther(ETH) \nUSD Balance: $balanceUsd(USD) \nArray_Length: $arrayLength \n",
                   textScaleFactor: 1.5,
                 ),
               ),
