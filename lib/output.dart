@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:eth_toto_board_flutter/main.dart';
 
-class Output extends StatelessWidget {
+class Output extends StatefulWidget {
   final List passedValue1, passedValue2;
   const Output({Key? key, required this.passedValue1, required this.passedValue2}) : super(key: key);
 
+  @override
+  State<Output> createState() => _OutputState();
+}
+
+class _OutputState extends State<Output> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -13,7 +18,7 @@ class Output extends StatelessWidget {
         automaticallyImplyLeading: false,
       ),
         body: Text(
-          '\nAll_ArrayData: $passedValue1 \n\nArray_Data: $passedValue2',
+          '\nAll_ArrayData: ${widget.passedValue1} \n\nArray_Data: ${widget.passedValue2}',
           textAlign: TextAlign.left,
           // overflow: TextOverflow.ellipsis,
           style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 25),

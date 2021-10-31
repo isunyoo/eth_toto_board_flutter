@@ -1,6 +1,5 @@
 import 'utilities/web3dartutil.dart';
 import 'package:flutter/material.dart';
-import 'package:eth_toto_board_flutter/output.dart';
 import 'package:eth_toto_board_flutter/generate.dart';
 import 'package:flutter_number_picker/flutter_number_picker.dart';
 
@@ -37,9 +36,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   // Initialize the Web3DartHelper class from utility packages
   Web3DartHelper web3util = Web3DartHelper();
+  var requestedRows=1, myAddress;
   late num blkNum=0, balanceEther=0;
   late String balanceUsd='', arrayLength='';
-  var requestedRows=1, allArrayData=[], arrayData=[], myAddress;
 
   @override
   void initState() {
@@ -108,30 +107,13 @@ class _MyHomePageState extends State<MyHomePage> {
             ],
           ),
         ],),
-        floatingActionButton: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              ElevatedButton(
-                child: const Text("Submit"),
-                onPressed: () async {
-                  allArrayData = await web3util.getAllArray();
-                  arrayData = await web3util.getArray(1);
-                  // await web3util.addData(3);
-                  var slotData = [[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12]];
-                  await web3util.pushArrayData(slotData);
-                  // Navigate to the output screen using a named route.
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => Output(passedValue1: allArrayData, passedValue2: arrayData),),);
-                },
-              ),
-              ElevatedButton(
-                  child: const Text("Generate"),
-                  onPressed: (){
-                    var randomSlots = web3util.generateSlots(requestedRows);
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => GeneratedOutput(passedValue1: randomSlots),),);
-                  }
-              )
-            ]
-        )
+        floatingActionButton: ElevatedButton(
+            child: const Text("Generate"),
+            onPressed: (){
+              var randomSlots = web3util.generateSlots(requestedRows);
+              Navigator.push(context, MaterialPageRoute(builder: (_) => GeneratedOutput(passedValue1: randomSlots),),);
+            }
+        ),
     );
   }
 }
