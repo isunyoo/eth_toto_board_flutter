@@ -75,36 +75,37 @@ class _MyHomePageState extends State<MyHomePage> {
             children: <Widget>[ Expanded(
                 child: Text(
                   "BlockNum: $blkNum \nAddress: $myAddress \nETH Balance: $balanceEther(ETH) \nUSD Balance: $balanceUsd(USD) \nArray_Length: $arrayLength \n",
-                  textScaleFactor: 1.5,
+                  textScaleFactor: 1.8,
                 ),
               ),
             ],
           ),
           Row(
-            children: const <Widget>[ Expanded(
-              child: Text(
-                "How Many Slots to generate:",
-                textScaleFactor: 1.5,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const Expanded(
+                child: Padding(
+                  padding: EdgeInsets.all(10.0),
+                       child: Text("How Many Slots:", textScaleFactor: 2),
+                  ),
               ),
-            ),
-            ],
-          ),
-          Row(
-            children: <Widget>[ Expanded(
-              child: Center(
-                child: CustomNumberPicker(
-                  initialValue: 1,
-                  maxValue: 10,
-                  minValue: 1,
-                  step: 1,
-                  enable: true,
-                  onValue: (value) {
-                  // print(value.toString());
-                  requestedRows = int.parse(value.toString());
-                  },
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 50.0),
+                     child: CustomNumberPicker(
+                       initialValue: 1,
+                       maxValue: 10,
+                       minValue: 1,
+                       step: 1,
+                       enable: true,
+                       onValue: (value) {
+                         // print(value.toString());
+                         requestedRows = int.parse(value.toString());
+                       },
+                     ),
                 ),
-              )
-            ),],
+              ),
+            ],
           ),
         ],),
         floatingActionButton: Column(

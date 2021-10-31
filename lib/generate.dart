@@ -16,7 +16,7 @@ class GeneratedOutput extends StatelessWidget {
         '\nGenerated Slots: $passedValue1',
         textAlign: TextAlign.left,
         // overflow: TextOverflow.ellipsis,
-        style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 15),
+        style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 30),
       ),
       floatingActionButton: ElevatedButton(
         child: const Text('Main'),
