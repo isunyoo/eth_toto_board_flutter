@@ -27,6 +27,42 @@ class _GeneratedOutputState extends State<GeneratedOutput> {
     await web3util.initState();
   }
 
+  Future<void> _showApproveDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('BlockChain Transaction'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: const <Widget>[
+                Text('This will submit to the Ethereum BlockChain Data.'),
+                Text('Would you like to approve of this transaction?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'Cancel'),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                // await web3util.addData(3);
+                var newSlotData = widget.passedValue1;
+                var newSlotDataLength = widget.passedValue1.length;
+                await web3util.pushArrayData(newSlotData);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => Output(passedValue1: newSlotData, passedValue2: newSlotDataLength),),);
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,14 +81,8 @@ class _GeneratedOutputState extends State<GeneratedOutput> {
             children: [
               ElevatedButton(
                 child: const Text("Submit"),
-                onPressed: () async {
-                  allArrayData = await web3util.getAllArray();
-                  arrayData = await web3util.getArray(1);
-                  // await web3util.addData(3);
-                  var slotData = [[1, 2, 3, 4, 5, 6], [7, 8, 9, 10, 11, 12]];
-                  await web3util.pushArrayData(slotData);
-                  // Navigate to the output screen using a named route.
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => Output(passedValue1: allArrayData, passedValue2: arrayData),),);
+                onPressed: () {
+                  _showApproveDialog();
                 },
               ),
               ElevatedButton(

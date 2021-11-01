@@ -7,6 +7,7 @@ void main() {
   runApp(
     const MaterialApp(
       home: MyApp(),
+      debugShowCheckedModeBanner: false,
     ),
   );
 }
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Ether Toto'),
+      home: const MyHomePage(title: 'Blockchain Ethereum Toto\n(성재의 인생역전 대박꿈)'),
     );
   }
 }
@@ -36,7 +37,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   // Initialize the Web3DartHelper class from utility packages
   Web3DartHelper web3util = Web3DartHelper();
-  var requestedRows=1, myAddress;
+  var allArrayData=[], requestedRows=1, myAddress;
   late num blkNum=0, balanceEther=0;
   late String balanceUsd='', arrayLength='';
 
@@ -54,12 +55,15 @@ class _MyHomePageState extends State<MyHomePage> {
     balanceEther = await web3util.getEthBalance();
     balanceUsd = await web3util.getConvUSD();
     arrayLength = await web3util.getArrayLength();
+    allArrayData = await web3util.getAllArray();
+    // arrayData = await web3util.getArray(1);
     setState(() {
       blkNum;
       myAddress;
       balanceEther;
       balanceUsd;
       arrayLength;
+      allArrayData;
     });
   }
 
@@ -73,10 +77,19 @@ class _MyHomePageState extends State<MyHomePage> {
           Row(
             children: <Widget>[ Expanded(
                 child: Text(
-                  "BlockNum: $blkNum \nAddress: $myAddress \nETH Balance: $balanceEther(ETH) \nUSD Balance: $balanceUsd(USD) \nArray_Length: $arrayLength \n",
+                  "BlockNum: $blkNum \nAddress: $myAddress \nETH Balance: $balanceEther(ETH) \nUSD Balance: $balanceUsd(USD) \n",
                   textScaleFactor: 1.8,
                 ),
               ),
+            ],
+          ),
+          Row(
+            children: <Widget>[ Expanded(
+              child: Text(
+                "Current Slot Numbers: $arrayLength \nCurrent Slot Data: $allArrayData \n",
+                textScaleFactor: 1.8,
+              ),
+            ),
             ],
           ),
           Row(
@@ -85,7 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
               const Expanded(
                 child: Padding(
                   padding: EdgeInsets.all(10.0),
-                       child: Text("How Many Slots:", textScaleFactor: 2),
+                       child: Text("How Many New Slots:", textScaleFactor: 1.7),
                   ),
               ),
               Expanded(
