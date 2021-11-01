@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.solidity.eth_toto_board_flutter">
    <application
-        android:label="eth_toto_board_flutter"
+        android:label="성재의 대박꿈"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

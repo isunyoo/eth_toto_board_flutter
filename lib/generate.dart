@@ -67,11 +67,11 @@ class _GeneratedOutputState extends State<GeneratedOutput> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Generated Slots'),
+        title: const Text('New Generated Slots'),
         automaticallyImplyLeading: false,
       ),
       body: Text(
-        '\nGenerated Slots: ${widget.passedValue1}',
+        '\nNewly Generated Slots: \n${widget.passedValue1}',
         textAlign: TextAlign.left,
         // overflow: TextOverflow.ellipsis,
         style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 30),

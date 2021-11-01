@@ -15,11 +15,11 @@ class _OutputState extends State<Output> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Transacted Data'),
+        title: const Text('Blockchain Transacted Data'),
         automaticallyImplyLeading: false,
       ),
         body: Text(
-          '\nNew Slot Numbers: ${widget.passedValue2} \n\nNew Slot Data: ${widget.passedValue1}',
+          '\nNewly Stored Slot Numbers: ${widget.passedValue2} \nNewly Stored Slot Data: \n${widget.passedValue1}',
           textAlign: TextAlign.left,
           // overflow: TextOverflow.ellipsis,
           style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 25),

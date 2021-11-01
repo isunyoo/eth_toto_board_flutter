@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Blockchain Ethereum Toto\n(성재의 인생역전 대박꿈)'),
+      home: const MyHomePage(title: 'Blockchain Ethereum Lotto(6/45)\n[성재의 인생역전 대박꿈]'),
     );
   }
 }
@@ -77,7 +77,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Row(
             children: <Widget>[ Expanded(
                 child: Text(
-                  "BlockNum: $blkNum \nAddress: $myAddress \nETH Balance: $balanceEther(ETH) \nUSD Balance: $balanceUsd(USD) \n",
+                  "Current BlockNum: $blkNum \nWallet Address: $myAddress \nETH Balance: $balanceEther(ETH) \nUSD Balance: $balanceUsd(USD) \n",
                   textScaleFactor: 1.8,
                 ),
               ),
@@ -86,7 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
           Row(
             children: <Widget>[ Expanded(
               child: Text(
-                "Current Slot Numbers: $arrayLength \nCurrent Slot Data: $allArrayData \n",
+                "Current Stored Slot Numbers: $arrayLength \nCurrent Stored Slot Data:\n$allArrayData \n",
                 textScaleFactor: 1.8,
               ),
             ),
@@ -97,13 +97,13 @@ class _MyHomePageState extends State<MyHomePage> {
             children: <Widget>[
               const Expanded(
                 child: Padding(
-                  padding: EdgeInsets.all(10.0),
-                       child: Text("How Many New Slots:", textScaleFactor: 1.7),
+                  padding: EdgeInsets.all(5.0),
+                       child: Text("How Many New Slots to create:", textScaleFactor: 1.8),
                   ),
               ),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 50.0),
+                  padding: const EdgeInsets.only(left: 120.0),
                      child: CustomNumberPicker(
                        initialValue: 1,
                        maxValue: 10,
