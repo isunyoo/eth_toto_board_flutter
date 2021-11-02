@@ -15,7 +15,8 @@ class Web3DartHelper {
     // Client class is the interface for HTTP clients that take care of maintaining persistent connections
     httpClient = Client();
     // Web3Client class used for for sending requests over an HTTP JSON-RPC API endpoint to Ethereum clients
-    ethClient = Web3Client(dotenv.get('Ganache_API'), httpClient);
+    // ethClient = Web3Client(dotenv.get('Ganache_API'), httpClient);
+    ethClient = Web3Client(dotenv.get('Ropsten_API'), httpClient);
   }
 
   Future<int> getBlkNum() async {
