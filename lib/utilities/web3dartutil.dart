@@ -110,7 +110,7 @@ class Web3DartHelper {
     return arrayData;
   }
 
-  Future<List<dynamic>> getAllArray() async {
+   Future<List<dynamic>> getAllArray() async {
     // Transaction of array_popAllData
     List<dynamic> result = await query("array_popAllData", []);
     // Returns list of results, in this case a list with all the arrays

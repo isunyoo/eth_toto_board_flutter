@@ -27,6 +27,7 @@ class _GeneratedOutputState extends State<GeneratedOutput> {
     await web3util.initState();
   }
 
+  // An alert dialog informs the user about situations that require acknowledgement.
   Future<void> _showApproveDialog() async {
     return showDialog<void>(
       context: context,
@@ -70,31 +71,48 @@ class _GeneratedOutputState extends State<GeneratedOutput> {
         title: const Text('New Generated Slots'),
         automaticallyImplyLeading: false,
       ),
-      body: Text(
-        '\nNewly Generated Slots: \n${widget.passedValue1}',
-        textAlign: TextAlign.left,
-        // overflow: TextOverflow.ellipsis,
-        style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 30),
-      ),
-        floatingActionButton: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              ElevatedButton(
-                child: const Text("Submit"),
-                onPressed: () {
-                  _showApproveDialog();
-                },
-              ),
-              ElevatedButton(
-                  child: const Text('Main'),
-                  // Within the OutputDataScreen widget
-                  onPressed: () {
-                    // Navigate to the main screen using a named route.
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const MyApp(),),);
-                  },
+      body: Column(children: <Widget>[
+        Row(
+          children: const <Widget>[ Expanded(
+            child: Text(
+              "\nNewly Generated Slots:",
+              textScaleFactor: 1.8,
+            ),
+          ),],
+        ),
+        Row(
+          children: <Widget>[ Expanded(
+              child: ListView.builder (
+                  shrinkWrap: true,
+                  scrollDirection: Axis.vertical,
+                  itemCount: widget.passedValue1.length,
+                  // A Separate Function called from itemBuilder
+                  itemBuilder: (BuildContext ctxt, int index) {
+                    return Text("${index+1}: " + widget.passedValue1[index].toString(), textScaleFactor: 2.0,);
+                  }
               )
-            ]
-        )
+          ),],
+        ),
+      ],),
+      floatingActionButton: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            ElevatedButton(
+              child: const Text("Submit"),
+              onPressed: () {
+                _showApproveDialog();
+              },
+            ),
+            ElevatedButton(
+                child: const Text('Main'),
+                // Within the OutputDataScreen widget
+                onPressed: () {
+                  // Navigate to the main screen using a named route.
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const MyApp(),),);
+                },
+            )
+          ]
+      )
     );
   }
 }

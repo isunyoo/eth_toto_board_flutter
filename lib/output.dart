@@ -11,6 +11,7 @@ class Output extends StatefulWidget {
 }
 
 class _OutputState extends State<Output> {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,13 +19,35 @@ class _OutputState extends State<Output> {
         title: const Text('Blockchain Transacted Data'),
         automaticallyImplyLeading: false,
       ),
-        body: Text(
-          '\nNewly Stored Slot Numbers: ${widget.passedValue2} \nNewly Stored Slot Data: \n${widget.passedValue1}',
-          textAlign: TextAlign.left,
-          // overflow: TextOverflow.ellipsis,
-          style: const TextStyle(fontWeight: FontWeight.normal, fontSize: 25),
+      body: Column(children: <Widget>[
+        Row(
+          children: <Widget>[ Expanded(
+            child: Text("\nNewly Stored Slot Numbers: ${widget.passedValue2}", textScaleFactor: 1.8),
+          ),],
         ),
-        floatingActionButton: ElevatedButton(
+        Row(
+          children: const <Widget>[ Expanded(
+            child: Text(
+              "Newly Stored Slot Data: ",
+              textScaleFactor: 1.8,
+            ),
+          ),],
+        ),
+        Row(
+          children: <Widget>[ Expanded(
+              child: ListView.builder (
+                  shrinkWrap: true,
+                  scrollDirection: Axis.vertical,
+                  itemCount: widget.passedValue1.length,
+                  // A Separate Function called from itemBuilder
+                  itemBuilder: (BuildContext ctxt, int index) {
+                    return Text("${index+1}: " + widget.passedValue1[index].toString(), textScaleFactor: 2.0);
+                  }
+              )
+          ),],
+        ),
+      ],),
+      floatingActionButton: ElevatedButton(
         child: const Text('Main'),
         // Within the OutputDataScreen widget
         onPressed: () {

@@ -70,63 +70,75 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-        ),
-        body: Column(children: <Widget>[
-          Row(
-            children: <Widget>[ Expanded(
-                child: Text(
-                  "Current BlockNum: $blkNum \nWallet Address: $myAddress \nETH Balance: $balanceEther(ETH) \nUSD Balance: $balanceUsd(USD) \n",
-                  textScaleFactor: 1.8,
-                ),
-              ),
-            ],
+      appBar: AppBar(
+        title: Text(widget.title),
+      ),
+      body: Column(children: <Widget>[
+        Row(
+          children: <Widget>[ Expanded(
+            child: Text(
+              "Wallet Address: $myAddress \nETH Balance: $balanceEther(ETH) \nUSD Balance: $balanceUsd(USD) \nCurrent BlockNum: $blkNum \n",
+              textScaleFactor: 1.6,
+            ),
           ),
-          Row(
-            children: <Widget>[ Expanded(
-              child: Text(
-                "Current Stored Slot Numbers: $arrayLength \nCurrent Stored Slot Data:\n$allArrayData \n",
-                textScaleFactor: 1.8,
+          ],
+        ),
+        Row(
+          children: const <Widget>[ Expanded(
+            child: Text(
+              "Current Stored Slot Data in BlockChain:",
+              textScaleFactor: 1.8,
+            ),
+          ),],
+        ),
+        Row(
+          children: <Widget>[ Expanded(
+              child: ListView.builder (
+                shrinkWrap: true,
+                scrollDirection: Axis.vertical,
+                itemCount: allArrayData.length,
+                // A Separate Function called from itemBuilder
+                itemBuilder: (BuildContext ctxt, int index) {
+                  return Text("${index+1}: " + allArrayData[index].toString(), textScaleFactor: 2.0);
+                }
+              )
+          ),],
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            const Expanded(
+              child: Padding(
+                padding: EdgeInsets.all(5.0),
+                     child: Text("\nHow Many New Slots to create:", textScaleFactor: 1.8),
+                ),
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 120.0),
+                   child: CustomNumberPicker(
+                     initialValue: 1,
+                     maxValue: 10,
+                     minValue: 1,
+                     step: 1,
+                     enable: true,
+                     onValue: (value) {
+                       // print(value.toString());
+                       requestedRows = int.parse(value.toString());
+                     },
+                   ),
               ),
             ),
-            ],
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              const Expanded(
-                child: Padding(
-                  padding: EdgeInsets.all(5.0),
-                       child: Text("How Many New Slots to create:", textScaleFactor: 1.8),
-                  ),
-              ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 120.0),
-                     child: CustomNumberPicker(
-                       initialValue: 1,
-                       maxValue: 10,
-                       minValue: 1,
-                       step: 1,
-                       enable: true,
-                       onValue: (value) {
-                         // print(value.toString());
-                         requestedRows = int.parse(value.toString());
-                       },
-                     ),
-                ),
-              ),
-            ],
-          ),
-        ],),
-        floatingActionButton: ElevatedButton(
-            child: const Text("Generate"),
-            onPressed: (){
-              var randomSlots = web3util.generateSlots(requestedRows);
-              Navigator.push(context, MaterialPageRoute(builder: (_) => GeneratedOutput(passedValue1: randomSlots),),);
-            }
+          ],
         ),
+      ],),
+      floatingActionButton: ElevatedButton(
+          child: const Text("Generate"),
+          onPressed: (){
+            var randomSlots = web3util.generateSlots(requestedRows);
+            Navigator.push(context, MaterialPageRoute(builder: (_) => GeneratedOutput(passedValue1: randomSlots),),);
+          }
+      ),
     );
   }
 }
