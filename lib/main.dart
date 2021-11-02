@@ -110,12 +110,12 @@ class _MyHomePageState extends State<MyHomePage> {
             const Expanded(
               child: Padding(
                 padding: EdgeInsets.all(5.0),
-                     child: Text("\nHow Many New Slots to create:", textScaleFactor: 1.8),
+                     child: Text("\nHow Many New Games to play :", textScaleFactor: 1.8),
                 ),
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.only(left: 120.0),
+                padding: const EdgeInsets.only(left: 100.0),
                    child: CustomNumberPicker(
                      initialValue: 1,
                      maxValue: 10,

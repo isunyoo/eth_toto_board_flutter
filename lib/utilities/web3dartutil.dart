@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart';
 import 'package:flutter/services.dart';
 import 'package:web3dart/web3dart.dart';
+import 'package:web_socket_channel/io.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Web3DartHelper {
@@ -15,8 +16,12 @@ class Web3DartHelper {
     // Client class is the interface for HTTP clients that take care of maintaining persistent connections
     httpClient = Client();
     // Web3Client class used for for sending requests over an HTTP JSON-RPC API endpoint to Ethereum clients
-    // ethClient = Web3Client(dotenv.get('Ganache_API'), httpClient);
-    ethClient = Web3Client(dotenv.get('Ropsten_API'), httpClient);
+    // ethClient = Web3Client(dotenv.get('Ganache_HTTP'), httpClient);
+    // ethClient = Web3Client(dotenv.get('Ropsten_HTTPS'), httpClient);
+    // WebSocket stream channels
+    ethClient = Web3Client(dotenv.get('Ropsten_HTTPS'), Client(), socketConnector: () {
+      return IOWebSocketChannel.connect(dotenv.get('Ropsten_Websockets')).cast<String>();
+    });
   }
 
   Future<int> getBlkNum() async {
