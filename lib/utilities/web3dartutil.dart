@@ -50,7 +50,8 @@ class Web3DartHelper {
   // Functions for reading the smart contract and submitting a transaction.
   Future<DeployedContract> loadContract() async {
     String abiCode = await rootBundle.loadString("assets/abi.json");
-    String contractAddress = dotenv.get('Contract_Address');
+    // String contractAddress = dotenv.get('Development_Contract_Address');
+    String contractAddress = dotenv.get('Ropsten_Contract_Address');
     final contract = DeployedContract(ContractAbi.fromJson(abiCode, "TotoSlots"), EthereumAddress.fromHex(contractAddress));
     return contract;
   }

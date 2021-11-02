@@ -115,7 +115,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.only(left: 100.0),
+                padding: const EdgeInsets.only(left: 120.0),
                    child: CustomNumberPicker(
                      initialValue: 1,
                      maxValue: 10,
