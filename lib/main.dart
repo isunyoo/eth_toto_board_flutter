@@ -6,8 +6,8 @@ import 'package:flutter_number_picker/flutter_number_picker.dart';
 void main() {
   runApp(
     const MaterialApp(
-      home: MyApp(),
       debugShowCheckedModeBanner: false,
+      home: MyApp(),
     ),
   );
 }
@@ -18,6 +18,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Ether Toto',
       theme: ThemeData(
         primarySwatch: Colors.blue,
