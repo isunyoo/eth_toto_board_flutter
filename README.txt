@@ -18,3 +18,6 @@ $ adb reverse --remove tcp:8545
 
 truffle(development)> accounts
 truffle(development)> opcode TotoSlots
+
+Obfuscating Android app
+$ flutter build apk --obfuscate --split-debug-info=/<project-name>/<directory>

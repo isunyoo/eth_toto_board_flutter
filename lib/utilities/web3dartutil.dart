@@ -24,19 +24,19 @@ class Web3DartHelper {
     });
   }
 
-  Future<int> getBlkNum() async {
+  Future<String> getBlkNum() async {
     int blkNum = await ethClient.getBlockNumber();
     // print('Current Block Number: $_blkNum');
-    return blkNum;
+    return blkNum.toString();
   }
 
-  Future<EthereumAddress> getAddress() async {
+  Future<String> getAddress() async {
     var _credentials = EthPrivateKey.fromHex(dotenv.get('Private_Key'));
     var myAddress = await _credentials.extractAddress();
-    return myAddress;
+    return myAddress.toString();
   }
 
-  Future<num> getEthBalance() async {
+  Future<String> getEthBalance() async {
     var _credentials = EthPrivateKey.fromHex(dotenv.get('Private_Key'));
     var myAddress = await _credentials.extractAddress();
     // print('address: $_address');
@@ -44,7 +44,7 @@ class Web3DartHelper {
     var balanceObj = await ethClient.getBalance(myAddress);
     var balanceEther = balanceObj.getValueInUnit(EtherUnit.ether);
     // print('balance before transaction: ${balanceObj.getInWei} wei (${balanceObj.getValueInUnit(EtherUnit.ether)} ether)');
-    return balanceEther;
+    return balanceEther.toStringAsFixed(4);
   }
 
   // Functions for reading the smart contract and submitting a transaction.
@@ -67,9 +67,15 @@ class Web3DartHelper {
             function: ethFunction,
             parameters: args,
             maxGas: 100000
-        ), chainId: 1337
+        ), chainId: 3 // 3:Ropsten, 1337:Development
     );
     return result;
+  }
+
+  // Get transaction receipt
+  Future<String> getTransactionDetails(String transactedHash) async {
+    var transactionInfo = await ethClient.getTransactionReceipt(transactedHash);
+    return(transactionInfo.toString());
   }
 
   Future<String> pushArrayData(List<dynamic> args) async {
@@ -78,6 +84,7 @@ class Web3DartHelper {
     print(args.runtimeType);
     // Transaction of array_pushData
     // var response = await submit("array_pushData", [args]);
+    // print(response);
     // Hash of the transaction record return(String)
     return response;
   }
@@ -161,7 +168,7 @@ class Web3DartHelper {
       // print(jsonDecode(response.body)["USD"]);
       // print(jsonDecode(response.body)["USD"].runtimeType);
       // Get the current USD price of cryptocurrency conversion from API URL
-      balanceUSD = balanceEther * jsonDecode(response.body)["USD"];
+      balanceUSD = double.parse(balanceEther) * jsonDecode(response.body)["USD"];
     } else {
       // If the server did not return a 200 OK response then throw an exception.
       throw Exception('Failed to load album');

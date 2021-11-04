@@ -38,9 +38,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   // Initialize the Web3DartHelper class from utility packages
   Web3DartHelper web3util = Web3DartHelper();
-  var allArrayData=[], requestedRows=1, myAddress;
-  late num blkNum=0, balanceEther=0;
-  late String balanceUsd='', arrayLength='';
+  var allArrayData=[], requestedRows=1;
+  late String blkNum='', myAddress='', balanceEther='', balanceUsd='', arrayLength='';
 
   @override
   void initState() {

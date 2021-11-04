@@ -50,11 +50,11 @@ class _GeneratedOutputState extends State<GeneratedOutput> {
             ),
             TextButton(
               onPressed: () async {
-                // await web3util.addData(3);
+                var response = await web3util.addData(3);
                 var newSlotData = widget.passedValue1;
                 var newSlotDataLength = widget.passedValue1.length;
-                await web3util.pushArrayData(newSlotData);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => Output(passedValue1: newSlotData, passedValue2: newSlotDataLength),),);
+                // await web3util.pushArrayData(newSlotData);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => Output(passedValue1: newSlotData, passedValue2: newSlotDataLength, passedValue3: response),),);
               },
               child: const Text('OK'),
             ),

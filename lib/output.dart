@@ -1,16 +1,34 @@
+import 'utilities/web3dartutil.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:eth_toto_board_flutter/main.dart';
+import 'package:eth_toto_board_flutter/receipt.dart';
 
 class Output extends StatefulWidget {
   final List passedValue1;
   final int passedValue2;
-  const Output({Key? key, required this.passedValue1, required this.passedValue2}) : super(key: key);
+  final String passedValue3;
+  const Output({Key? key, required this.passedValue1, required this.passedValue2, required this.passedValue3}) : super(key: key);
 
   @override
   State<Output> createState() => _OutputState();
 }
 
 class _OutputState extends State<Output> {
+  // Initialize the Web3DartHelper class from utility packages
+  Web3DartHelper web3util = Web3DartHelper();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    web3util.initState();
+  }
+
+  Future<void> initialSetup() async {
+    await web3util.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,15 +64,53 @@ class _OutputState extends State<Output> {
               )
           ),],
         ),
+        Row(
+          children: <Widget>[ Expanded(
+            // child: Text("\nTransacted Hash: ${widget.passedValue3}", textScaleFactor: 1.8),
+              child: RichText(
+                  text: TextSpan(
+                      children: [
+                        const TextSpan(
+                            style: TextStyle(color: Colors.black, fontSize: 25),
+                            text: "\nTransacted Hash: ",
+                        ),
+                        TextSpan(
+                            style: const TextStyle(color: Colors.blueAccent, fontSize: 20),
+                            text: "Click here details",
+                            recognizer: TapGestureRecognizer()..onTap =  () async{
+                              var url = "https://ropsten.etherscan.io/tx/${widget.passedValue3}";
+                              if (await canLaunch(url)) {
+                                await launch(url);
+                              } else {
+                                throw 'Could not launch $url';
+                              }
+                            }
+                        ),
+                      ]
+                  ))
+          ),],
+        ),
       ],),
-      floatingActionButton: ElevatedButton(
-        child: const Text('Main'),
-        // Within the OutputDataScreen widget
-        onPressed: () {
-          // Navigate to the main screen using a named route.
-          Navigator.push(context, MaterialPageRoute(builder: (_) => const MyApp(),),);
-        },
-      ),
+        floatingActionButton: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              ElevatedButton(
+                child: const Text("Receipt"),
+                onPressed: () async {
+                  var txReceipt = await web3util.getTransactionDetails(widget.passedValue3);
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => Receipt(passedValue1: txReceipt)));
+                },
+              ),
+              ElevatedButton(
+                child: const Text('Main'),
+                // Within the OutputDataScreen widget
+                onPressed: () {
+                  // Navigate to the main screen using a named route.
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const MyApp(),),);
+                },
+              )
+            ]
+        )
     );
   }
 }
