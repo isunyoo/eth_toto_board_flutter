@@ -38,7 +38,7 @@ class _GeneratedOutputState extends State<GeneratedOutput> {
           content: SingleChildScrollView(
             child: ListBody(
               children: const <Widget>[
-                Text('This will submit to the Ethereum BlockChain Data.'),
+                Text('This will submit to the Ethereum BlockChain to store data.\n'),
                 Text('Would you like to approve of this transaction?'),
               ],
             ),

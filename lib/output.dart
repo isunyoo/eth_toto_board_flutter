@@ -1,12 +1,9 @@
-import 'dart:io';
 import 'package:pdf/pdf.dart';
 import 'utilities/web3dartutil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:printing/printing.dart';
-import 'package:pdf/widgets.dart' as pdfw;
 import 'package:url_launcher/url_launcher.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:eth_toto_board_flutter/main.dart';
 
 class Output extends StatefulWidget {
@@ -22,6 +19,7 @@ class Output extends StatefulWidget {
 class _OutputState extends State<Output> {
   // Initialize the Web3DartHelper class from utility packages
   Web3DartHelper web3util = Web3DartHelper();
+  late AnimationController controller;
 
   @override
   void initState() {
@@ -34,28 +32,42 @@ class _OutputState extends State<Output> {
     await web3util.initState();
   }
 
+  // AlertDialog Wiget
+  void _showDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Transaction in Progress Alert!"),
+          content: const Text("Transaction is still processing, Try again later."),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   // PDF Creation
   Future<void> receiptPDF() async {
-    final pdf = pdfw.Document();
-    final googFont = await PdfGoogleFonts.nunitoExtraLight();
+    // Get transaction details
     String txReceipt = await web3util.getTransactionDetails(widget.passedValue3);
-    pdf.addPage(
-      pdfw.Page(
-        build: (pdfw.Context context) =>
-            pdfw.Center(
-              child: pdfw.Text(txReceipt, style: pdfw.TextStyle(font: googFont)),
-            ),
-      ),
-    );
-    // To save the pdf file using the path_provider library
-    Directory tempDir = await getTemporaryDirectory();
-    final file = File("${tempDir.path}/${widget.passedValue3}.pdf");
-    // Print an HTML document:
-    await Printing.layoutPdf(
-        onLayout: (PdfPageFormat format) async => await Printing.convertHtml(
-          format: format,
-          html: '<html><body><p><h1>$txReceipt</h1></p></body></html>',
-        ));
+    if(txReceipt.length<10) {
+      _showDialog(context);
+    } else if(txReceipt.length>200){
+      // Print an HTML document:
+      await Printing.layoutPdf(
+          onLayout: (PdfPageFormat format) async =>
+          await Printing.convertHtml(
+            format: format,
+            html: '<html><body><p><h1>$txReceipt</h1></p></body></html>',
+          ));
+    }
   }
 
   @override
@@ -100,7 +112,7 @@ class _OutputState extends State<Output> {
                         children: [
                           const TextSpan(
                             style: TextStyle(color: Colors.black, fontSize: 20),
-                            text: "\nTransacted Hash: ",
+                            text: "\nTransaction Hash: ",
                           ),
                           TextSpan(
                               style: const TextStyle(color: Colors.blueAccent, fontSize: 15),
