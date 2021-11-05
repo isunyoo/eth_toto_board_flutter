@@ -1,13 +1,13 @@
 import 'dart:io';
+import 'package:pdf/pdf.dart';
 import 'utilities/web3dartutil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:printing/printing.dart';
-import 'package:pdf/widgets.dart' as pw;
+import 'package:pdf/widgets.dart' as pdfw;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:eth_toto_board_flutter/main.dart';
-// import 'package:eth_toto_board_flutter/receipt.dart';
 
 class Output extends StatefulWidget {
   final List passedValue1;
@@ -35,35 +35,27 @@ class _OutputState extends State<Output> {
   }
 
   // PDF Creation
-  // https://pub.dev/packages/printing
-  // https://github.com/DavBfr/dart_pdf/blob/master/printing/example/lib/main.dart
   Future<void> receiptPDF() async {
-    final pdf = pw.Document();
-    // final ttf = await fontFromAssetBundle('assets/fonts/open-sans.ttf');
-    var txReceipt = await web3util.getTransactionDetails(widget.passedValue3);
+    final pdf = pdfw.Document();
+    final googFont = await PdfGoogleFonts.nunitoExtraLight();
+    String txReceipt = await web3util.getTransactionDetails(widget.passedValue3);
     pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) =>
-            pw.Center(
-              // child: pw.Text(txReceipt, style: pw.TextStyle(font: ttf, fontSize: 40)),
-              child: pw.Text(txReceipt, style: const pw.TextStyle(fontSize: 30)),
+      pdfw.Page(
+        build: (pdfw.Context context) =>
+            pdfw.Center(
+              child: pdfw.Text(txReceipt, style: pdfw.TextStyle(font: googFont)),
             ),
       ),
     );
-    Directory tempDir = await getTemporaryDirectory();
-    String tempPath = tempDir.path;
-    print(tempPath);
-    Directory appDocDir = await getApplicationDocumentsDirectory();
-    String appDocPath = appDocDir.path;
-    print(appDocPath);
     // To save the pdf file using the path_provider library
-    // final tempDir = await getTemporaryDirectory();
-    // final file = File("${tempDir.path}/${widget.passedValue3}.pdf");
-    // await file.writeAsBytes(await pdf.save());
-    // PdfPreview widget to display a pdf document
-    // PdfPreview(
-    //   build: (format) => pdf.save(),
-    // );
+    Directory tempDir = await getTemporaryDirectory();
+    final file = File("${tempDir.path}/${widget.passedValue3}.pdf");
+    // Print an HTML document:
+    await Printing.layoutPdf(
+        onLayout: (PdfPageFormat format) async => await Printing.convertHtml(
+          format: format,
+          html: '<html><body><p><h1>$txReceipt</h1></p></body></html>',
+        ));
   }
 
   @override
@@ -107,12 +99,12 @@ class _OutputState extends State<Output> {
                     text: TextSpan(
                         children: [
                           const TextSpan(
-                            style: TextStyle(color: Colors.black, fontSize: 25),
+                            style: TextStyle(color: Colors.black, fontSize: 20),
                             text: "\nTransacted Hash: ",
                           ),
                           TextSpan(
-                              style: const TextStyle(color: Colors.blueAccent, fontSize: 20),
-                              text: "Click here details",
+                              style: const TextStyle(color: Colors.blueAccent, fontSize: 15),
+                              text: "Click here details in Etherscan",
                               recognizer: TapGestureRecognizer()..onTap =  () async{
                                 var url = "https://ropsten.etherscan.io/tx/${widget.passedValue3}";
                                 if (await canLaunch(url)) {
@@ -133,8 +125,6 @@ class _OutputState extends State<Output> {
               ElevatedButton(
                 child: const Text("Receipt"),
                 onPressed: () async {
-                  // var txReceipt = await web3util.getTransactionDetails(widget.passedValue3);
-                  // Navigator.push(context, MaterialPageRoute(builder: (_) => Receipt(passedValue1: txReceipt)));
                   await receiptPDF();
                 },
               ),
