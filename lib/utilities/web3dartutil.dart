@@ -72,12 +72,6 @@ class Web3DartHelper {
     return result;
   }
 
-  // Get transaction receipt
-  Future<String> getTransactionDetails(String transactedHash) async {
-    var transactionInfo = await ethClient.getTransactionReceipt(transactedHash);
-    return(transactionInfo.toString());
-  }
-
   Future<String> pushArrayData(List<dynamic> args) async {
     var response = 'test';
     print(args);
@@ -130,6 +124,12 @@ class Web3DartHelper {
     // Returns list of results, in this case a list with all the arrays
     var allArrayData = result[0];
     return allArrayData;
+  }
+
+  // Get transaction receipt
+  Future<String> getTransactionDetails(String transactedHash) async {
+    var transactionInfo = await ethClient.getTransactionReceipt(transactedHash);
+    return(transactionInfo.toString());
   }
 
   List<dynamic> generateSlots(int maxRows) {
