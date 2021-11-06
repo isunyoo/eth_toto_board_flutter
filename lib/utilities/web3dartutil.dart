@@ -66,27 +66,26 @@ class Web3DartHelper {
             contract: contract,
             function: ethFunction,
             parameters: args,
-            maxGas: 100000
+            // maxGas: 100000
+            maxGas: 6000000
         ), chainId: 3 // 3:Ropsten, 1337:Development
     );
     return result;
   }
 
-  // https://github.com/dart-lang/sdk/issues/32803
   Future<String> pushArrayData(List<dynamic> args) async {
-    // var transactionHash = 'test';
-    print(args);
-    print(args.runtimeType);
-    // (args as List<dynamic>).forEach((element) {
-    //   if (element is int)
-    //     args.add((element).toBigInt());
-    //   else
-    //     args.add(element);
-    // });
+    // Conversion BigInt Array
     List<dynamic> bigIntsList = [];
-    // BigInt bigNum = BigInt.from(num);
+    for(var row=0; row<args.length; row++){
+      List<BigInt> bigNumberList=[];
+      for(var column=0; column<args[row].length; column++){
+        // print(args[row][column]);
+        bigNumberList.add(BigInt.from(args[row][column]));
+      }
+      bigIntsList.add(bigNumberList);
+    }
     // Transaction of array_pushData
-    var transactionHash = await submit("array_pushData", [args]);
+    var transactionHash = await submit("array_pushData", [bigIntsList]);
     print(transactionHash);
     // Hash of the transaction record return(String)
     return transactionHash;

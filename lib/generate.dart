@@ -52,7 +52,6 @@ class _GeneratedOutputState extends State<GeneratedOutput> {
               onPressed: () async {
                 var newSlotData = widget.passedValue1;
                 var newSlotDataLength = widget.passedValue1.length;
-                // var transactionHash = await web3util.addData(3);
                 var transactionHash = await web3util.pushArrayData(newSlotData);
                 Navigator.push(context, MaterialPageRoute(builder: (_) => Output(passedValue1: newSlotData, passedValue2: newSlotDataLength, passedValue3: transactionHash),),);
               },
