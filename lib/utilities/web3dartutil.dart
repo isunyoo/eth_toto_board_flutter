@@ -72,6 +72,7 @@ class Web3DartHelper {
     return result;
   }
 
+  // https://github.com/dart-lang/sdk/issues/32803
   Future<String> pushArrayData(List<dynamic> args) async {
     // var transactionHash = 'test';
     print(args);
