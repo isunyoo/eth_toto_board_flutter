@@ -73,23 +73,31 @@ class Web3DartHelper {
   }
 
   Future<String> pushArrayData(List<dynamic> args) async {
-    var response = 'test';
+    // var transactionHash = 'test';
     print(args);
     print(args.runtimeType);
+    // (args as List<dynamic>).forEach((element) {
+    //   if (element is int)
+    //     args.add((element).toBigInt());
+    //   else
+    //     args.add(element);
+    // });
+    List<dynamic> bigIntsList = [];
+    // BigInt bigNum = BigInt.from(num);
     // Transaction of array_pushData
-    // var response = await submit("array_pushData", [args]);
-    // print(response);
+    var transactionHash = await submit("array_pushData", [args]);
+    print(transactionHash);
     // Hash of the transaction record return(String)
-    return response;
+    return transactionHash;
   }
 
   Future<String> addData(int num) async {
     // uint in smart contract means BigInt
     var bigNum = BigInt.from(num);
     // Transaction of array_pushData
-    var response = await submit("addData", [bigNum]);
+    var transactionHash = await submit("addData", [bigNum]);
     // Hash of the transaction record return(String)
-    return response;
+    return transactionHash;
   }
 
   // The query() function stores the result using the Web3Client call method, which Calls a function defined in the smart contract and returns it's result.
