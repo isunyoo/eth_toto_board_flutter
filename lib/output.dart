@@ -7,6 +7,7 @@ import 'package:flutter/gestures.dart';
 import 'package:printing/printing.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:eth_toto_board_flutter/main.dart';
+import 'package:eth_toto_board_flutter/blocknumvault.dart';
 
 class Output extends StatefulWidget {
   final List passedValue1;
@@ -75,12 +76,26 @@ class _OutputState extends State<Output> {
   // Record transaction block
   // https://stackoverflow.com/questions/51807228/writing-to-a-local-json-file-dart-flutter
   // https://gist.github.com/tomasbaran/f6726922bfa59ffcf07fa8c1663f2efc
-  Future<void> saveTransactionBlock() async {
-    String jsonString = await rootBundle.loadString('blockNumVault.json');
+  // Fetch content from the json file
+  Future<void> readTransactionBlockJson() async {
+    final String jsonString = await rootBundle.loadString('assets/blockNumVault.json');
+    final jsonResponse = await json.decode(jsonString);
+    // Map<String> blockNumMap = jsonDecode(jsonString);
+    // setState(() {
+    //   _items = jsonResponse["items"];
+    // });
+    // var blockNum = BlockNumber.fromJson(blockNumMap);
+    // print('blockNum: ${blockNum.blockNumber}');
+
+    print('blockNum: ${jsonResponse.blockNumber}');
+  }
+
+  Future<void> writeTransactionBlockJson() async {
+    String jsonString = await rootBundle.loadString('assets/blockNumVault.json');
     final jsonResponse = json.decode(jsonString);
     var add = jsonResponse.toString();
     // add = add.replaceFirst(new RegExp(r'}]'), "},"+content.toString()+"]");
-    print(add);
+    print('Json Content :' + add);
 
     // Get transaction block
     var transactionBlock = await web3util.getTransactionBlock(widget.passedValue3);
@@ -161,7 +176,8 @@ class _OutputState extends State<Output> {
                 child: const Text('Main'),
                 // Within the OutputDataScreen widget
                 onPressed: () async {
-                  await saveTransactionBlock();
+                  await writeTransactionBlockJson();
+                  // await readTransactionBlockJson();
                   // Navigate to the main screen using a named route.
                   Navigator.push(context, MaterialPageRoute(builder: (_) => const MyApp(),),);
                 },
