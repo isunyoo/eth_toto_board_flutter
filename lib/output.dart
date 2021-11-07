@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:pdf/pdf.dart';
 import 'utilities/web3dartutil.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:printing/printing.dart';
@@ -68,6 +70,21 @@ class _OutputState extends State<Output> {
             html: '<html><body><p><h1>$txReceipt</h1></p></body></html>',
           ));
     }
+  }
+
+  // Record transaction block
+  // https://stackoverflow.com/questions/51807228/writing-to-a-local-json-file-dart-flutter
+  // https://gist.github.com/tomasbaran/f6726922bfa59ffcf07fa8c1663f2efc
+  Future<void> saveTransactionBlock() async {
+    String jsonString = await rootBundle.loadString('blockNumVault.json');
+    final jsonResponse = json.decode(jsonString);
+    var add = jsonResponse.toString();
+    // add = add.replaceFirst(new RegExp(r'}]'), "},"+content.toString()+"]");
+    print(add);
+
+    // Get transaction block
+    var transactionBlock = await web3util.getTransactionBlock(widget.passedValue3);
+    print('block: ' + transactionBlock);
   }
 
   @override
@@ -143,7 +160,8 @@ class _OutputState extends State<Output> {
               ElevatedButton(
                 child: const Text('Main'),
                 // Within the OutputDataScreen widget
-                onPressed: () {
+                onPressed: () async {
+                  await saveTransactionBlock();
                   // Navigate to the main screen using a named route.
                   Navigator.push(context, MaterialPageRoute(builder: (_) => const MyApp(),),);
                 },

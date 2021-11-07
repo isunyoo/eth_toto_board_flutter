@@ -66,10 +66,10 @@ class Web3DartHelper {
             contract: contract,
             function: ethFunction,
             parameters: args,
-            // maxGas: 100000
             maxGas: 6000000
         ), chainId: 3 // 3:Ropsten, 1337:Development
     );
+    await ethClient.dispose();
     return result;
   }
 
@@ -86,7 +86,6 @@ class Web3DartHelper {
     }
     // Transaction of array_pushData
     var transactionHash = await submit("array_pushData", [bigIntsList]);
-    print(transactionHash);
     // Hash of the transaction record return(String)
     return transactionHash;
   }
@@ -134,10 +133,19 @@ class Web3DartHelper {
     return allArrayData;
   }
 
-  // Get transaction receipt
-  Future<String> getTransactionDetails(String transactedHash) async {
-    var transactionInfo = await ethClient.getTransactionReceipt(transactedHash);
+  // Get transaction details receipt
+  Future<String> getTransactionDetails(String transactionHash) async {
+    var transactionInfo = await ethClient.getTransactionReceipt(transactionHash);
     return(transactionInfo.toString());
+  }
+
+  // Get transaction block
+  Future<String> getTransactionBlock(String transactedHash) async {
+    var transactionInfo = await ethClient.getTransactionReceipt(transactedHash);
+    if (transactionInfo == null) {
+      return '';
+    }
+    return transactionInfo.blockNumber.toString();
   }
 
   List<dynamic> generateSlots(int maxRows) {
