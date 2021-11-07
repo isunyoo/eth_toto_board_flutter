@@ -1,5 +1,9 @@
+import 'dart:convert';
 import 'utilities/web3dartutil.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:eth_toto_board_flutter/generate.dart';
 import 'package:flutter_number_picker/flutter_number_picker.dart';
 
@@ -39,7 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // Initialize the Web3DartHelper class from utility packages
   Web3DartHelper web3util = Web3DartHelper();
   var allArrayData=[], requestedRows=1;
-  late String blkNum='', myAddress='', balanceEther='', balanceUsd='', arrayLength='';
+  late String currentBlkNum='', storedBlkNum='', myAddress='', balanceEther='', balanceUsd='', arrayLength='';
 
   @override
   void initState() {
@@ -50,7 +54,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> initialSetup() async {
     await web3util.initState();
-    blkNum = await web3util.getBlkNum();
+    currentBlkNum = await web3util.getBlkNum();
+    storedBlkNum = await readTransactionInfoJson();
     myAddress = await web3util.getAddress();
     balanceEther = await web3util.getEthBalance();
     balanceUsd = await web3util.getConvUSD();
@@ -58,13 +63,22 @@ class _MyHomePageState extends State<MyHomePage> {
     allArrayData = await web3util.getAllArray();
     // arrayData = await web3util.getArray(1);
     setState(() {
-      blkNum;
+      currentBlkNum;
+      storedBlkNum;
       myAddress;
       balanceEther;
       balanceUsd;
       arrayLength;
       allArrayData;
     });
+  }
+
+  // Read transaction info to json file
+  Future<String> readTransactionInfoJson() async {
+    // Fetch content from the json file
+    final String jsonString = await rootBundle.loadString('assets/transactionInfoVault.json');
+    final jsonResponse = await json.decode(jsonString);
+    return jsonResponse["blockNumber"];
   }
 
   @override
@@ -77,18 +91,35 @@ class _MyHomePageState extends State<MyHomePage> {
         Row(
           children: <Widget>[ Expanded(
             child: Text(
-              "Wallet Address: $myAddress \nETH Balance: $balanceEther(ETH) \nUSD Balance: $balanceUsd(USD) \nCurrent BlockNum: $blkNum \n",
+              "Wallet Address: $myAddress \nETH Balance: $balanceEther(ETH) \nUSD Balance: $balanceUsd(USD) \nCurrent BlockNum: $currentBlkNum \n",
               textScaleFactor: 1.6,
             ),
           ),
           ],
         ),
         Row(
-          children: const <Widget>[ Expanded(
-            child: Text(
-              "Current Stored Slot Data in BlockChain:",
-              textScaleFactor: 1.8,
-            ),
+          children: <Widget>[ Expanded(
+              child: RichText(
+                  text: TextSpan(
+                      children: [
+                        const TextSpan(
+                          style: TextStyle(color: Colors.black, fontSize: 23),
+                          text: "Current Stored Slot Data \nat BlockChain Block ",
+                        ),
+                        TextSpan(
+                            style: const TextStyle(color: Colors.blueAccent, fontSize: 20),
+                            text: storedBlkNum,
+                            recognizer: TapGestureRecognizer()..onTap =  () async{
+                              var url = "https://ropsten.etherscan.io/block/$storedBlkNum";
+                              if (await canLaunch(url)) {
+                                await launch(url);
+                              } else {
+                                throw 'Could not launch $url';
+                              }
+                            }
+                        ),
+                      ]
+                  ))
           ),],
         ),
         Row(

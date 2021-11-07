@@ -68,7 +68,7 @@ flutter:
   assets:
     - .env
     - abi.json
-    - blockNumVault.json
+    - transactionInfoVault.json
 #    - images/a_dot_burr.jpeg
 #    - images/a_dot_ham.jpeg
 
