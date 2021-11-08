@@ -104,7 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       children: [
                         const TextSpan(
                           style: TextStyle(color: Colors.black, fontSize: 23),
-                          text: "Current Stored Slot Data \nat BlockChain Block ",
+                          text: "Current Stored Slot Data \nat BlockChain ",
                         ),
                         TextSpan(
                             style: const TextStyle(color: Colors.blueAccent, fontSize: 20),

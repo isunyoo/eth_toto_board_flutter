@@ -80,13 +80,20 @@ class _OutputState extends State<Output> {
     // Fetch content from the json file
     String jsonString = await rootBundle.loadString('assets/transactionInfoVault.json');
     final jsonResponse = json.decode(jsonString);
-    var add = jsonResponse["blockNumber"].toString();
-    // add = add.replaceFirst(new RegExp(r'}]'), "},"+content.toString()+"]");
-    print('Json Content :' + add);
+
+    // jsonResponse['blockNumber']; // dynamic
+    // jsonResponse['transactionHash']; // dynamic
 
     // Get transaction block
     var transactionBlock = await web3util.getTransactionBlock(widget.passedValue3);
-    print('block: ' + transactionBlock);
+    final jsonData = '{ "blockNumber": $transactionBlock, "transactionHash": ${widget.passedValue3} }';
+    final parsedJson = jsonDecode(jsonData);
+    final restaurant = TransactionInfo.fromJson(parsedJson);
+
+    // Map<String, dynamic> jsonFileContent = json.decode(jsonFile.readAsStringSync());
+    // jsonFileContent.addAll(content);
+    // jsonFile.writeAsStringSync(JSON.encode(jsonFileContent));
+
 
     // // update the list
     // _listQuestions.firstWhere((question) => question.id == questionId).bookmark = isBookmark;
