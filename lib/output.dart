@@ -74,15 +74,12 @@ class _OutputState extends State<Output> {
   }
 
   // https://medium.com/flutter-community/parsing-complex-json-in-flutter-747c46655f51
+  // https://stackoverflow.com/questions/68899195/how-to-update-data-in-local-json-file-in-flutter-dart
   // Write transaction info to json file
   Future<void> writeTransactionBlockJson() async {
     // Fetch content from the json file
     String jsonString = await rootBundle.loadString('assets/transactionInfoVault.json');
     final jsonResponse = json.decode(jsonString);
-
-    // jsonResponse['blockNumber']; // dynamic
-    // jsonResponse['transactionHash']; // dynamic
-
     // Get transaction block
     var transactionBlock = await web3util.getTransactionBlock(widget.passedValue3);
     final jsonData = '{ "blockNumber": "$transactionBlock", "transactionHash": "${widget.passedValue3}" }';
@@ -90,6 +87,14 @@ class _OutputState extends State<Output> {
     print('Result1: $parsedJson');  // Result1: {blockNumber: 11386228, transactionHash: 0xfc75898e3272d78f0bc9e0f9ce8e7b809c8594acfcbf3450f15c6aec84802659}
     final result = TransactionInfo.fromJson(parsedJson);
     print('Result2: $result');   // I/flutter (12495): Result: Instance of 'TransactionInfo'
+
+
+    String transactionInfoJson = json.encode(jsonString);
+    List<TransactionInfo> users = json.decode(transactionInfoJson);
+    users[0]['blockNumber'] = transactionBlock;
+    users[0]['transactionHash'] = widget.passedValue3;
+    transactionInfoJson = json.encode(users);
+
 
     // Map<String, dynamic> jsonFileContent = json.decode(jsonFile.readAsStringSync());
     // jsonFileContent.addAll(content);

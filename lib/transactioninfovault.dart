@@ -11,5 +11,11 @@ class TransactionInfo {
     final transactionHash = data['transactionHash'] as String;
     return TransactionInfo(blockNumber: blockNumber, transactionHash: transactionHash);
   }
-}
 
+  Map<String, dynamic> toJson() {
+    return <String, dynamic>{
+      'blockNumber': blockNumber,
+      'transactionHash': transactionHash
+    };
+  }
+}
