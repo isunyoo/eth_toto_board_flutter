@@ -80,13 +80,32 @@ class _MyHomePageState extends State<MyHomePage> {
     // Retrieve "AppData Directory" for Android and "NSApplicationSupportDirectory" for iOS
     final directory = await getApplicationDocumentsDirectory();
     // Fetch a json file
-    File file = await File("${directory.path}/transactionInfoVault.json").create();
-    // Read the file from the json file
-    final contents = await file.readAsString();
-    final jsonContents = await json.decode(contents);
-    // Fetch content from the json file
-    storedBlkNum = jsonContents['blockNumber'];
-    storedTxHash = jsonContents['transactionHash'];
+    // File file = await File("${directory.path}/transactionInfoVault.json").create();
+    File file = await File("${directory.path}/transactionInfoVault.json").readAsBytesSync();
+    var fileExist = await file.exists();
+    print(fileExist);
+    // if(fileExist) {
+    //   // String dummy contents
+    //   String fileContent=json.encode({
+    //     "blockNumber": "0",
+    //     "transactionHash": "0x"
+    //   });
+    //   // Write to file using dummy contents
+    //   await file.writeAsString(fileContent);
+    //   // Read the file from the json file
+    //   final contents = await file.readAsString();
+    //   final jsonContents = await json.decode(contents);
+    //   // Fetch content from the json file
+    //   storedBlkNum = jsonContents['blockNumber'];
+    //   storedTxHash = jsonContents['transactionHash'];
+    // } else {
+    //   // Read the file from the json file
+    //   final contents = await file.readAsString();
+    //   final jsonContents = await json.decode(contents);
+    //   // Fetch content from the json file
+    //   storedBlkNum = jsonContents['blockNumber'];
+    //   storedTxHash = jsonContents['transactionHash'];
+    // }
   }
 
   @override
