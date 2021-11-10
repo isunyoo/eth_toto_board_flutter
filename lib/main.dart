@@ -1,9 +1,10 @@
+import 'dart:io';
 import 'dart:convert';
 import 'utilities/web3dartutil.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:eth_toto_board_flutter/generate.dart';
 import 'package:flutter_number_picker/flutter_number_picker.dart';
 
@@ -43,7 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // Initialize the Web3DartHelper class from utility packages
   Web3DartHelper web3util = Web3DartHelper();
   var allArrayData=[], requestedRows=1;
-  late String currentBlkNum='', storedBlkNum='', myAddress='', balanceEther='', balanceUsd='', arrayLength='';
+  late String currentBlkNum='', storedBlkNum='', storedTxHash='', myAddress='', balanceEther='', balanceUsd='', arrayLength='';
 
   @override
   void initState() {
@@ -54,8 +55,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Future<void> initialSetup() async {
     await web3util.initState();
+    await readTransactionInfoJson();
     currentBlkNum = await web3util.getBlkNum();
-    storedBlkNum = await readTransactionInfoJson();
     myAddress = await web3util.getAddress();
     balanceEther = await web3util.getEthBalance();
     balanceUsd = await web3util.getConvUSD();
@@ -65,6 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       currentBlkNum;
       storedBlkNum;
+      storedTxHash;
       myAddress;
       balanceEther;
       balanceUsd;
@@ -74,11 +76,17 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   // Read transaction info to json file
-  Future<String> readTransactionInfoJson() async {
+  Future<void> readTransactionInfoJson() async {
+    // Retrieve "AppData Directory" for Android and "NSApplicationSupportDirectory" for iOS
+    final directory = await getApplicationDocumentsDirectory();
+    // Fetch a json file
+    File file = await File("${directory.path}/transactionInfoVault.json").create();
+    // Read the file from the json file
+    final contents = await file.readAsString();
+    final jsonContents = await json.decode(contents);
     // Fetch content from the json file
-    final String jsonString = await rootBundle.loadString('assets/transactionInfoVault.json');
-    final jsonResponse = await json.decode(jsonString);
-    return jsonResponse["blockNumber"];
+    storedBlkNum = jsonContents['blockNumber'];
+    storedTxHash = jsonContents['transactionHash'];
   }
 
   @override
@@ -110,7 +118,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             style: const TextStyle(color: Colors.blueAccent, fontSize: 20),
                             text: storedBlkNum,
                             recognizer: TapGestureRecognizer()..onTap =  () async{
-                              var url = "https://ropsten.etherscan.io/block/$storedBlkNum";
+                              var url = "https://ropsten.etherscan.io/tx/$storedTxHash";
                               if (await canLaunch(url)) {
                                 await launch(url);
                               } else {

@@ -1,13 +1,13 @@
+import 'dart:io';
 import 'dart:convert';
 import 'package:pdf/pdf.dart';
 import 'utilities/web3dartutil.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:printing/printing.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:eth_toto_board_flutter/main.dart';
-import 'package:eth_toto_board_flutter/transactioninfovault.dart';
 
 class Output extends StatefulWidget {
   final List passedValue1;
@@ -62,7 +62,7 @@ class _OutputState extends State<Output> {
     String txReceipt = await web3util.getTransactionDetails(widget.passedValue3);
     if(txReceipt.length<10) {
       _showDialog(context);
-    } else if(txReceipt.length>200){
+    } else if(txReceipt.length>200) {
       // Print an HTML document:
       await Printing.layoutPdf(
           onLayout: (PdfPageFormat format) async =>
@@ -73,38 +73,21 @@ class _OutputState extends State<Output> {
     }
   }
 
-  // https://medium.com/flutter-community/parsing-complex-json-in-flutter-747c46655f51
-  // https://stackoverflow.com/questions/68899195/how-to-update-data-in-local-json-file-in-flutter-dart
   // Write transaction info to json file
-  Future<void> writeTransactionBlockJson() async {
-    // Fetch content from the json file
-    String jsonString = await rootBundle.loadString('assets/transactionInfoVault.json');
-    final jsonResponse = json.decode(jsonString);
+  Future<void> writeTransactionInfoJson() async {
+    // Retrieve "AppData Directory" for Android and "NSApplicationSupportDirectory" for iOS
+    final directory = await getApplicationDocumentsDirectory();
+    // Fetch a json file
+    File file = await File("${directory.path}/transactionInfoVault.json").create();
     // Get transaction block
     var transactionBlock = await web3util.getTransactionBlock(widget.passedValue3);
-    final jsonData = '{ "blockNumber": "$transactionBlock", "transactionHash": "${widget.passedValue3}" }';
-    final parsedJson = jsonDecode(jsonData);
-    print('Result1: $parsedJson');  // Result1: {blockNumber: 11386228, transactionHash: 0xfc75898e3272d78f0bc9e0f9ce8e7b809c8594acfcbf3450f15c6aec84802659}
-    final result = TransactionInfo.fromJson(parsedJson);
-    print('Result2: $result');   // I/flutter (12495): Result: Instance of 'TransactionInfo'
-
-
-    String transactionInfoJson = json.encode(jsonString);
-    List<TransactionInfo> users = json.decode(transactionInfoJson);
-    users[0]['blockNumber'] = transactionBlock;
-    users[0]['transactionHash'] = widget.passedValue3;
-    transactionInfoJson = json.encode(users);
-
-
-    // Map<String, dynamic> jsonFileContent = json.decode(jsonFile.readAsStringSync());
-    // jsonFileContent.addAll(content);
-    // jsonFile.writeAsStringSync(JSON.encode(jsonFileContent));
-
-
-    // // update the list
-    // _listQuestions.firstWhere((question) => question.id == questionId).bookmark = isBookmark;
-    // // and write it
-    // jsonFile.writeAsStringSync(json.encode(_listQuestions));
+    // Convert json object to String data using json.encode() method
+    String fileContent=json.encode({
+      "blockNumber": transactionBlock,
+      "transactionHash": widget.passedValue3
+    });
+    // Write to file using writeAsString which takes string argument
+    await file.writeAsString(fileContent);
   }
 
   @override
@@ -180,9 +163,15 @@ class _OutputState extends State<Output> {
                 child: const Text('Main'),
                 // Within the OutputDataScreen widget
                 onPressed: () async {
-                  await writeTransactionBlockJson();
-                  // Navigate to the main screen using a named route.
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const MyApp(),),);
+                  // Get transaction details
+                  String txReceipt = await web3util.getTransactionDetails(widget.passedValue3);
+                  if(txReceipt.length<10) {
+                    _showDialog(context);
+                  } else if(txReceipt.length>200) {
+                    await writeTransactionInfoJson();
+                    // Navigate to the main screen using a named route.
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const MyApp(),),);
+                  }
                 },
               )
             ]
