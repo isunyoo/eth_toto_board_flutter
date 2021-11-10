@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:eth_toto_board_flutter/generate.dart';
+import 'package:eth_toto_board_flutter/qrgenerator.dart';
 import 'package:flutter_number_picker/flutter_number_picker.dart';
 
 void main() {
@@ -109,7 +110,7 @@ class _MyHomePageState extends State<MyHomePage> {
         Row(
           children: <Widget>[ Expanded(
             child: Text(
-              "Wallet Address: $myAddress \nETH Balance: $balanceEther(ETH) \nUSD Balance: $balanceUsd(USD) \nCurrent BlockNum: $currentBlkNum \n",
+              "Wallet Address: $myAddress \nETH Balance: $balanceEther(ETH) \nUSD Balance: $balanceUsd(USD) \nCurrent BlockNum: $currentBlkNum",
               textScaleFactor: 1.6,
             ),
           ),
@@ -120,9 +121,25 @@ class _MyHomePageState extends State<MyHomePage> {
               child: RichText(
                   text: TextSpan(
                       children: [
+                        TextSpan(
+                            style: const TextStyle(color: Colors.blueAccent, fontSize: 20),
+                            text: 'Account Details',
+                            recognizer: TapGestureRecognizer()..onTap =  () async{
+                              Navigator.push(context, MaterialPageRoute(builder: (_) => QRGenerator(passedValue1: myAddress)));
+                            }
+                        ),
+                      ]
+                  ))
+          ),],
+        ),
+        Row(
+          children: <Widget>[ Expanded(
+              child: RichText(
+                  text: TextSpan(
+                      children: [
                         const TextSpan(
                           style: TextStyle(color: Colors.black, fontSize: 23),
-                          text: "Current Stored Slot Data \nat BlockChain ",
+                          text: "\nCurrent Stored Slot Data \nat BlockChain ",
                         ),
                         TextSpan(
                             style: const TextStyle(color: Colors.blueAccent, fontSize: 20),

@@ -38,6 +38,7 @@ dependencies:
   flutter_dotenv: ^5.0.2
   path_provider: ^2.0.6
   url_launcher: ^6.0.12
+  qr_flutter: ^4.0.0
   web3dart: ^2.3.1
   printing: ^5.6.0
   http: ^0.13.3
