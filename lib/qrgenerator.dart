@@ -3,8 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:eth_toto_board_flutter/main.dart';
 
-// https://stackoverflow.com/questions/59566675/flutter-how-to-copy-text-after-pressing-the-button
-
 class QRGenerator extends StatefulWidget {
   final String passedValue1;
   const QRGenerator({Key? key, required this.passedValue1}) : super(key: key);
@@ -53,10 +51,13 @@ class _QRGeneratorState extends State<QRGenerator> {
                         content: const Text('Copied to Clipboard'),
                         action: SnackBarAction(
                           label: 'Undo',
-                          onPressed: () {},
-                        );
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar));
-                  };
+                          onPressed: () {
+                            Clipboard.setData(const ClipboardData(text: ''));
+                          },
+                        ),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  });
                 },
                 child: const Text('Copy Address'),
               )
