@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1032684398117",
+    "project_id": "eth-toto-board",
+    "storage_bucket": "eth-toto-board.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1032684398117:android:bb00bc2691658b1e4f41cc",
+        "android_client_info": {
+          "package_name": "com.solidity.eth_toto_board_flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1032684398117-h11qo67h310dmbqoduvhrsolgem3lend.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.solidity.eth_toto_board_flutter",
+            "certificate_hash": "78b53ab01da39abe7d484c97af48156aa5f1f8f7"
+          }
+        },
+        {
+          "client_id": "1032684398117-caik317aviq5p87oa3it4rov6dtumbcn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBG6EDspFZ8bgp_X-YiIZodFAkkT-DrJ-I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1032684398117-caik317aviq5p87oa3it4rov6dtumbcn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
