@@ -67,12 +67,13 @@ class _OutputState extends State<Output> {
   // https://firebase.flutter.dev/docs/storage/usage/
   // Uploading raw data
   Future<void> uploadData() async {
+    String myAddress = await web3util.getAddress();
     String txReceipt = await web3util.getTransactionDetails(widget.passedValue3);
     List<int> encoded = utf8.encode(txReceipt);
     Uint8List data = Uint8List.fromList(encoded);
 
     // To create a reference
-    firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance.ref('txReceipts/${widget.passedValue3}.json');
+    firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance.ref('txReceipts/$myAddress/${widget.passedValue3}.json');
 
     // Upload raw data
     await ref.putData(data);
