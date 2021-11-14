@@ -1,5 +1,5 @@
 import 'dart:io';
-// import 'dart:convert';
+import 'dart:convert';
 import 'package:pdf/pdf.dart';
 import 'utilities/web3dartutil.dart';
 import 'package:flutter/material.dart';
@@ -8,8 +8,8 @@ import 'package:printing/printing.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:eth_toto_board_flutter/main.dart';
-import 'dart:convert' show utf8;
 import 'dart:typed_data' show Uint8List;
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class Output extends StatefulWidget {
@@ -31,11 +31,14 @@ class _OutputState extends State<Output> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    web3util.initState();
+    initialSetup();
   }
 
   Future<void> initialSetup() async {
     await web3util.initState();
+    // Firebase Initialize App Function
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
   }
 
   // AlertDialog Wiget
@@ -59,27 +62,24 @@ class _OutputState extends State<Output> {
     );
   }
 
+  // https://medium.com/enappd/connecting-cloud-firestore-database-to-flutter-voting-app-2da5d8631662
   // https://stackoverflow.com/questions/62261619/how-to-upload-json-file-in-firebase-storage-flutter
   // https://firebase.flutter.dev/docs/storage/usage/
   // Uploading raw data
   Future<void> uploadData() async {
-    String text = 'Hello World!';
-    List<int> encoded = utf8.encode(text);
+    String txReceipt = await web3util.getTransactionDetails(widget.passedValue3);
+    List<int> encoded = utf8.encode(txReceipt);
     Uint8List data = Uint8List.fromList(encoded);
 
-    firebase_storage.Reference ref =
-    firebase_storage.FirebaseStorage.instance.ref('uploads/hello-world.text');
+    // To create a reference
+    firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance.ref('txReceipts/${widget.passedValue3}.json');
 
-    try {
-      // Upload raw data.
-      await ref.putData(data);
-      // Get raw data.
-      Uint8List? downloadedData = await ref.getData();
-      // prints -> Hello World!
-      print(utf8.decode(downloadedData!));
-    } on firebase_core.FirebaseException catch (e) {
-      // e.g, e.code == 'canceled'
-    }
+    // Upload raw data
+    await ref.putData(data);
+    // Get raw data
+    // Uint8List? downloadedData = await ref.getData();
+    // Print downloadedData
+    // print(utf8.decode(downloadedData!));
   }
 
   // PDF Creation
@@ -195,6 +195,7 @@ class _OutputState extends State<Output> {
                 child: const Text("Receipt"),
                 onPressed: () async {
                   await receiptPDF();
+                  await uploadData();
                 },
               ),
               ElevatedButton(
