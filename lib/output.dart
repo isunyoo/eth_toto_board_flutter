@@ -1,6 +1,7 @@
 import 'dart:io';
-import 'dart:convert';
 import 'package:pdf/pdf.dart';
+import 'dart:convert';
+import 'package:convert/convert.dart';
 import 'utilities/web3dartutil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
@@ -82,7 +83,7 @@ class _OutputState extends State<Output> {
   // Uploading raw data
   Future<void> uploadData() async {
     String myAddress = await web3util.getAddress();
-    String txReceipt = await web3util.getTransactionDetails(widget.passedValue3);
+    String txReceipt = (await web3util.getTransactionDetails(widget.passedValue3)).toString();
     List<int> encoded = utf8.encode(txReceipt);
     Uint8List data = Uint8List.fromList(encoded);
 
@@ -97,43 +98,33 @@ class _OutputState extends State<Output> {
     // print(utf8.decode(downloadedData!));
   }
 
-  // Function to help also print long and exact formation JSON data into your Dart terminal
-  void printJson(String input) {
-    const JsonDecoder decoder = JsonDecoder();
-    const JsonEncoder encoder = JsonEncoder.withIndent('  ');
-    final dynamic object = decoder.convert(input);
-    final dynamic prettyString = encoder.convert(object);
-    prettyString.split('\n').forEach((dynamic element) => print(element));
-  }
-
   // PDF Creation
   Future<void> receiptPDF() async {
     // Get transaction details
-    String txReceipt = await web3util.getTransactionDetails(widget.passedValue3);
-    print(txReceipt.substring(18)); // {transactionHash: 5ece5c28ea429e68223f89e9f0055a69027887106bfc6a83e13302d0ed05c691, transactionIndex: 4, blockHash: ba3a10618dcfbfcc1beedd8dbf9579475a7a6c37e5db4273b620eebd5614892c, blockNumber: 11419086, from: 0x8bb0412fcd5cb1a190b38db667539cc6301890e1, to: 0x4cd48e0fb3facf420a44773fb45d9382fe49f0a0, cumulativeGasUsed: 442721, gasUsed: 150884, contractAddress: null, status: true, logs: []}
-    print(txReceipt.runtimeType);  // String
-    String truncateString = txReceipt.substring(18);
-    // TransactionReceipt _txReceipt = TransactionReceipt.fromJson(jsonDecode(truncateString));
-    String _txReceipt = json.encode(truncateString);
-    print(_txReceipt); //  "{transactionHash: b4c752ce26396b6dfdf6310e409954d9e57e37f76c0d4e52bbf6f0f23598a6b3, transactionIndex: 4, blockHash: dc51b38b04e718e45044766940343c7c19d0777c8a6face4e80e92472303c292, blockNumber: 11430621, from: 0x8bb0412fcd5cb1a190b38db667539cc6301890e1, to: 0x4cd48e0fb3facf420a44773fb45d9382fe49f0a0, cumulativeGasUsed: 959616, gasUsed: 57939, contractAddress: null, status: true, logs: []}"
-    print(_txReceipt.runtimeType); // String
-    // printJson(truncateString);
-    // var bytes = utf8.encode(jsonString);
-    // print(bytes);
-    // print(bytes.runtimeType);  // Uint8List
-    // var base64Str = base64.encode(bytes);
-    // var arr = base64.decode(base64Str); //arr will be Uint8list
-    // print(arr);
-    // print(arr.runtimeType);
-    if(txReceipt.length<10) {
+    String txReceiptStr = (await web3util.getTransactionDetails(widget.passedValue3)).toString();
+    var txReceipt = await web3util.getTransactionDetails(widget.passedValue3);
+    Uint8List? transactionHashBytes = txReceipt?.transactionHash;
+    print(hex.encode(transactionHashBytes!));
+    print(txReceipt?.transactionIndex);
+    Uint8List? blockHashBytes = txReceipt?.blockHash;
+    print(hex.encode(blockHashBytes!));
+    print(txReceipt?.blockNumber);
+    print(txReceipt?.from);
+    print(txReceipt?.to);
+    print(txReceipt?.cumulativeGasUsed);
+    print(txReceipt?.gasUsed);
+    print(txReceipt?.status);
+    print(DateTime.now());
+
+    if(txReceiptStr.length<10) {
       _showDialog(context);
-    } else if(txReceipt.length>200) {
+    } else if(txReceiptStr.length>200) {
       // Print an HTML document:
       await Printing.layoutPdf(
           onLayout: (PdfPageFormat format) async =>
           await Printing.convertHtml(
             format: format,
-            html: '<html><body><p><h1>$txReceipt</h1></p></body></html>',
+            html: '<html><body><p><h1>$txReceiptStr</h1></p></body></html>',
           ));
     }
     // To save a txReceipt to Realtime Database.
@@ -236,7 +227,7 @@ class _OutputState extends State<Output> {
                 // Within the OutputDataScreen widget
                 onPressed: () async {
                   // Get transaction details
-                  String txReceipt = await web3util.getTransactionDetails(widget.passedValue3);
+                  String txReceipt = (await web3util.getTransactionDetails(widget.passedValue3)).toString();
                   if(txReceipt.length<10) {
                     _showDialog(context);
                   } else if(txReceipt.length>200) {

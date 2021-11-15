@@ -134,9 +134,11 @@ class Web3DartHelper {
   }
 
   // Get transaction details receipt
-  Future<String> getTransactionDetails(String transactionHash) async {
+  // Future<String> getTransactionDetails(String transactionHash) async {
+  Future<TransactionReceipt?> getTransactionDetails(String transactionHash) async {
     var transactionInfo = await ethClient.getTransactionReceipt(transactionHash);
-    return(transactionInfo.toString());
+    // return(transactionInfo.toString());
+    return(transactionInfo);
   }
 
   // Get transaction block
