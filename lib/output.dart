@@ -11,6 +11,8 @@ import 'package:eth_toto_board_flutter/main.dart';
 import 'dart:typed_data' show Uint8List;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:firebase_database/firebase_database.dart';
+import 'package:eth_toto_board_flutter/txreceipt.dart';
 
 class Output extends StatefulWidget {
   final List passedValue1;
@@ -26,6 +28,8 @@ class _OutputState extends State<Output> {
   // Initialize the Web3DartHelper class from utility packages
   Web3DartHelper web3util = Web3DartHelper();
   late AnimationController controller;
+  // Create a DatabaseReference which references a node called txreceipts
+  final DatabaseReference _txReceiptRef = FirebaseDatabase.instance.reference().child('txreceipts');
 
   @override
   void initState() {
@@ -62,6 +66,16 @@ class _OutputState extends State<Output> {
     );
   }
 
+  // Function takes a txReceipt as a parameter and uses a DatabaseReference to save the JSON message to Realtime Database.
+  void saveTxReceipt(TransactionReceipt txReceipt) {
+    _txReceiptRef.push().set(txReceipt.toJson());
+  }
+
+  // The data access object helps to access which have stored at the given Realtime Database reference
+  Query getTxReceiptQuery() {
+    return _txReceiptRef;
+  }
+
   // https://medium.com/enappd/connecting-cloud-firestore-database-to-flutter-voting-app-2da5d8631662
   // https://stackoverflow.com/questions/62261619/how-to-upload-json-file-in-firebase-storage-flutter
   // https://firebase.flutter.dev/docs/storage/usage/
@@ -87,14 +101,17 @@ class _OutputState extends State<Output> {
   Future<void> receiptPDF() async {
     // Get transaction details
     String txReceipt = await web3util.getTransactionDetails(widget.passedValue3);
-    // print(txReceipt); // TransactionReceipt{transactionHash: 5ece5c28ea429e68223f89e9f0055a69027887106bfc6a83e13302d0ed05c691, transactionIndex: 4, blockHash: ba3a10618dcfbfcc1beedd8dbf9579475a7a6c37e5db4273b620eebd5614892c, blockNumber: 11419086, from: 0x8bb0412fcd5cb1a190b38db667539cc6301890e1, to: 0x4cd48e0fb3facf420a44773fb45d9382fe49f0a0, cumulativeGasUsed: 442721, gasUsed: 150884, contractAddress: null, status: true, logs: []}
-    // print(txReceipt.runtimeType);  // String
-    var jsonString = jsonEncode(txReceipt);
-    print(jsonString); // "TransactionReceipt{transactionHash: dd17c111c80c823d7334fc02a6cb741c8a7cd32f77930a7c1576900439b8525b, transactionIndex: 3, blockHash: cd01877f982bb66a890fc35ff2d5996b1ef334924a9c0ed4dcdbbcdd6c12c1b6, blockNumber: 11419131, from: 0x8bb0412fcd5cb1a190b38db667539cc6301890e1, to: 0x4cd48e0fb3facf420a44773fb45d9382fe49f0a0, cumulativeGasUsed: 299735, gasUsed: 55139, contractAddress: null, status: true, logs: []}"
-    print(jsonString.runtimeType);  // String
-    var bytes = utf8.encode(jsonString);
-    print(bytes);
-    print(bytes.runtimeType);  // Uint8List
+    print(txReceipt.substring(18)); // TransactionReceipt{transactionHash: 5ece5c28ea429e68223f89e9f0055a69027887106bfc6a83e13302d0ed05c691, transactionIndex: 4, blockHash: ba3a10618dcfbfcc1beedd8dbf9579475a7a6c37e5db4273b620eebd5614892c, blockNumber: 11419086, from: 0x8bb0412fcd5cb1a190b38db667539cc6301890e1, to: 0x4cd48e0fb3facf420a44773fb45d9382fe49f0a0, cumulativeGasUsed: 442721, gasUsed: 150884, contractAddress: null, status: true, logs: []}
+    print(txReceipt.runtimeType);  // String
+    String truncateString = txReceipt.substring(18);
+    TransactionReceipt _txReceipt = TransactionReceipt.fromJson(jsonDecode(truncateString));
+    print(_txReceipt);
+    // var jsonString = jsonDecode(truncateString);
+    // print(jsonString); // "TransactionReceipt{transactionHash: dd17c111c80c823d7334fc02a6cb741c8a7cd32f77930a7c1576900439b8525b, transactionIndex: 3, blockHash: cd01877f982bb66a890fc35ff2d5996b1ef334924a9c0ed4dcdbbcdd6c12c1b6, blockNumber: 11419131, from: 0x8bb0412fcd5cb1a190b38db667539cc6301890e1, to: 0x4cd48e0fb3facf420a44773fb45d9382fe49f0a0, cumulativeGasUsed: 299735, gasUsed: 55139, contractAddress: null, status: true, logs: []}"
+    // print(jsonString.runtimeType);  // String
+    // var bytes = utf8.encode(jsonString);
+    // print(bytes);
+    // print(bytes.runtimeType);  // Uint8List
     // var base64Str = base64.encode(bytes);
     // var arr = base64.decode(base64Str); //arr will be Uint8list
     // print(arr);
@@ -110,6 +127,12 @@ class _OutputState extends State<Output> {
             html: '<html><body><p><h1>$txReceipt</h1></p></body></html>',
           ));
     }
+    // To save a txReceipt to Realtime Database.
+    // final _txReceipt = TransactionReceipt(jsonString["transactionHash"], jsonString["transactionIndex"], jsonString["blockHash"], jsonString["blockNumber"], jsonString["from"], jsonString["to"], jsonString["cumulativeGasUsed"], jsonString["gasUsed"], jsonString["status"], DateTime.now());
+    // saveTxReceipt(_txReceipt);
+    // https://www.raywenderlich.com/24346128-firebase-realtime-database-tutorial-for-flutter
+    // https://medium.flutterdevs.com/explore-realtime-database-in-flutter-c5870c2b231f
+    // https://stackoverflow.com/questions/55292633/how-to-convert-json-string-to-json-object-in-dart-flutter
   }
 
   // Write transaction info to json file
