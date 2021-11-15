@@ -55,7 +55,7 @@ class TransactionReceipt {
 
   TransactionReceipt(this.transactionHash, this.transactionIndex, this.blockHash, this.blockNumber, this.from, this.to, this.cumulativeGasUsed, this.gasUsed, this.status, this.date);
 
-  TransactionReceipt.fromJson(Map<dynamic, dynamic> json)
+  TransactionReceipt.fromJson(Map<String, dynamic> json)
       : transactionHash = json['transactionHash'] as String,
         transactionIndex = json['transactionIndex'] as int,
         blockHash = json['blockHash'] as String,
@@ -67,7 +67,7 @@ class TransactionReceipt {
         status = json['status'] as bool,
         date = DateTime.parse(json['date'] as String);
 
-  Map<dynamic, dynamic> toJson() => <dynamic, dynamic>{
+  Map<String, dynamic> toJson() => <String, dynamic>{
     'transactionHash': transactionHash,
     'transactionIndex': transactionIndex,
     'blockHash': blockHash,
