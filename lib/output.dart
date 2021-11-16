@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:pdf/pdf.dart';
 import 'dart:convert';
 import 'package:convert/convert.dart';
+import 'package:web3dart/crypto.dart';
 import 'utilities/web3dartutil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
@@ -126,14 +127,12 @@ class _OutputState extends State<Output> {
     Uint8List? blockHashBytes = txReceipt?.blockHash;
     String _blockHash = hex.encode(transactionHashBytes);
     print(hex.encode(blockHashBytes!));
-    print(txReceipt?.blockNumber);
-    var _blockNumber = txReceipt?.blockNumber;
-    print(_blockNumber.runtimeType);
+    print(txReceipt?.blockNumber.blockNum);
+    print(txReceipt?.from);
+    String _from = txReceipt?.from as String;
+    print(txReceipt?.to);
+    String _to = txReceipt?.to as String;
 
-    // print(txReceipt?.from);
-    // String _from = txReceipt?.from as String;
-    // print(txReceipt?.to);
-    // String _to = txReceipt?.to as String;
     // print(txReceipt?.cumulativeGasUsed);
     // // int? _cumulativeGasUsed = txReceipt?.cumulativeGasUsed as int?;
     // String _cumulativeGasUsed = txReceipt?.cumulativeGasUsed as String;
