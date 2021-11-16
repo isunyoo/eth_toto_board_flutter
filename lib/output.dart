@@ -80,7 +80,7 @@ class _OutputState extends State<Output> {
   // https://medium.com/enappd/connecting-cloud-firestore-database-to-flutter-voting-app-2da5d8631662
   // https://stackoverflow.com/questions/62261619/how-to-upload-json-file-in-firebase-storage-flutter
   // https://firebase.flutter.dev/docs/storage/usage/
-  // Uploading raw data
+  // Uploading raw data to FirebaseStorage
   Future<void> uploadData() async {
     String myAddress = await web3util.getAddress();
     String txReceipt = (await web3util.getTransactionDetails(widget.passedValue3)).toString();
@@ -100,22 +100,8 @@ class _OutputState extends State<Output> {
 
   // PDF Creation
   Future<void> receiptPDF() async {
-    // Get transaction details
+    // Get transaction details as String
     String txReceiptStr = (await web3util.getTransactionDetails(widget.passedValue3)).toString();
-    var txReceipt = await web3util.getTransactionDetails(widget.passedValue3);
-    Uint8List? transactionHashBytes = txReceipt?.transactionHash;
-    print(hex.encode(transactionHashBytes!));
-    print(txReceipt?.transactionIndex);
-    Uint8List? blockHashBytes = txReceipt?.blockHash;
-    print(hex.encode(blockHashBytes!));
-    print(txReceipt?.blockNumber);
-    print(txReceipt?.from);
-    print(txReceipt?.to);
-    print(txReceipt?.cumulativeGasUsed);
-    print(txReceipt?.gasUsed);
-    print(txReceipt?.status);
-    print(DateTime.now());
-
     if(txReceiptStr.length<10) {
       _showDialog(context);
     } else if(txReceiptStr.length>200) {
@@ -127,8 +113,54 @@ class _OutputState extends State<Output> {
             html: '<html><body><p><h1>$txReceiptStr</h1></p></body></html>',
           ));
     }
+
+    // Get transaction details as Class
+    var txReceipt = await web3util.getTransactionDetails(widget.passedValue3);
+    // HexEncoder convert a list of bytes to a string
+    Uint8List? transactionHashBytes = txReceipt?.transactionHash;
+    String _transactionHash = hex.encode(transactionHashBytes!);
+    print(hex.encode(transactionHashBytes));
+    int? _transactionIndex = txReceipt?.transactionIndex;
+    print(txReceipt?.transactionIndex);
+    // HexEncoder convert a list of bytes to a string
+    Uint8List? blockHashBytes = txReceipt?.blockHash;
+    String _blockHash = hex.encode(transactionHashBytes);
+    print(hex.encode(blockHashBytes!));
+    print(txReceipt?.blockNumber);
+    var _blockNumber = txReceipt?.blockNumber;
+    print(_blockNumber.runtimeType);
+
+    // print(txReceipt?.from);
+    // String _from = txReceipt?.from as String;
+    // print(txReceipt?.to);
+    // String _to = txReceipt?.to as String;
+    // print(txReceipt?.cumulativeGasUsed);
+    // // int? _cumulativeGasUsed = txReceipt?.cumulativeGasUsed as int?;
+    // String _cumulativeGasUsed = txReceipt?.cumulativeGasUsed as String;
+    // print(txReceipt?.gasUsed);
+    // // int? _gasUsed = txReceipt?.gasUsed as int?;
+    // String _gasUsed = txReceipt?.gasUsed as String;
+    // print(txReceipt?.status);
+    // bool? _status = txReceipt?.status;
+    // print(DateTime.now());
+
+    // Convert json object to String data using json.encode() method
+    // String jsonString=json.encode({
+    //   "transactionHash": _transactionHash,
+    //   "transactionIndex": _transactionIndex,
+    //   "blockHash": _blockHash,
+    //   "blockNumber": _blockNumber,
+    //   "from": _from,
+    //   "to": _to,
+    //   "cumulativeGasUsed": _cumulativeGasUsed,
+    //   "gasUsed": _gasUsed,
+    //   "status": _status,
+    //   "date": DateTime.now()
+    // });
+    // print(jsonString);
+
     // To save a txReceipt to Realtime Database.
-    // final _txReceipt = TransactionReceipt(jsonString["transactionHash"], jsonString["transactionIndex"], jsonString["blockHash"], jsonString["blockNumber"], jsonString["from"], jsonString["to"], jsonString["cumulativeGasUsed"], jsonString["gasUsed"], jsonString["status"], DateTime.now());
+    // final _txReceipt = TransactionReceipt(jsonString["transactionHash"], jsonString["transactionIndex"], jsonString["blockHash"], jsonString!!["blockNumber"], jsonString["from"], jsonString["to"], jsonString["cumulativeGasUsed"], jsonString["gasUsed"], jsonString["status"], DateTime.now());
     // saveTxReceipt(_txReceipt);
     // https://www.raywenderlich.com/24346128-firebase-realtime-database-tutorial-for-flutter
     // https://medium.flutterdevs.com/explore-realtime-database-in-flutter-c5870c2b231f
@@ -226,7 +258,7 @@ class _OutputState extends State<Output> {
                 child: const Text('Main'),
                 // Within the OutputDataScreen widget
                 onPressed: () async {
-                  // Get transaction details
+                  // Get transaction details as String
                   String txReceipt = (await web3util.getTransactionDetails(widget.passedValue3)).toString();
                   if(txReceipt.length<10) {
                     _showDialog(context);
