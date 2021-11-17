@@ -43,15 +43,15 @@
 class TransactionReceipt {
 
   final String transactionHash;
-  final int transactionIndex;
-  final String blockHash;
-  final int blockNumber;
-  final String from;
-  final String to;
-  final int cumulativeGasUsed;
-  final int gasUsed;
-  final bool status;
-  final DateTime date;
+  final int? transactionIndex;
+  final String? blockHash;
+  final int? blockNumber;
+  final String? from;
+  final String? to;
+  final int? cumulativeGasUsed;
+  final int? gasUsed;
+  final bool? status;
+  final String date;
 
   TransactionReceipt(this.transactionHash, this.transactionIndex, this.blockHash, this.blockNumber, this.from, this.to, this.cumulativeGasUsed, this.gasUsed, this.status, this.date);
 
@@ -65,7 +65,7 @@ class TransactionReceipt {
         cumulativeGasUsed = json['cumulativeGasUsed'] as int,
         gasUsed = json['gasUsed'] as int,
         status = json['status'] as bool,
-        date = DateTime.parse(json['date'] as String);
+        date = json['date'] as String;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
     'transactionHash': transactionHash,
@@ -77,7 +77,7 @@ class TransactionReceipt {
     'cumulativeGasUsed': cumulativeGasUsed,
     'gasUsed': gasUsed,
     'status': status,
-    'date': date.toString(),
+    'date': date
   };
 
 }

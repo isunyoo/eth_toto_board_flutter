@@ -1,20 +1,21 @@
 import 'dart:io';
-import 'package:pdf/pdf.dart';
 import 'dart:convert';
-import 'package:convert/convert.dart';
-import 'package:web3dart/crypto.dart';
+import 'package:pdf/pdf.dart';
+import 'package:intl/intl.dart';
 import 'utilities/web3dartutil.dart';
+import 'package:convert/convert.dart';
+import 'dart:typed_data' show Uint8List;
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:printing/printing.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:eth_toto_board_flutter/main.dart';
-import 'dart:typed_data' show Uint8List;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'package:firebase_database/firebase_database.dart';
 import 'package:eth_toto_board_flutter/txreceipt.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class Output extends StatefulWidget {
   final List passedValue1;
@@ -31,7 +32,9 @@ class _OutputState extends State<Output> {
   Web3DartHelper web3util = Web3DartHelper();
   late AnimationController controller;
   // Create a DatabaseReference which references a node called txreceipts
-  final DatabaseReference _txReceiptRef = FirebaseDatabase.instance.reference().child('txreceipts');
+  final DatabaseReference _txReceiptRef = FirebaseDatabase(databaseURL:dotenv.get('Firebase_Database')).reference().child("txreceipts");
+  // FutureBuilder helps in awaiting long-running operations in the Scaffold.
+  // final Future<FirebaseApp> _future = Firebase.initializeApp();
 
   @override
   void initState() {
@@ -74,13 +77,46 @@ class _OutputState extends State<Output> {
   }
 
   // The data access object helps to access which have stored at the given Realtime Database reference
-  Query getTxReceiptQuery() {
+  Future<Query> getTxReceiptQuery() async {
     return _txReceiptRef;
   }
 
-  // https://medium.com/enappd/connecting-cloud-firestore-database-to-flutter-voting-app-2da5d8631662
-  // https://stackoverflow.com/questions/62261619/how-to-upload-json-file-in-firebase-storage-flutter
-  // https://firebase.flutter.dev/docs/storage/usage/
+  // Retrieving data from the given Realtime Database reference
+  Future<void> printFirebase() async {
+    _txReceiptRef.once().then((DataSnapshot snapshot) {
+      print('Data1 : ${snapshot.value}');
+      print('Data2 : ${snapshot.value['blockNumber']}');
+    });
+    _txReceiptRef.child("Space").once().then((DataSnapshot snapshot){
+      print('Data3 : ${snapshot.value}');
+    });
+  }
+  // https://www.woolha.com/tutorials/flutter-using-firebase-realtime-database
+
+  // Updating data to Realtime FirebaseDatabase
+  Future<void> updateData() async {
+    // Get transaction details as Class
+    var txReceipt = await web3util.getTransactionDetails(widget.passedValue3);
+    // HexEncoder convert a list of bytes to a string
+    Uint8List? transactionHashBytes = txReceipt?.transactionHash;
+    String _transactionHash = hex.encode(transactionHashBytes!);
+    int? _transactionIndex = txReceipt?.transactionIndex.hashCode;
+    // HexEncoder convert a list of bytes to a string
+    Uint8List? blockHashBytes = txReceipt?.blockHash;
+    String _blockHash = hex.encode(blockHashBytes!);
+    int? _blockNum = txReceipt?.blockNumber.blockNum;
+    String? _from = txReceipt?.from.toString();
+    String? _to = txReceipt?.to.toString();
+    int? _cumulativeGasUsed = txReceipt?.cumulativeGasUsed.hashCode;
+    int? _gasUsed = txReceipt?.gasUsed.hashCode;
+    bool? _status = txReceipt?.status;
+    String _date = DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now());
+
+    // To save a txReceipt to Realtime Database.
+    final _txReceipt = TransactionReceipt(_transactionHash, _transactionIndex, _blockHash, _blockNum, _from, _to, _cumulativeGasUsed, _gasUsed, _status, _date);
+    saveTxReceipt(_txReceipt);
+  }
+
   // Uploading raw data to FirebaseStorage
   Future<void> uploadData() async {
     String myAddress = await web3util.getAddress();
@@ -90,7 +126,6 @@ class _OutputState extends State<Output> {
 
     // To create a reference
     firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance.ref('txReceipts/$myAddress/${widget.passedValue3}.json');
-
     // Upload raw data
     await ref.putData(data);
     // Get raw data
@@ -114,56 +149,6 @@ class _OutputState extends State<Output> {
             html: '<html><body><p><h1>$txReceiptStr</h1></p></body></html>',
           ));
     }
-
-    // Get transaction details as Class
-    var txReceipt = await web3util.getTransactionDetails(widget.passedValue3);
-    // HexEncoder convert a list of bytes to a string
-    Uint8List? transactionHashBytes = txReceipt?.transactionHash;
-    String _transactionHash = hex.encode(transactionHashBytes!);
-    print(hex.encode(transactionHashBytes));
-    int? _transactionIndex = txReceipt?.transactionIndex;
-    print(txReceipt?.transactionIndex);
-    // HexEncoder convert a list of bytes to a string
-    Uint8List? blockHashBytes = txReceipt?.blockHash;
-    String _blockHash = hex.encode(transactionHashBytes);
-    print(hex.encode(blockHashBytes!));
-    print(txReceipt?.blockNumber.blockNum);
-    print(txReceipt?.from);
-    String _from = txReceipt?.from as String;
-    print(txReceipt?.to);
-    String _to = txReceipt?.to as String;
-
-    // print(txReceipt?.cumulativeGasUsed);
-    // // int? _cumulativeGasUsed = txReceipt?.cumulativeGasUsed as int?;
-    // String _cumulativeGasUsed = txReceipt?.cumulativeGasUsed as String;
-    // print(txReceipt?.gasUsed);
-    // // int? _gasUsed = txReceipt?.gasUsed as int?;
-    // String _gasUsed = txReceipt?.gasUsed as String;
-    // print(txReceipt?.status);
-    // bool? _status = txReceipt?.status;
-    // print(DateTime.now());
-
-    // Convert json object to String data using json.encode() method
-    // String jsonString=json.encode({
-    //   "transactionHash": _transactionHash,
-    //   "transactionIndex": _transactionIndex,
-    //   "blockHash": _blockHash,
-    //   "blockNumber": _blockNumber,
-    //   "from": _from,
-    //   "to": _to,
-    //   "cumulativeGasUsed": _cumulativeGasUsed,
-    //   "gasUsed": _gasUsed,
-    //   "status": _status,
-    //   "date": DateTime.now()
-    // });
-    // print(jsonString);
-
-    // To save a txReceipt to Realtime Database.
-    // final _txReceipt = TransactionReceipt(jsonString["transactionHash"], jsonString["transactionIndex"], jsonString["blockHash"], jsonString!!["blockNumber"], jsonString["from"], jsonString["to"], jsonString["cumulativeGasUsed"], jsonString["gasUsed"], jsonString["status"], DateTime.now());
-    // saveTxReceipt(_txReceipt);
-    // https://www.raywenderlich.com/24346128-firebase-realtime-database-tutorial-for-flutter
-    // https://medium.flutterdevs.com/explore-realtime-database-in-flutter-c5870c2b231f
-    // https://stackoverflow.com/questions/55292633/how-to-convert-json-string-to-json-object-in-dart-flutter
   }
 
   // Write transaction info to json file
@@ -250,7 +235,7 @@ class _OutputState extends State<Output> {
                 child: const Text("Receipt"),
                 onPressed: () async {
                   await receiptPDF();
-                  await uploadData();
+                  await printFirebase();
                 },
               ),
               ElevatedButton(
@@ -263,6 +248,8 @@ class _OutputState extends State<Output> {
                     _showDialog(context);
                   } else if(txReceipt.length>200) {
                     await writeTransactionInfoJson();
+                    await uploadData();
+                    await updateData();
                     // Navigate to the main screen using a named route.
                     Navigator.push(context, MaterialPageRoute(builder: (_) => const MyApp(),),);
                   }
