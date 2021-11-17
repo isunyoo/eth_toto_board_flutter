@@ -85,10 +85,9 @@ class _OutputState extends State<Output> {
   Future<void> printFirebase() async {
     _txReceiptRef.once().then((DataSnapshot snapshot) {
       print('Data1 : ${snapshot.value}');
-      print('Data2 : ${snapshot.value['blockNumber']}');
     });
-    _txReceiptRef.child("Space").once().then((DataSnapshot snapshot){
-      print('Data3 : ${snapshot.value}');
+    _txReceiptRef.child('MoglqcPqsJZb9rqBIlu').once().then((DataSnapshot snapshot){
+      print('Data2 : ${snapshot.value}');
     });
   }
   // https://www.woolha.com/tutorials/flutter-using-firebase-realtime-database

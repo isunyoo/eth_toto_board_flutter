@@ -1,47 +1,6 @@
-// import 'package:cloud_firestore/cloud_firestore.dart';
-//
-// class TransactionReceipt {
-//
-//   final String blockHash;
-//   final int blockNumber;
-//   final int cumulativeGasUsed;
-//   final String from;
-//   final bool status;
-//   final String to;
-//   final String transactionHash;
-//   final int transactionIndex;
-//   final DocumentReference reference;
-//
-//   TransactionReceipt(this.blockHash, this.blockNumber, this.cumulativeGasUsed, this.from, this.status, this.to, this.transactionHash, this.transactionIndex, this.reference);
-//
-//   TransactionReceipt.fromMap(Map<String, dynamic> Function() map, {required this.reference})
-//       : assert(map()['blockHash'] != null),
-//         assert(map()['blockNumber'] != null),
-//         assert(map()['cumulativeGasUsed'] != null),
-//         assert(map()['from'] != null),
-//         assert(map()['status'] != null),
-//         assert(map()['to'] != null),
-//         assert(map()['transactionHash'] != null),
-//         assert(map()['transactionIndex'] != null),
-//         blockHash = map()['blockHash'],
-//         blockNumber = map()['blockNumber'],
-//         cumulativeGasUsed = map()['cumulativeGasUsed'],
-//         from = map()['from'],
-//         status = map()['status'],
-//         to = map()['to'],
-//         transactionHash = map()['transactionHash'],
-//         transactionIndex = map()['transactionIndex'];
-//
-//   TransactionReceipt.fromSnapshot(DocumentSnapshot snapshot)
-//       : this.fromMap(snapshot.data(), reference: snapshot.reference);
-//
-//   @override
-//   String toString() => "TransactionReceipt<$blockHash:$blockNumber:$cumulativeGasUsed:$from:$status:$to:$transactionHash:$transactionIndex>";
-//
-// }
-
 class TransactionReceipt {
 
+  final String slotData;
   final String transactionHash;
   final int? transactionIndex;
   final String? blockHash;
@@ -53,10 +12,11 @@ class TransactionReceipt {
   final bool? status;
   final String date;
 
-  TransactionReceipt(this.transactionHash, this.transactionIndex, this.blockHash, this.blockNumber, this.from, this.to, this.cumulativeGasUsed, this.gasUsed, this.status, this.date);
+  TransactionReceipt(this.slotData, this.transactionHash, this.transactionIndex, this.blockHash, this.blockNumber, this.from, this.to, this.cumulativeGasUsed, this.gasUsed, this.status, this.date);
 
   TransactionReceipt.fromJson(Map<String, dynamic> json)
-      : transactionHash = json['transactionHash'] as String,
+      : slotData = json['slotData'] as String,
+        transactionHash = json['transactionHash'] as String,
         transactionIndex = json['transactionIndex'] as int,
         blockHash = json['blockHash'] as String,
         blockNumber = json['blockNumber'] as int,
@@ -68,6 +28,7 @@ class TransactionReceipt {
         date = json['date'] as String;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
+    'slotData': slotData,
     'transactionHash': transactionHash,
     'transactionIndex': transactionIndex,
     'blockHash': blockHash,
