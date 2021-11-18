@@ -4,6 +4,9 @@ https://medium.com/@dev_89267/develop-blockchain-applications-with-flutter-ether
 https://techblog.geekyants.com/developing-blockchain-applications-with-flutter
 https://www.geeksforgeeks.org/flutter-and-blockchain-population-dapp/
 
+https://pub.dev/packages/firebase_auth/example
+https://firebase.flutter.dev/docs/auth/usage/
+
 $ emulator -list-avds
 $ emulator -avd Pixel_XL_API_29 -port 5557
 $ adb devices

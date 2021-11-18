@@ -84,10 +84,10 @@ class _OutputState extends State<Output> {
 
   // Retrieving data from the given Realtime Database reference
   Future<void> printFirebase() async {
-    _txReceiptRef.once().then((DataSnapshot snapshot) {
+    await _txReceiptRef.once().then((DataSnapshot snapshot) {
       print('Data1 : ${snapshot.value}');
     });
-    _txReceiptRef.child('MoglqcPqsJZb9rqBIlu').once().then((DataSnapshot snapshot){
+    await _txReceiptRef.child('txreceipts/MolxO6kjO8gEP2kmsLA').once().then((DataSnapshot snapshot){
       print('Data2 : ${snapshot.value}');
     });
   }
