@@ -15,6 +15,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:eth_toto_board_flutter/txreceipt.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter_email_sender/flutter_email_sender.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class Output extends StatefulWidget {
@@ -94,6 +95,7 @@ class _OutputState extends State<Output> {
 
   // Updating data to Realtime FirebaseDatabase
   Future<void> updateData() async {
+    String _slotData = widget.passedValue1.toString();
     // Get transaction details as Class
     var txReceipt = await web3util.getTransactionDetails(widget.passedValue3);
     // HexEncoder convert a list of bytes to a string
@@ -109,10 +111,10 @@ class _OutputState extends State<Output> {
     int? _cumulativeGasUsed = txReceipt?.cumulativeGasUsed.hashCode;
     int? _gasUsed = txReceipt?.gasUsed.hashCode;
     bool? _status = txReceipt?.status;
-    String _date = DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now());
+    String _date = DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now())+"(SGT)";
 
     // To save a txReceipt to Realtime Database.
-    final _txReceipt = TransactionReceipt(_transactionHash, _transactionIndex, _blockHash, _blockNum, _from, _to, _cumulativeGasUsed, _gasUsed, _status, _date);
+    final _txReceipt = TransactionReceipt(_slotData, _transactionHash, _transactionIndex, _blockHash, _blockNum, _from, _to, _cumulativeGasUsed, _gasUsed, _status, _date);
     saveTxReceipt(_txReceipt);
   }
 
@@ -123,7 +125,7 @@ class _OutputState extends State<Output> {
     List<int> encoded = utf8.encode(txReceipt);
     Uint8List data = Uint8List.fromList(encoded);
 
-    // To create a reference
+    // To create a storage reference
     firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance.ref('txReceipts/$myAddress/${widget.passedValue3}.json');
     // Upload raw data
     await ref.putData(data);
@@ -155,7 +157,7 @@ class _OutputState extends State<Output> {
     // Retrieve "AppData Directory" for Android and "NSApplicationSupportDirectory" for iOS
     final directory = await getApplicationDocumentsDirectory();
     // Fetch a json file
-    File file = await File("${directory.path}/transactionInfoVault.json").create();
+    File file = await File("${directory.path}/transactionInfoVault.json").create(recursive: true);
     // Get transaction block
     var transactionBlock = await web3util.getTransactionBlock(widget.passedValue3);
     // Convert json object to String data using json.encode() method
@@ -165,6 +167,23 @@ class _OutputState extends State<Output> {
     });
     // Write to file using writeAsString which takes string argument
     await file.writeAsString(fileContent);
+  }
+
+  // Allows send emails from flutter using native platform functionality
+  Future<void> sendEmail() async {
+    // Get transaction details as String
+    String txReceiptStr = (await web3util.getTransactionDetails(widget.passedValue3)).toString();
+
+    final Email email = Email(
+      body: 'Slot Numbers: ${widget.passedValue1.toString()} \n\n EtherScan: https://ropsten.etherscan.io/tx/${widget.passedValue3} \n\n Details: $txReceiptStr',
+      subject: 'Tx Receipt: ${widget.passedValue3}',
+      // recipients: ['recipients@example.com'],
+      // cc: ['cc@example.com'],
+      // bcc: ['bcc@example.com'],
+      // attachmentPaths: ['$file'],
+      isHTML: false,
+    );
+    await FlutterEmailSender.send(email);
   }
 
   @override
@@ -231,10 +250,23 @@ class _OutputState extends State<Output> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               ElevatedButton(
-                child: const Text("Receipt"),
+                child: const Text("Print Receipt"),
                 onPressed: () async {
                   await receiptPDF();
                   await printFirebase();
+                },
+              ),
+              ElevatedButton(
+                child: const Text('Email Receipt'),
+                // Within the OutputDataScreen widget
+                onPressed: () async {
+                  // Get transaction details as String
+                  String txReceipt = (await web3util.getTransactionDetails(widget.passedValue3)).toString();
+                  if(txReceipt.length<10) {
+                    _showDialog(context);
+                  } else if(txReceipt.length>200) {
+                    await sendEmail();
+                  }
                 },
               ),
               ElevatedButton(
