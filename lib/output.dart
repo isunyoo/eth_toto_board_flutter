@@ -33,7 +33,8 @@ class _OutputState extends State<Output> {
   Web3DartHelper web3util = Web3DartHelper();
   late AnimationController controller;
   // Create a DatabaseReference which references a node called txreceipts
-  final DatabaseReference _txReceiptRef = FirebaseDatabase(databaseURL:dotenv.get('Firebase_Database')).reference().child("txreceipts");
+  // final DatabaseReference _txReceiptRef = FirebaseDatabase(databaseURL:dotenv.get('Firebase_Database')).reference().child('txreceipts');
+  final DatabaseReference _txReceiptRef = FirebaseDatabase(databaseURL:dotenv.get('Firebase_Database')).reference();
   // FutureBuilder helps in awaiting long-running operations in the Scaffold.
   // final Future<FirebaseApp> _future = Firebase.initializeApp();
 
@@ -73,8 +74,9 @@ class _OutputState extends State<Output> {
   }
 
   // Function takes a txReceipt as a parameter and uses a DatabaseReference to save the JSON message to Realtime Database.
-  void saveTxReceipt(TransactionReceipt txReceipt) {
-    _txReceiptRef.push().set(txReceipt.toJson());
+  Future<void> saveTxReceipt(TransactionReceipt txReceipt) async {
+    // await _txReceiptRef.push().set(txReceipt.toJson());
+    await _txReceiptRef.child('txreceipt').push().set(txReceipt.toJson());
     // _txReceiptRef.child('txreceipt/$txreceiptId').push().set(txReceipt.toJson());
   }
 
@@ -131,7 +133,7 @@ class _OutputState extends State<Output> {
   // Uploading raw data to FirebaseStorage
   Future<void> uploadData() async {
     String myAddress = await web3util.getAddress();
-    String txReceipt = (await web3util.getTransactionDetails(widget.passedValue3)).toString();
+    String txReceipt = 'Slot Numbers: ${widget.passedValue1.toString()}\n'  + (await web3util.getTransactionDetails(widget.passedValue3)).toString();
     List<int> encoded = utf8.encode(txReceipt);
     Uint8List data = Uint8List.fromList(encoded);
 

@@ -13,7 +13,7 @@ class HistoryOutput extends StatefulWidget {
 
 class _HistoryOutputState extends State<HistoryOutput> {
   // Create a DatabaseReference which references a node called txreceipts
-  final DatabaseReference _txReceiptRef = FirebaseDatabase(databaseURL:dotenv.get('Firebase_Database')).reference().child("txreceipts");
+  final DatabaseReference _txReceiptRef = FirebaseDatabase(databaseURL:dotenv.get('Firebase_Database')).reference().child('txreceipts');
   List<Map<dynamic, dynamic>> lists = [];
 
   @override
