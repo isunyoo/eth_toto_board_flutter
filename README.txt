@@ -20,3 +20,28 @@ truffle(development)> opcode TotoSlots
 
 Obfuscating Android app
 $ flutter build apk --obfuscate --split-debug-info=/<project-name>/<directory>
+
+
+{
+  "rules": {
+    ".read": true,
+    ".write": true,
+    ".indexOn": ["date"],
+  }
+}
+
+
+ {
+    "rules": {
+      "txreceipts": {
+        "$uid": {
+          ".indexOn": ["date"],
+          ".read": "$uid === auth.uid",
+          ".write": "$uid === auth.uid",
+          "from": {
+            ".validate": "newData.isString() && newData.val().length < 50"
+          }
+       }
+      }
+    }
+  }

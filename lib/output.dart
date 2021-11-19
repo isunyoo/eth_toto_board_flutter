@@ -75,6 +75,7 @@ class _OutputState extends State<Output> {
   // Function takes a txReceipt as a parameter and uses a DatabaseReference to save the JSON message to Realtime Database.
   void saveTxReceipt(TransactionReceipt txReceipt) {
     _txReceiptRef.push().set(txReceipt.toJson());
+    // _txReceiptRef.child('txreceipt/$txreceiptId').push().set(txReceipt.toJson());
   }
 
   // The data access object helps to access which have stored at the given Realtime Database reference
@@ -82,16 +83,25 @@ class _OutputState extends State<Output> {
     return _txReceiptRef;
   }
 
+  // Remove method can be used to remove data at a location along with its children
+  Future<void> removeUserData(String uniKey) async {
+    await _txReceiptRef.child('users/$uniKey').remove();  //-MoiWIELgX35qm_LSckq
+  }
+
   // Retrieving data from the given Realtime Database reference
   Future<void> printFirebase() async {
     await _txReceiptRef.once().then((DataSnapshot snapshot) {
       print('Data1 : ${snapshot.value}');
     });
-    await _txReceiptRef.child('txreceipts/MolxO6kjO8gEP2kmsLA').once().then((DataSnapshot snapshot){
-      print('Data2 : ${snapshot.value}');
+    await _txReceiptRef.once().then((DataSnapshot snapshot) {
+      Map <dynamic, dynamic> values = snapshot.value;
+      values.forEach((key, values){
+        print(values);
+      });
     });
   }
   // https://www.woolha.com/tutorials/flutter-using-firebase-realtime-database
+  // https://medium.com/firebase-tips-tricks/how-to-use-firebase-queries-in-flutter-361f21005467
 
   // Updating data to Realtime FirebaseDatabase
   Future<void> updateData() async {
@@ -147,7 +157,7 @@ class _OutputState extends State<Output> {
           onLayout: (PdfPageFormat format) async =>
           await Printing.convertHtml(
             format: format,
-            html: '<html><body><p><h1>$txReceiptStr</h1></p></body></html>',
+            html: '<html><body><p><h1>Slot Numbers: ${widget.passedValue1.toString()} <br> $txReceiptStr</h1></p></body></html>',
           ));
     }
   }
@@ -175,7 +185,7 @@ class _OutputState extends State<Output> {
     String txReceiptStr = (await web3util.getTransactionDetails(widget.passedValue3)).toString();
 
     final Email email = Email(
-      body: 'Slot Numbers: ${widget.passedValue1.toString()} \n\n EtherScan: https://ropsten.etherscan.io/tx/${widget.passedValue3} \n\n Details: $txReceiptStr',
+      body: 'Slot Numbers: ${widget.passedValue1.toString()} \n\n EtherScan: https://ropsten.etherscan.io/tx/${widget.passedValue3} \n\n $txReceiptStr',
       subject: 'Tx Receipt: ${widget.passedValue3}',
       // recipients: ['recipients@example.com'],
       // cc: ['cc@example.com'],
@@ -281,6 +291,7 @@ class _OutputState extends State<Output> {
                     await writeTransactionInfoJson();
                     await uploadData();
                     await updateData();
+                    await removeUserData("-MoiWIELgX35qm_LSckq");
                     // Navigate to the main screen using a named route.
                     Navigator.push(context, MaterialPageRoute(builder: (_) => const MyApp(),),);
                   }

@@ -1,10 +1,12 @@
 import 'dart:io';
 import 'dart:convert';
+import 'history.dart';
 import 'utilities/web3dartutil.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:eth_toto_board_flutter/history.dart';
 import 'package:eth_toto_board_flutter/generate.dart';
 import 'package:eth_toto_board_flutter/qrgenerator.dart';
 import 'package:flutter_number_picker/flutter_number_picker.dart';
@@ -198,13 +200,32 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ],),
-      floatingActionButton: ElevatedButton(
-          child: const Text("Generate"),
-          onPressed: (){
-            var randomSlots = web3util.generateSlots(requestedRows);
-            Navigator.push(context, MaterialPageRoute(builder: (_) => GeneratedOutput(passedValue1: randomSlots),),);
-          }
-      ),
+      // floatingActionButton: ElevatedButton(
+      //     child: const Text("Generate"),
+      //     onPressed: (){
+      //       var randomSlots = web3util.generateSlots(requestedRows);
+      //       Navigator.push(context, MaterialPageRoute(builder: (_) => GeneratedOutput(passedValue1: randomSlots),),);
+      //     }
+      // ),
+        floatingActionButton: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              ElevatedButton(
+                  child: const Text("Generate"),
+                  onPressed: (){
+                    var randomSlots = web3util.generateSlots(requestedRows);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => GeneratedOutput(passedValue1: randomSlots),),);
+                  }
+              ),
+              ElevatedButton(
+                child: const Text('History'),
+                // Within the OutputDataScreen widget
+                onPressed: () async {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryOutput(),),);
+                },
+              ),
+            ]
+        )
     );
   }
 }
