@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:eth_toto_board_flutter/history.dart';
 import 'package:eth_toto_board_flutter/generate.dart';
 import 'package:eth_toto_board_flutter/qrgenerator.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_number_picker/flutter_number_picker.dart';
 
 void main() {
@@ -202,32 +203,28 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         ),
       ],),),
-      // floatingActionButton: ElevatedButton(
-      //     child: const Text("Generate"),
-      //     onPressed: (){
-      //       var randomSlots = web3util.generateSlots(requestedRows);
-      //       Navigator.push(context, MaterialPageRoute(builder: (_) => GeneratedOutput(passedValue1: randomSlots),),);
-      //     }
-      // ),
-        floatingActionButton: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              ElevatedButton(
-                  child: const Text("Generate"),
-                  onPressed: (){
-                    var randomSlots = web3util.generateSlots(requestedRows);
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => GeneratedOutput(passedValue1: randomSlots),),);
-                  }
-              ),
-              ElevatedButton(
-                child: const Text('History'),
-                // Within the OutputDataScreen widget
-                onPressed: () async {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryOutput(),),);
-                },
-              ),
-            ]
-        )
+      floatingActionButton: SpeedDial(
+          icon: Icons.menu,
+          backgroundColor: Colors.blueAccent,
+          children: [
+            SpeedDialChild(
+              child: const Icon(Icons.party_mode_sharp),
+              label: 'Generate',
+              backgroundColor: Colors.blue,
+              onTap: () {
+                var randomSlots = web3util.generateSlots(requestedRows);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => GeneratedOutput(passedValue1: randomSlots),),);
+              },
+            ),
+            SpeedDialChild(
+              child: const Icon(Icons.archive),
+              label: 'History',
+              backgroundColor: Colors.blue,
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryOutput(),),);
+              },
+            ),
+          ]),
     );
   }
 }

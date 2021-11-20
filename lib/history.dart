@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:eth_toto_board_flutter/main.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 class HistoryOutput extends StatefulWidget {
 
@@ -94,19 +95,22 @@ class _HistoryOutputState extends State<HistoryOutput> {
             ]
           ),
         ),
-        floatingActionButton: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
+        floatingActionButton: SpeedDial(
+            icon: Icons.menu,
+            backgroundColor: Colors.blueAccent,
             children: [
-              ElevatedButton(
-                child: const Text('Main'),
-                // Within the OutputDataScreen widget
-                onPressed: () {
+              SpeedDialChild(
+                child: const Icon(Icons.menu_rounded),
+                label: 'Main',
+                backgroundColor: Colors.blue,
+                onTap: () {
                   // Navigate to the main screen using a named route.
                   Navigator.push(context, MaterialPageRoute(builder: (_) => const MyApp(),),);
                 },
-              )
+              ),
             ]
-        )
+        ),
+
     );
   }
 
