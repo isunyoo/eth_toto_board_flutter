@@ -42,9 +42,8 @@ class _HistoryOutputState extends State<HistoryOutput> {
           child: Column(
             children: <Widget>[
               FutureBuilder(
-                  // future: _txReceiptRef.child('txreceipts').once(),
-                  // future: _txReceiptRef.child('txreceipts').orderByChild("date").limitToLast(2).once(),
-                  future: _txReceiptRef.child('txreceipts').orderByChild("timestamp").limitToLast(2).once(),
+                  future: _txReceiptRef.child('txreceipts').orderByChild("timestamp").once(),
+                  // future: _txReceiptRef.child('txreceipts').orderByChild("timestamp").limitToLast(10).once(),
                   builder: (context, AsyncSnapshot<DataSnapshot> snapshot) {
                     if (snapshot.hasData) {
                       lists.clear();
@@ -53,6 +52,7 @@ class _HistoryOutputState extends State<HistoryOutput> {
                         lists.add(values);
                       });
                       return ListView.builder(
+                          primary: false,
                           shrinkWrap: true,
                           itemCount: lists.length,
                           itemBuilder: (BuildContext context, int index) {
@@ -66,11 +66,11 @@ class _HistoryOutputState extends State<HistoryOutput> {
                                       text: TextSpan(
                                           children: [
                                             const TextSpan(
-                                              style: TextStyle(color: Colors.black, fontSize: 15),
+                                              style: TextStyle(color: Colors.black, fontSize: 14),
                                               text: "TransactionHash: ",
                                             ),
                                             TextSpan(
-                                                style: const TextStyle(color: Colors.blueAccent, fontSize: 15),
+                                                style: const TextStyle(color: Colors.blueAccent, fontSize: 14),
                                                 text: lists[index]["transactionHash"],
                                                 recognizer: TapGestureRecognizer()..onTap =  () async{
                                                   var url = "https://ropsten.etherscan.io/tx/0x${lists[index]["transactionHash"]}";

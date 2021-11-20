@@ -163,6 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
         Row(
           children: <Widget>[ Expanded(
               child: ListView.builder (
+                primary: false,
                 shrinkWrap: true,
                 scrollDirection: Axis.vertical,
                 itemCount: allArrayData.length,
@@ -208,7 +209,7 @@ class _MyHomePageState extends State<MyHomePage> {
       //       Navigator.push(context, MaterialPageRoute(builder: (_) => GeneratedOutput(passedValue1: randomSlots),),);
       //     }
       // ),
-        floatingActionButton: Column(
+        floatingActionButton: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               ElevatedButton(
