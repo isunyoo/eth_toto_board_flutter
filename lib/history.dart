@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:eth_toto_board_flutter/main.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -13,7 +15,7 @@ class HistoryOutput extends StatefulWidget {
 
 class _HistoryOutputState extends State<HistoryOutput> {
   // Create a DatabaseReference which references a node called txreceipts
-  final DatabaseReference _txReceiptRef = FirebaseDatabase(databaseURL:dotenv.get('Firebase_Database')).reference().child('txreceipts');
+  final DatabaseReference _txReceiptRef = FirebaseDatabase(databaseURL:dotenv.get('Firebase_Database')).reference();
   List<Map<dynamic, dynamic>> lists = [];
 
   @override
@@ -36,11 +38,13 @@ class _HistoryOutputState extends State<HistoryOutput> {
           title: const Text('Slot Data History'),
           automaticallyImplyLeading: false,
         ),
-        body: Column(children: <Widget>[
-          Row(
-            children: <Widget>[ Expanded(
-              child: FutureBuilder(
-                  future: _txReceiptRef.once(),
+        body: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              FutureBuilder(
+                  // future: _txReceiptRef.child('txreceipts').once(),
+                  // future: _txReceiptRef.child('txreceipts').orderByChild("date").limitToLast(2).once(),
+                  future: _txReceiptRef.child('txreceipts').orderByChild("timestamp").limitToLast(2).once(),
                   builder: (context, AsyncSnapshot<DataSnapshot> snapshot) {
                     if (snapshot.hasData) {
                       lists.clear();
@@ -58,7 +62,27 @@ class _HistoryOutputState extends State<HistoryOutput> {
                                 children: <Widget>[
                                   Text("Date: " + lists[index]["date"]),
                                   Text("SlotData: "+ lists[index]["slotData"]),
-                                  Text("TransactionHash: " +lists[index]["transactionHash"]),
+                                  RichText(
+                                      text: TextSpan(
+                                          children: [
+                                            const TextSpan(
+                                              style: TextStyle(color: Colors.black, fontSize: 15),
+                                              text: "TransactionHash: ",
+                                            ),
+                                            TextSpan(
+                                                style: const TextStyle(color: Colors.blueAccent, fontSize: 15),
+                                                text: lists[index]["transactionHash"],
+                                                recognizer: TapGestureRecognizer()..onTap =  () async{
+                                                  var url = "https://ropsten.etherscan.io/tx/0x${lists[index]["transactionHash"]}";
+                                                  if (await canLaunch(url)) {
+                                                    await launch(url);
+                                                  } else {
+                                                    throw 'Could not launch $url';
+                                                  }
+                                                }
+                                            ),
+                                          ]
+                                      )),
                                   Text("Status: " +lists[index]["status"].toString()),
                                 ],
                               ),
@@ -66,23 +90,10 @@ class _HistoryOutputState extends State<HistoryOutput> {
                           });
                     }
                     return const CircularProgressIndicator();
-                  })
-            ),],
+                  }),
+            ]
           ),
-          // Row(
-          //   children: <Widget>[ Expanded(
-          //       child: ListView.builder (
-          //           shrinkWrap: true,
-          //           scrollDirection: Axis.vertical,
-          //           itemCount: widget.passedValue1.length,
-          //           // A Separate Function called from itemBuilder
-          //           itemBuilder: (BuildContext ctxt, int index) {
-          //             return Text("${index+1}: " + widget.passedValue1[index].toString(), textScaleFactor: 2.0,);
-          //           }
-          //       )
-          //   ),],
-          // ),
-        ],),
+        ),
         floatingActionButton: Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [

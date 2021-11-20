@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pdf/pdf.dart';
 import 'package:intl/intl.dart';
 import 'utilities/web3dartutil.dart';
@@ -33,7 +34,6 @@ class _OutputState extends State<Output> {
   Web3DartHelper web3util = Web3DartHelper();
   late AnimationController controller;
   // Create a DatabaseReference which references a node called txreceipts
-  // final DatabaseReference _txReceiptRef = FirebaseDatabase(databaseURL:dotenv.get('Firebase_Database')).reference().child('txreceipts');
   final DatabaseReference _txReceiptRef = FirebaseDatabase(databaseURL:dotenv.get('Firebase_Database')).reference();
   // FutureBuilder helps in awaiting long-running operations in the Scaffold.
   // final Future<FirebaseApp> _future = Firebase.initializeApp();
@@ -75,14 +75,8 @@ class _OutputState extends State<Output> {
 
   // Function takes a txReceipt as a parameter and uses a DatabaseReference to save the JSON message to Realtime Database.
   Future<void> saveTxReceipt(TransactionReceipt txReceipt) async {
-    // await _txReceiptRef.push().set(txReceipt.toJson());
-    await _txReceiptRef.child('txreceipt').push().set(txReceipt.toJson());
+    await _txReceiptRef.child('txreceipts').push().set(txReceipt.toJson());
     // _txReceiptRef.child('txreceipt/$txreceiptId').push().set(txReceipt.toJson());
-  }
-
-  // The data access object helps to access which have stored at the given Realtime Database reference
-  Future<Query> getTxReceiptQuery() async {
-    return _txReceiptRef;
   }
 
   // Remove method can be used to remove data at a location along with its children
@@ -124,9 +118,10 @@ class _OutputState extends State<Output> {
     int? _gasUsed = txReceipt?.gasUsed.hashCode;
     bool? _status = txReceipt?.status;
     String _date = DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now())+"(SGT)";
+    int _timestamp = DateTime.now().microsecondsSinceEpoch;
 
     // To save a txReceipt to Realtime Database.
-    final _txReceipt = TransactionReceipt(_slotData, _transactionHash, _transactionIndex, _blockHash, _blockNum, _from, _to, _cumulativeGasUsed, _gasUsed, _status, _date);
+    final _txReceipt = TransactionReceipt(_slotData, _transactionHash, _transactionIndex, _blockHash, _blockNum, _from, _to, _cumulativeGasUsed, _gasUsed, _status, _date, _timestamp);
     saveTxReceipt(_txReceipt);
   }
 

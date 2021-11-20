@@ -11,8 +11,9 @@ class TransactionReceipt {
   final int? gasUsed;
   final bool? status;
   final String date;
+  final int timestamp;
 
-  TransactionReceipt(this.slotData, this.transactionHash, this.transactionIndex, this.blockHash, this.blockNumber, this.from, this.to, this.cumulativeGasUsed, this.gasUsed, this.status, this.date);
+  TransactionReceipt(this.slotData, this.transactionHash, this.transactionIndex, this.blockHash, this.blockNumber, this.from, this.to, this.cumulativeGasUsed, this.gasUsed, this.status, this.date, this.timestamp);
 
   TransactionReceipt.fromJson(Map<String, dynamic> json)
       : slotData = json['slotData'] as String,
@@ -25,7 +26,8 @@ class TransactionReceipt {
         cumulativeGasUsed = json['cumulativeGasUsed'] as int,
         gasUsed = json['gasUsed'] as int,
         status = json['status'] as bool,
-        date = json['date'] as String;
+        date = json['date'] as String,
+        timestamp = json['timestamp'] as int;
 
   Map<String, dynamic> toJson() => <String, dynamic>{
     'slotData': slotData,
@@ -38,7 +40,8 @@ class TransactionReceipt {
     'cumulativeGasUsed': cumulativeGasUsed,
     'gasUsed': gasUsed,
     'status': status,
-    'date': date
+    'date': date,
+    'timestamp': timestamp
   };
 
 }

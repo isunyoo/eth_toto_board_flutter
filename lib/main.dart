@@ -108,7 +108,8 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
       ),
-      body: Column(children: <Widget>[
+      body: SingleChildScrollView(
+      child: Column(children: <Widget>[
         Row(
           children: <Widget>[ Expanded(
             child: Text(
@@ -199,7 +200,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
           ],
         ),
-      ],),
+      ],),),
       // floatingActionButton: ElevatedButton(
       //     child: const Text("Generate"),
       //     onPressed: (){
