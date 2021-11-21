@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:pdf/pdf.dart';
 import 'package:intl/intl.dart';
 import 'utilities/web3dartutil.dart';
@@ -18,7 +19,7 @@ import 'package:eth_toto_board_flutter/txreceipt.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+// import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class Output extends StatefulWidget {
   final List passedValue1;
@@ -134,7 +135,12 @@ class _OutputState extends State<Output> {
     Uint8List data = Uint8List.fromList(encoded);
 
     // To create a storage reference
-    firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance.ref('txReceipts/$myAddress/${widget.passedValue3}.json');
+    FirebaseStorage _storage = FirebaseStorage.instance;
+    // StorageReference _rootReference = _storage.ref();
+    // Reference ref = FirebaseStorage.instance.ref();
+
+    Reference ref = FirebaseStorage.instance.ref('txReceipts/$myAddress/${widget.passedValue3}.json');
+    // firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance.ref('txReceipts/$myAddress/${widget.passedValue3}.json');
     // Upload raw data
     await ref.putData(data);
     // Get raw data
