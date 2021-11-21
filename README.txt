@@ -23,21 +23,42 @@ $ flutter build apk --obfuscate --split-debug-info=/<project-name>/<directory>
 
 
 {
-  "rules": {
-    ".read": true,
-    ".write": true,
-    ".indexOn": ["date"],
-  }
+   "rules": {
+      ".read": true,
+      ".write": true,
+      "txreceipts": {
+         ".indexOn": ["timestamp"]
+      }
+   }
 }
 
+{
+   "rules": {
+      ".read": true,
+      ".write": true,
+      "txreceipts": {
+         ".indexOn": ["timestamp"],
+         "from": {
+            ".validate": "newData.isString() && newData.val().length < 50"
+         }
+      }
+   }
+}
+
+
+ FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
+ getUid()
+ https://stackoverflow.com/questions/54000825/how-to-get-the-current-user-id-from-firebase-in-flutter
+ https://blog.logrocket.com/implementing-firebase-authentication-in-a-flutter-app/
 
  {
     "rules": {
       "txreceipts": {
         "$uid": {
-          ".indexOn": ["date"],
-          ".read": "$uid === auth.uid",
-          ".write": "$uid === auth.uid",
+          ".indexOn": ["timestamp"],
+          // Allow only authenticated content owners access to their data
+          ".read": "auth != null && auth.uid == $uid",
+          ".write": "auth != null && auth.uid == $uid",
           "from": {
             ".validate": "newData.isString() && newData.val().length < 50"
           }

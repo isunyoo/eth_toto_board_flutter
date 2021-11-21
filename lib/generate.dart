@@ -107,6 +107,7 @@ class _GeneratedOutputState extends State<GeneratedOutput> {
               },
             ),
             SpeedDialChild(
+
               child: const Icon(Icons.menu_rounded),
               label: 'Main',
               backgroundColor: Colors.blue,

@@ -5,6 +5,7 @@ import 'utilities/web3dartutil.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:eth_toto_board_flutter/history.dart';
 import 'package:eth_toto_board_flutter/generate.dart';
