@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:convert';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:pdf/pdf.dart';
 import 'package:intl/intl.dart';
 import 'utilities/web3dartutil.dart';
@@ -11,15 +10,15 @@ import 'package:flutter/gestures.dart';
 import 'package:printing/printing.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:eth_toto_board_flutter/main.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:eth_toto_board_flutter/boardmain.dart';
 import 'package:eth_toto_board_flutter/txreceipt.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_email_sender/flutter_email_sender.dart';
-// import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class Output extends StatefulWidget {
   final List passedValue1;
@@ -37,6 +36,8 @@ class _OutputState extends State<Output> {
   late AnimationController controller;
   // Create a DatabaseReference which references a node called txreceipts
   final DatabaseReference _txReceiptRef = FirebaseDatabase(databaseURL:dotenv.get('Firebase_Database')).reference();
+  // The user's ID which is unique from the Firebase project
+  String? userId = FirebaseAuth.instance.currentUser?.uid;
   // FutureBuilder helps in awaiting long-running operations in the Scaffold.
   // final Future<FirebaseApp> _future = Firebase.initializeApp();
 
@@ -77,21 +78,16 @@ class _OutputState extends State<Output> {
 
   // Function takes a txReceipt as a parameter and uses a DatabaseReference to save the JSON message to Realtime Database.
   Future<void> saveTxReceipt(TransactionReceipt txReceipt) async {
-    await _txReceiptRef.child('txreceipts').push().set(txReceipt.toJson());
+    await _txReceiptRef.child('txreceipts/$userId').push().set(txReceipt.toJson());
     // _txReceiptRef.child('txreceipt/$txreceiptId').push().set(txReceipt.toJson());
-  }
-
-  // Remove method can be used to remove data at a location along with its children
-  Future<void> removeUserData(String uniKey) async {
-    await _txReceiptRef.child('users/$uniKey').remove();  //-MoiWIELgX35qm_LSckq
   }
 
   // Retrieving data from the given Realtime Database reference
   Future<void> printFirebase() async {
-    await _txReceiptRef.once().then((DataSnapshot snapshot) {
+    await _txReceiptRef.child('txreceipts/$userId').once().then((DataSnapshot snapshot) {
       print('Data1 : ${snapshot.value}');
     });
-    await _txReceiptRef.once().then((DataSnapshot snapshot) {
+    await _txReceiptRef.child('txreceipts/$userId').once().then((DataSnapshot snapshot) {
       Map <dynamic, dynamic> values = snapshot.value;
       values.forEach((key, values){
         print(values);
@@ -135,17 +131,12 @@ class _OutputState extends State<Output> {
     Uint8List data = Uint8List.fromList(encoded);
 
     // To create a storage reference
-    FirebaseStorage _storage = FirebaseStorage.instance;
-    // StorageReference _rootReference = _storage.ref();
-    // Reference ref = FirebaseStorage.instance.ref();
-
-    Reference ref = FirebaseStorage.instance.ref('txReceipts/$myAddress/${widget.passedValue3}.json');
-    // firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance.ref('txReceipts/$myAddress/${widget.passedValue3}.json');
+    Reference _storageRef = FirebaseStorage.instance.ref('txReceipts/$myAddress/${widget.passedValue3}.json');
     // Upload raw data
-    await ref.putData(data);
-    // Get raw data
-    // Uint8List? downloadedData = await ref.getData();
-    // Print downloadedData
+    await _storageRef.putData(data);
+    // // Get raw data
+    // Uint8List? downloadedData = await _storageRef.getData();
+    // // Print downloadedData
     // print(utf8.decode(downloadedData!));
   }
 
@@ -303,9 +294,8 @@ class _OutputState extends State<Output> {
                     await writeTransactionInfoJson();
                     await uploadData();
                     await updateData();
-                    await removeUserData("-MoiWIELgX35qm_LSckq");
                     // Navigate to the main screen using a named route.
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const MyApp(),),);
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const BoardMain(),),);
                   }
                 },
               ),

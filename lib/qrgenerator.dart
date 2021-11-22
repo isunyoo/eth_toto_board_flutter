@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:eth_toto_board_flutter/main.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:eth_toto_board_flutter/boardmain.dart';
+import 'package:eth_toto_board_flutter/screens/login.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 class QRGenerator extends StatefulWidget {
   final String passedValue1;
@@ -12,6 +15,9 @@ class QRGenerator extends StatefulWidget {
 }
 
 class _QRGeneratorState extends State<QRGenerator> {
+  // The user's ID which is unique from the Firebase project
+  User? user = FirebaseAuth.instance.currentUser;
+  bool _isSigningOut = false;
 
   @override
   void initState() {
@@ -24,6 +30,33 @@ class _QRGeneratorState extends State<QRGenerator> {
       color: const Color(0xFFFFFFFF),
       child:  Column(
         children: <Widget>[
+          Row(
+            children: <Widget>[ Expanded(
+              child: Text(
+                "\nName: ${user?.displayName}",
+                textScaleFactor: 1.5,
+              ),
+            ),
+            ],
+          ),
+          Row(
+            children: <Widget>[ Expanded(
+              child: Text(
+                "Email: ${user?.email}",
+                textScaleFactor: 1.5,
+              ),
+            ),
+            ],
+          ),
+          Row(
+            children: <Widget>[ Expanded(
+              child: Text(
+                "\nWallet Account Address: ${widget.passedValue1}\n",
+                textScaleFactor: 1.3,
+              ),
+            ),
+            ],
+          ),
           Center(
               child: QrImage(
                         data: widget.passedValue1,
@@ -31,15 +64,6 @@ class _QRGeneratorState extends State<QRGenerator> {
                         size: 200,
                         gapless: false,
                      )
-          ),
-          Row(
-            children: <Widget>[ Expanded(
-              child: Text(
-                "\nWallet Account Address: ${widget.passedValue1}",
-                textScaleFactor: 1.3,
-              ),
-            ),
-            ],
           ),
           Row(
             children: <Widget>[ Expanded(
@@ -76,22 +100,33 @@ class _QRGeneratorState extends State<QRGenerator> {
           title: const Text('Wallet Account Information'),
           automaticallyImplyLeading: false,
         ),
-        // body: Column(
-        // ),
         body: _qrContentWidget(),
-        floatingActionButton: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              ElevatedButton(
-                child: const Text('Main'),
-                // Within the OutputDataScreen widget
-                onPressed: () {
-                  // Navigate to the main screen using a named route.
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const MyApp(),),);
-                },
-              )
-            ]
-        )
+        floatingActionButton: SpeedDial(
+        icon: Icons.menu,
+        backgroundColor: Colors.blueAccent,
+        children: [
+          SpeedDialChild(
+            child: const Icon(Icons.exit_to_app),
+            label: 'Logout',
+            backgroundColor: Colors.blue,
+            onTap: () async {
+              _isSigningOut = true;
+              await FirebaseAuth.instance.signOut();
+              // Navigate to the main screen using a named route.
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginPage(),),);
+            },
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.menu_rounded),
+            label: 'Main',
+            backgroundColor: Colors.blue,
+            onTap: () {
+              // Navigate to the main screen using a named route.
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const BoardMain(),),);
+            },
+          ),
+        ]
+    ),
     );
   }
 }

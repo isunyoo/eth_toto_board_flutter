@@ -1,7 +1,7 @@
 import 'utilities/web3dartutil.dart';
 import 'package:flutter/material.dart';
-import 'package:eth_toto_board_flutter/main.dart';
 import 'package:eth_toto_board_flutter/output.dart';
+import 'package:eth_toto_board_flutter/boardmain.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
 class GeneratedOutput extends StatefulWidget {
@@ -113,7 +113,7 @@ class _GeneratedOutputState extends State<GeneratedOutput> {
               backgroundColor: Colors.blue,
               onTap: () {
                 // Navigate to the main screen using a named route.
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const MyApp(),),);
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const BoardMain(),),);
               },
             ),
           ]

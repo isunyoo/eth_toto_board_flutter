@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:eth_toto_board_flutter/main.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:eth_toto_board_flutter/boardmain.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 
@@ -17,6 +18,8 @@ class HistoryOutput extends StatefulWidget {
 class _HistoryOutputState extends State<HistoryOutput> {
   // Create a DatabaseReference which references a node called txreceipts
   final DatabaseReference _txReceiptRef = FirebaseDatabase(databaseURL:dotenv.get('Firebase_Database')).reference();
+  // The user's ID which is unique from the Firebase project
+  String? userId = FirebaseAuth.instance.currentUser?.uid;
   List<Map<dynamic, dynamic>> lists = [];
 
   @override
@@ -43,7 +46,7 @@ class _HistoryOutputState extends State<HistoryOutput> {
           child: Column(
             children: <Widget>[
               FutureBuilder(
-                  future: _txReceiptRef.child('txreceipts').orderByChild("timestamp").once(),
+                  future: _txReceiptRef.child('txreceipts/$userId').orderByChild("timestamp").once(),
                   // future: _txReceiptRef.child('txreceipts').orderByChild("timestamp").limitToLast(10).once(),
                   builder: (context, AsyncSnapshot<DataSnapshot> snapshot) {
                     if (snapshot.hasData) {
@@ -105,12 +108,11 @@ class _HistoryOutputState extends State<HistoryOutput> {
                 backgroundColor: Colors.blue,
                 onTap: () {
                   // Navigate to the main screen using a named route.
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const MyApp(),),);
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const BoardMain(),),);
                 },
               ),
             ]
         ),
-
     );
   }
 

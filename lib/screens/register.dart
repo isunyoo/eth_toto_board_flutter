@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:eth_toto_board_flutter/screens/profile.dart';
-import 'package:eth_toto_board_flutter/utilities/authenticator.dart';
 import 'package:eth_toto_board_flutter/utilities/validator.dart';
+import 'package:eth_toto_board_flutter/utilities/authenticator.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);

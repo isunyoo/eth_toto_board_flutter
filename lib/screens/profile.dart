@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:eth_toto_board_flutter/boardmain.dart';
 import 'package:eth_toto_board_flutter/screens/login.dart';
 import 'package:eth_toto_board_flutter/utilities/authenticator.dart';
 
@@ -14,13 +15,19 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   bool _isSendingVerification = false;
   bool _isSigningOut = false;
-
   late User _currentUser;
 
   @override
   void initState() {
     _currentUser = widget.user;
     super.initState();
+  }
+
+  void launchBoardMain() {
+    if(_currentUser.emailVerified) {
+      // Navigate to the main screen using a named route.
+      Navigator.push(context, MaterialPageRoute(builder: (_) => const BoardMain(),),);
+    }
   }
 
   @override
@@ -76,6 +83,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   },
                   child: const Text('Verify email'),
                 ),
+                ElevatedButton(
+                  onPressed: () async {
+                    launchBoardMain();
+                  },
+                  child: const Text('Board Main'),
+                ),
                 const SizedBox(width: 8.0),
                 IconButton(
                   icon: const Icon(Icons.refresh),
@@ -123,3 +136,5 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 }
+
+
