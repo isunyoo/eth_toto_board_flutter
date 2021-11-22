@@ -106,29 +106,15 @@ class _RegisterPageState extends State<RegisterPage> {
                                   _isProcessing = true;
                                 });
 
-                                if (_registerFormKey.currentState!
-                                    .validate()) {
-                                  User? user = await FireAuth
-                                      .registerUsingEmailPassword(
-                                    name: _nameTextController.text,
-                                    email: _emailTextController.text,
-                                    password:
-                                    _passwordTextController.text,
-                                  );
+                                if (_registerFormKey.currentState!.validate()) {
+                                  User? user = await FireAuth.registerUsingEmailPassword(name: _nameTextController.text, email: _emailTextController.text, password: _passwordTextController.text);
 
                                   setState(() {
                                     _isProcessing = false;
                                   });
 
                                   if (user != null) {
-                                    Navigator.of(context)
-                                        .pushAndRemoveUntil(
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            ProfilePage(user: user),
-                                      ),
-                                      ModalRoute.withName('/'),
-                                    );
+                                    Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => ProfilePage(user: user)), ModalRoute.withName('/'),);
                                   }
                                 }
                               },

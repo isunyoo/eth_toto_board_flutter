@@ -27,13 +27,7 @@ class _LoginPageState extends State<LoginPage> {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => ProfilePage(
-            user: user,
-          ),
-        ),
-      );
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => ProfilePage(user: user),),);
     }
     return firebaseApp;
   }
@@ -62,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
                       padding: const EdgeInsets.only(bottom: 24.0),
                       child: Text(
                         'Login',
-                        style: Theme.of(context).textTheme.headline3,
+                        style: Theme.of(context).textTheme.headline4,
                       ),
                     ),
                     Form(
@@ -90,9 +84,7 @@ class _LoginPageState extends State<LoginPage> {
                             controller: _passwordTextController,
                             focusNode: _focusPassword,
                             obscureText: true,
-                            validator: (value) => Validator.validatePassword(
-                              password: value,
-                            ),
+                            validator: (value) => Validator.validatePassword(password: value,),
                             decoration: InputDecoration(
                               hintText: "Password",
                               errorBorder: UnderlineInputBorder(
@@ -116,31 +108,20 @@ class _LoginPageState extends State<LoginPage> {
                                     _focusEmail.unfocus();
                                     _focusPassword.unfocus();
 
-                                    if (_formKey.currentState!
-                                        .validate()) {
+                                    if (_formKey.currentState!.validate()) {
                                       setState(() {
                                         _isProcessing = true;
                                       });
 
-                                      User? user = await FireAuth
-                                          .signInUsingEmailPassword(
-                                        email: _emailTextController.text,
-                                        password:
-                                        _passwordTextController.text,
-                                      );
+                                      User? user = await FireAuth.signInUsingEmailPassword(email: _emailTextController.text, password: _passwordTextController.text);
+                                      print(user);
 
                                       setState(() {
                                         _isProcessing = false;
                                       });
 
                                       if (user != null) {
-                                        Navigator.of(context)
-                                            .pushReplacement(
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                ProfilePage(user: user),
-                                          ),
-                                        );
+                                        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => ProfilePage(user: user),),);
                                       }
                                     }
                                   },
@@ -154,12 +135,7 @@ class _LoginPageState extends State<LoginPage> {
                               Expanded(
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const RegisterPage(),
-                                      ),
-                                    );
+                                    Navigator.of(context).push(MaterialPageRoute(builder: (context) => const RegisterPage(),),);
                                   },
                                   child: const Text(
                                     'Register',

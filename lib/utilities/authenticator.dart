@@ -5,7 +5,7 @@ import 'package:eth_toto_board_flutter/screens/login.dart';
 class FireAuth {
 
   // // An alert dialog informs the user about situations that require acknowledgement.
-  // Future<void> _showApproveDialog() {
+  // Future<void> _showApproveDialog(String alertMessage) {
   //   return showDialog<void>(
   //     context: context,
   //     barrierDismissible: false, // user must tap button!
@@ -15,8 +15,7 @@ class FireAuth {
   //         content: SingleChildScrollView(
   //           child: ListBody(
   //             children: const <Widget>[
-  //               Text('This will submit to the Ethereum BlockChain to store data.\n'),
-  //               Text('Would you like to approve of this transaction?'),
+  //               Text('{alertMessage}'),
   //             ],
   //           ),
   //         ),
@@ -41,51 +40,40 @@ class FireAuth {
     User? user;
 
     try {
-      UserCredential userCredential = await auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      UserCredential userCredential = await auth.createUserWithEmailAndPassword(email: email, password: password);
 
       user = userCredential.user;
       await user!.updateDisplayName(name);
       await user.reload();
       user = auth.currentUser;
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch(e) {
       if (e.code == 'weak-password') {
         print('The password provided is too weak.');
       } else if (e.code == 'email-already-in-use') {
         print('The account already exists for that email.');
       }
-    } catch (e) {
+    } catch(e) {
       print(e);
     }
-
     return user;
   }
 
   // For signing in an user (have already registered)
-  static Future<User?> signInUsingEmailPassword({
-    required String email,
-    required String password,
-  }) async {
+  static Future<User?> signInUsingEmailPassword({required String email, required String password}) async {
     FirebaseAuth auth = FirebaseAuth.instance;
     User? user;
 
     try {
-      UserCredential userCredential = await auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+      UserCredential userCredential = await auth.signInWithEmailAndPassword(email: email, password: password);
       user = userCredential.user;
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException catch(e) {
       if (e.code == 'user-not-found') {
-        // _showApproveDialog();
         print('No user found for that email.');
       } else if (e.code == 'wrong-password') {
         print('Wrong password provided.');
+        // _showApproveDialog('Wrong password provided.');
       }
     }
-
     return user;
   }
 
@@ -97,4 +85,10 @@ class FireAuth {
 
     return refreshedUser;
   }
+
+  Widget build(BuildContext context) {
+    return const Scaffold(
+    );
+  }
+
 }

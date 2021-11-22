@@ -52,7 +52,7 @@ class _QRGeneratorState extends State<QRGenerator> {
             children: <Widget>[ Expanded(
               child: Text(
                 "\nWallet Account Address: ${widget.passedValue1}\n",
-                textScaleFactor: 1.3,
+                textScaleFactor: 1.2,
               ),
             ),
             ],
