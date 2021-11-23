@@ -5,15 +5,15 @@ import 'package:eth_toto_board_flutter/screens/login.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:eth_toto_board_flutter/utilities/authenticator.dart';
 
-class ProfilePage extends StatefulWidget {
+class EmailVerifyPage extends StatefulWidget {
   final User user;
-  const ProfilePage({Key? key, required this.user}) : super(key: key);
+  const EmailVerifyPage({Key? key, required this.user}) : super(key: key);
 
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  _EmailVerifyPageState createState() => _EmailVerifyPageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class _EmailVerifyPageState extends State<EmailVerifyPage> {
   bool _isSendingVerification = false;
   bool _isSigningOut = false;
   late User _currentUser;
@@ -28,7 +28,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void _launchBoardMain() {
     if(_currentUser.emailVerified) {
-      // The delay to route BoardMain Page
+      // The delay to route BoardMain Page Scaffold
       Future.delayed(const Duration(milliseconds: 100)).then((_) {
         // Navigate to the main screen using a named route.
         Navigator.push(context, MaterialPageRoute(builder: (context) => const BoardMain()));
@@ -57,10 +57,11 @@ class _ProfilePageState extends State<ProfilePage> {
               'EMAIL: ${_currentUser.email}',
               style: Theme.of(context).textTheme.bodyText1,
             ),
+            const SizedBox(height: 20.0),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                const Text("Refresh User Profile"),
+                const Text("Refresh Email Verification Status"),
                 IconButton(
                   icon: const Icon(Icons.refresh),
                   onPressed: () async {
@@ -70,11 +71,12 @@ class _ProfilePageState extends State<ProfilePage> {
                         _currentUser = user;
                       });
                     }
+                    // If user?.emailVerified) == true then route BoardMain Page Scaffold
+                    _launchBoardMain();
                   },
                 ),
               ],
             ),
-            const SizedBox(height: 20.0),
             Text(
                 'Email not verified',
                 style: Theme.of(context)
@@ -82,9 +84,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     .bodyText1!
                     .copyWith(color: Colors.redAccent, fontWeight: FontWeight.bold),
               ),
-            const SizedBox(width: 8.0),
-
-            const SizedBox(height: 16.0),
+            const SizedBox(height: 10.0),
             _isSendingVerification ? const CircularProgressIndicator() : Row(
               mainAxisSize: MainAxisSize.min,
               children: [

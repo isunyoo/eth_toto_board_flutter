@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:eth_toto_board_flutter/screens/profile.dart';
+import 'package:eth_toto_board_flutter/screens/email.dart';
 import 'package:eth_toto_board_flutter/utilities/validator.dart';
 import 'package:eth_toto_board_flutter/utilities/authenticator.dart';
 
@@ -114,7 +114,7 @@ class _RegisterPageState extends State<RegisterPage> {
                                   });
 
                                   if (user != null) {
-                                    Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => ProfilePage(user: user)), ModalRoute.withName('/'),);
+                                    Navigator.of(context).pushAndRemoveUntil(MaterialPageRoute(builder: (context) => EmailVerifyPage(user: user)), ModalRoute.withName('/'),);
                                   }
                                 }
                               },

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:eth_toto_board_flutter/screens/profile.dart';
+import 'package:eth_toto_board_flutter/screens/email.dart';
 import 'package:eth_toto_board_flutter/screens/register.dart';
-import 'package:eth_toto_board_flutter/utilities/authenticator.dart';
 import 'package:eth_toto_board_flutter/utilities/validator.dart';
+import 'package:eth_toto_board_flutter/utilities/authenticator.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -27,7 +27,7 @@ class _LoginPageState extends State<LoginPage> {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => ProfilePage(user: user),),);
+      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => EmailVerifyPage(user: user),),);
     }
     return firebaseApp;
   }
@@ -120,7 +120,7 @@ class _LoginPageState extends State<LoginPage> {
                                       });
 
                                       if (user != null) {
-                                        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => ProfilePage(user: user),),);
+                                        Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => EmailVerifyPage(user: user),),);
                                       }
                                     }
                                   },
@@ -151,7 +151,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               );
             }
-
             return const Center(
               child: CircularProgressIndicator(),
             );
