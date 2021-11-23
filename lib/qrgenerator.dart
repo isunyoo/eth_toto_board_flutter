@@ -95,6 +95,8 @@ class _QRGeneratorState extends State<QRGenerator> {
 
   @override
   Widget build(BuildContext context) {
+    // SigningOut Status Parameter
+    _isSigningOut;
     return Scaffold(
         appBar: AppBar(
           title: const Text('Wallet Account Information'),
@@ -110,8 +112,13 @@ class _QRGeneratorState extends State<QRGenerator> {
             label: 'Logout',
             backgroundColor: Colors.blue,
             onTap: () async {
-              _isSigningOut = true;
+              setState(() {
+                _isSigningOut = true;
+              });
               await FirebaseAuth.instance.signOut();
+              setState(() {
+                _isSigningOut = false;
+              });
               // Navigate to the main screen using a named route.
               Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginPage(),),);
             },

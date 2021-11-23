@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:eth_toto_board_flutter/boardmain.dart';
 import 'package:eth_toto_board_flutter/screens/login.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:eth_toto_board_flutter/utilities/authenticator.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -21,20 +22,27 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     _currentUser = widget.user;
     super.initState();
+    // Request a Navigator operation if Email verified
+    _launchBoardMain();
   }
 
-  void launchBoardMain() {
+  void _launchBoardMain() {
     if(_currentUser.emailVerified) {
-      // Navigate to the main screen using a named route.
-      Navigator.push(context, MaterialPageRoute(builder: (_) => const BoardMain(),),);
+      // The delay to route BoardMain Page
+      Future.delayed(const Duration(milliseconds: 100)).then((_) {
+        // Navigate to the main screen using a named route.
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const BoardMain()));
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // SigningOut Status Parameter
+    _isSigningOut;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: const Text('Email Verification'),
       ),
       body: Center(
         child: Column(
@@ -50,8 +58,7 @@ class _ProfilePageState extends State<ProfilePage> {
               style: Theme.of(context).textTheme.bodyText1,
             ),
             const SizedBox(height: 16.0),
-            _currentUser.emailVerified
-                ? Text(
+            _currentUser.emailVerified ? Text(
               'Email verified',
               style: Theme.of(context)
                   .textTheme
@@ -63,12 +70,10 @@ class _ProfilePageState extends State<ProfilePage> {
               style: Theme.of(context)
                   .textTheme
                   .bodyText1!
-                  .copyWith(color: Colors.red),
+                  .copyWith(color: Colors.redAccent),
             ),
             const SizedBox(height: 16.0),
-            _isSendingVerification
-                ? const CircularProgressIndicator()
-                : Row(
+            _isSendingVerification ? const CircularProgressIndicator() : Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 ElevatedButton(
@@ -81,34 +86,35 @@ class _ProfilePageState extends State<ProfilePage> {
                       _isSendingVerification = false;
                     });
                   },
-                  child: const Text('Verify email'),
+                  child: const Text('Verify Email'),
                 ),
-                ElevatedButton(
-                  onPressed: () async {
-                    launchBoardMain();
-                  },
-                  child: const Text('Board Main'),
-                ),
-                const SizedBox(width: 8.0),
-                IconButton(
-                  icon: const Icon(Icons.refresh),
-                  onPressed: () async {
-                    User? user = await FireAuth.refreshUser(_currentUser);
-
-                    if (user != null) {
-                      setState(() {
-                        _currentUser = user;
-                      });
-                    }
-                  },
-                ),
+                // const SizedBox(width: 8.0),
+                // IconButton(
+                //   icon: const Icon(Icons.refresh),
+                //   onPressed: () async {
+                //     User? user = await FireAuth.refreshUser(_currentUser);
+                //
+                //     if (user != null) {
+                //       setState(() {
+                //         _currentUser = user;
+                //       });
+                //     }
+                //   },
+                // ),
               ],
             ),
-            const SizedBox(height: 16.0),
-            _isSigningOut
-                ? const CircularProgressIndicator()
-                : ElevatedButton(
-              onPressed: () async {
+          ],
+        ),
+      ),
+      floatingActionButton: SpeedDial(
+          icon: Icons.menu,
+          backgroundColor: Colors.blueAccent,
+          children: [
+            SpeedDialChild(
+              child: const Icon(Icons.exit_to_app),
+              label: 'Logout',
+              backgroundColor: Colors.blue,
+              onTap: () async {
                 setState(() {
                   _isSigningOut = true;
                 });
@@ -116,22 +122,11 @@ class _ProfilePageState extends State<ProfilePage> {
                 setState(() {
                   _isSigningOut = false;
                 });
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(
-                    builder: (context) => const LoginPage(),
-                  ),
-                );
+                // Navigate to the main screen using a named route.
+                Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginPage(),),);
               },
-              child: const Text('Sign out'),
-              style: ElevatedButton.styleFrom(
-                primary: Colors.red,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-              ),
             ),
-          ],
-        ),
+          ]
       ),
     );
   }
