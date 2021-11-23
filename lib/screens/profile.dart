@@ -57,21 +57,33 @@ class _ProfilePageState extends State<ProfilePage> {
               'EMAIL: ${_currentUser.email}',
               style: Theme.of(context).textTheme.bodyText1,
             ),
-            const SizedBox(height: 16.0),
-            _currentUser.emailVerified ? Text(
-              'Email verified',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyText1!
-                  .copyWith(color: Colors.green),
-            )
-                : Text(
-              'Email not verified',
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyText1!
-                  .copyWith(color: Colors.redAccent),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                const Text("Refresh User Profile"),
+                IconButton(
+                  icon: const Icon(Icons.refresh),
+                  onPressed: () async {
+                    User? user = await FireAuth.refreshUser(_currentUser);
+                    if (user != null) {
+                      setState(() {
+                        _currentUser = user;
+                      });
+                    }
+                  },
+                ),
+              ],
             ),
+            const SizedBox(height: 20.0),
+            Text(
+                'Email not verified',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyText1!
+                    .copyWith(color: Colors.redAccent, fontWeight: FontWeight.bold),
+              ),
+            const SizedBox(width: 8.0),
+
             const SizedBox(height: 16.0),
             _isSendingVerification ? const CircularProgressIndicator() : Row(
               mainAxisSize: MainAxisSize.min,
@@ -88,19 +100,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   },
                   child: const Text('Verify Email'),
                 ),
-                // const SizedBox(width: 8.0),
-                // IconButton(
-                //   icon: const Icon(Icons.refresh),
-                //   onPressed: () async {
-                //     User? user = await FireAuth.refreshUser(_currentUser);
-                //
-                //     if (user != null) {
-                //       setState(() {
-                //         _currentUser = user;
-                //       });
-                //     }
-                //   },
-                // ),
               ],
             ),
           ],
