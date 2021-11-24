@@ -264,7 +264,6 @@ class _OutputState extends State<Output> {
                 backgroundColor: Colors.blue,
                 onTap: () async {
                   await receiptPDF();
-                  await printFirebase();
                 },
               ),
               SpeedDialChild(

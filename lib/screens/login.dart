@@ -5,6 +5,7 @@ import 'package:eth_toto_board_flutter/screens/email.dart';
 import 'package:eth_toto_board_flutter/screens/register.dart';
 import 'package:eth_toto_board_flutter/utilities/validator.dart';
 import 'package:eth_toto_board_flutter/utilities/authenticator.dart';
+import 'package:eth_toto_board_flutter/widgets/google_sign_in_button.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -21,6 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   final _emailTextController = TextEditingController();
   final _passwordTextController = TextEditingController();
 
+  // Auto login(If a user has logged in to the app and then closed it, when the user comes back to the app, it should automatically sign in)
   Future<FirebaseApp> _initializeFirebase() async {
     FirebaseApp firebaseApp = await Firebase.initializeApp();
 
@@ -46,7 +48,9 @@ class _LoginPageState extends State<LoginPage> {
         body: FutureBuilder(
           future: _initializeFirebase(),
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasError) {
+              return const Text('Error initializing Firebase');
+            } else if (snapshot.connectionState == ConnectionState.done) {
               return Padding(
                 padding: const EdgeInsets.only(left: 24.0, right: 24.0),
                 child: Column(
@@ -146,7 +150,12 @@ class _LoginPageState extends State<LoginPage> {
                           )
                         ],
                       ),
-                    )
+                    ),
+                    const SizedBox(height: 35.0),
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 24.0),
+                      child: GoogleSignInButton(),
+                    ),
                   ],
                 ),
               );
@@ -163,5 +172,4 @@ class _LoginPageState extends State<LoginPage> {
 
 // https://blog.codemagic.io/firebase-authentication-google-sign-in-using-flutter/
 // https://pub.dev/packages/google_sign_in/example
-
-// sdksds
+// https://github.com/sbis04/flutterfire-samples/blob/google-sign-in/lib/

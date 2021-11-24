@@ -1,34 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:eth_toto_board_flutter/screens/login.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:eth_toto_board_flutter/screens/email.dart';
 
 class FireAuth {
 
-  // // An alert dialog informs the user about situations that require acknowledgement.
-  // Future<void> _showApproveDialog(String alertMessage) {
-  //   return showDialog<void>(
-  //     context: context,
-  //     barrierDismissible: false, // user must tap button!
-  //     builder: (BuildContext context) {
-  //       return AlertDialog(
-  //         title: const Text('Login Alert!'),
-  //         content: SingleChildScrollView(
-  //           child: ListBody(
-  //             children: const <Widget>[
-  //               Text('{alertMessage}'),
-  //             ],
-  //           ),
-  //         ),
-  //         actions: <Widget>[
-  //           TextButton(
-  //             onPressed: () => Navigator.pop(context, 'OK'),
-  //             child: const Text('OK'),
-  //           ),
-  //         ],
-  //       );
-  //     },
-  //   );
-  // }
+  static SnackBar customSnackBar({required String content}) {
+    return SnackBar(
+      backgroundColor: Colors.black,
+      content: Text(
+        content,
+        style: const TextStyle(color: Colors.redAccent, letterSpacing: 0.5),
+      ),
+    );
+  }
+
+  // Auto login(If a user has logged in to the app and then closed it, when the user comes back to the app, it should automatically sign in)
+  static Future<FirebaseApp> initializeFirebase({
+    required BuildContext context,
+  }) async {
+    FirebaseApp firebaseApp = await Firebase.initializeApp();
+
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => EmailVerifyPage(
+            user: user,
+          ),
+        ),
+      );
+    }
+    return firebaseApp;
+  }
 
   // For registering a new user
   static Future<User?> registerUsingEmailPassword({
@@ -84,6 +91,86 @@ class FireAuth {
     User? refreshedUser = auth.currentUser;
 
     return refreshedUser;
+  }
+
+  static Future<User?> signInWithGoogle({required BuildContext context}) async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    User? user;
+
+    if (kIsWeb) {
+      GoogleAuthProvider authProvider = GoogleAuthProvider();
+
+      try {
+        final UserCredential userCredential =
+        await auth.signInWithPopup(authProvider);
+
+        user = userCredential.user;
+      } catch (e) {
+        print(e);
+      }
+    } else {
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+
+      final GoogleSignInAccount? googleSignInAccount =
+      await googleSignIn.signIn();
+
+      if (googleSignInAccount != null) {
+        final GoogleSignInAuthentication googleSignInAuthentication =
+        await googleSignInAccount.authentication;
+
+        final AuthCredential credential = GoogleAuthProvider.credential(
+          accessToken: googleSignInAuthentication.accessToken,
+          idToken: googleSignInAuthentication.idToken,
+        );
+
+        try {
+          final UserCredential userCredential =
+          await auth.signInWithCredential(credential);
+
+          user = userCredential.user;
+        } on FirebaseAuthException catch (e) {
+          if (e.code == 'account-exists-with-different-credential') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              FireAuth.customSnackBar(
+                content:
+                'The account already exists with a different credential',
+              ),
+            );
+          } else if (e.code == 'invalid-credential') {
+            ScaffoldMessenger.of(context).showSnackBar(
+              FireAuth.customSnackBar(
+                content:
+                'Error occurred while accessing credentials. Try again.',
+              ),
+            );
+          }
+        } catch (e) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            FireAuth.customSnackBar(
+              content: 'Error occurred using Google Sign In. Try again.',
+            ),
+          );
+        }
+      }
+    }
+    return user;
+  }
+
+  static Future<void> signOutWithGoogle({required BuildContext context}) async {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+
+    try {
+      if (!kIsWeb) {
+        await googleSignIn.signOut();
+      }
+      await FirebaseAuth.instance.signOut();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        FireAuth.customSnackBar(
+          content: 'Error signing out. Try again.',
+        ),
+      );
+    }
   }
 
   Widget build(BuildContext context) {

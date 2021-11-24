@@ -49,50 +49,64 @@ class _HistoryOutputState extends State<HistoryOutput> {
                   future: _txReceiptRef.child('txreceipts/$userId').orderByChild("timestamp").once(),
                   // future: _txReceiptRef.child('txreceipts').orderByChild("timestamp").limitToLast(10).once(),
                   builder: (context, AsyncSnapshot<DataSnapshot> snapshot) {
-                    if (snapshot.hasData) {
-                      lists.clear();
-                      Map<dynamic, dynamic> values = snapshot.data?.value;
-                      values.forEach((key, values) {
-                        lists.add(values);
-                      });
-                      return ListView.builder(
-                          primary: false,
-                          shrinkWrap: true,
-                          itemCount: lists.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return Card(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Text("Date: " + lists[index]["date"]),
-                                  Text("SlotData: "+ lists[index]["slotData"]),
-                                  RichText(
-                                      text: TextSpan(
-                                          children: [
-                                            const TextSpan(
-                                              style: TextStyle(color: Colors.black, fontSize: 14),
-                                              text: "TransactionHash: ",
-                                            ),
-                                            TextSpan(
-                                                style: const TextStyle(color: Colors.blueAccent, fontSize: 14),
-                                                text: lists[index]["transactionHash"],
-                                                recognizer: TapGestureRecognizer()..onTap =  () async{
-                                                  var url = "https://ropsten.etherscan.io/tx/0x${lists[index]["transactionHash"]}";
-                                                  if (await canLaunch(url)) {
-                                                    await launch(url);
-                                                  } else {
-                                                    throw 'Could not launch $url';
+                    // Check Null Value in Instance of 'DataSnapshot'
+                    _txReceiptRef.child('txreceipts/$userId').orderByChild("timestamp").once().then((DataSnapshot data){
+                      if(data.value == null){
+                        // const Text("No Transaction History Data");
+                        // return null;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: const <Widget>[
+                            Text("No Transaction History Data"),
+                          ]
+                        );
+                      }
+                      // 'DataSnapshot' value != null
+                      if(snapshot.hasData) {
+                        lists.clear();
+                        Map<dynamic, dynamic> values = snapshot.data?.value;
+                        values.forEach((key, values) {
+                          lists.add(values);
+                        });
+                        return ListView.builder(
+                            primary: false,
+                            shrinkWrap: true,
+                            itemCount: lists.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return Card(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text("Date: " + lists[index]["date"]),
+                                    Text("SlotData: "+ lists[index]["slotData"]),
+                                    RichText(
+                                        text: TextSpan(
+                                            children: [
+                                              const TextSpan(
+                                                style: TextStyle(color: Colors.black, fontSize: 14),
+                                                text: "TransactionHash: ",
+                                              ),
+                                              TextSpan(
+                                                  style: const TextStyle(color: Colors.blueAccent, fontSize: 14),
+                                                  text: lists[index]["transactionHash"],
+                                                  recognizer: TapGestureRecognizer()..onTap =  () async{
+                                                    var url = "https://ropsten.etherscan.io/tx/0x${lists[index]["transactionHash"]}";
+                                                    if (await canLaunch(url)) {
+                                                      await launch(url);
+                                                    } else {
+                                                      throw 'Could not launch $url';
+                                                    }
                                                   }
-                                                }
-                                            ),
-                                          ]
-                                      )),
-                                  Text("Status: " +lists[index]["status"].toString()),
-                                ],
-                              ),
-                            );
-                          });
-                    }
+                                              ),
+                                            ]
+                                        )),
+                                    Text("Status: " +lists[index]["status"].toString()),
+                                  ],
+                                ),
+                              );
+                            });
+                      }
+                    });
                     return const CircularProgressIndicator();
                   }),
             ]
