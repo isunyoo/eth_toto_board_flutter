@@ -45,7 +45,6 @@ class _HistoryOutputState extends State<HistoryOutput> {
         body: SingleChildScrollView(
           child: Column(
             children: <Widget>[
-              // https://tipsfordev.com/flutter-futurebuilder-snapshot-is-null-but-future-does-return-data
               FutureBuilder(
                   future: _txReceiptRef.child('txreceipts/$userId').orderByChild("timestamp").once(),
                   // future: _txReceiptRef.child('txreceipts').orderByChild("timestamp").limitToLast(10).once(),
@@ -137,5 +136,6 @@ class _HistoryOutputState extends State<HistoryOutput> {
   }
 
 }
+
 
 
