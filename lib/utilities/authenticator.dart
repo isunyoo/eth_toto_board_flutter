@@ -42,6 +42,7 @@ class FireAuth {
     required String name,
     required String email,
     required String password,
+    required BuildContext context,
   }) async {
     FirebaseAuth auth = FirebaseAuth.instance;
     User? user;
@@ -55,18 +56,30 @@ class FireAuth {
       user = auth.currentUser;
     } on FirebaseAuthException catch(e) {
       if (e.code == 'weak-password') {
-        print('The password provided is too weak.');
+        ScaffoldMessenger.of(context).showSnackBar(
+          FireAuth.customSnackBar(
+            content: 'The password provided is too weak.',
+          ),
+        );
       } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
+        ScaffoldMessenger.of(context).showSnackBar(
+          FireAuth.customSnackBar(
+            content: 'The account already exists for that email.',
+          ),
+        );
       }
-    } catch(e) {
-      print(e);
+    } catch(error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        FireAuth.customSnackBar(
+          content: 'Error on registerUsingEmailPassword function: $error',
+        ),
+      );
     }
     return user;
   }
 
   // For signing in an user (have already registered)
-  static Future<User?> signInUsingEmailPassword({required String email, required String password}) async {
+  static Future<User?> signInUsingEmailPassword({required String email, required String password, required BuildContext context}) async {
     FirebaseAuth auth = FirebaseAuth.instance;
     User? user;
 
@@ -75,10 +88,17 @@ class FireAuth {
       user = userCredential.user;
     } on FirebaseAuthException catch(e) {
       if (e.code == 'user-not-found') {
-        print('No user found for that email.');
+        ScaffoldMessenger.of(context).showSnackBar(
+          FireAuth.customSnackBar(
+            content: 'No user found for that email.',
+          ),
+        );
       } else if (e.code == 'wrong-password') {
-        print('Wrong password provided.');
-        // _showApproveDialog('Wrong password provided.');
+        ScaffoldMessenger.of(context).showSnackBar(
+          FireAuth.customSnackBar(
+            content: 'Wrong password provided.',
+          ),
+        );
       }
     }
     return user;
@@ -105,8 +125,12 @@ class FireAuth {
         await auth.signInWithPopup(authProvider);
 
         user = userCredential.user;
-      } catch (e) {
-        print(e);
+      } catch(error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          FireAuth.customSnackBar(
+            content: 'Error on signInWithGoogle function: $error',
+          ),
+        );
       }
     } else {
       final GoogleSignIn googleSignIn = GoogleSignIn();
@@ -132,15 +156,13 @@ class FireAuth {
           if (e.code == 'account-exists-with-different-credential') {
             ScaffoldMessenger.of(context).showSnackBar(
               FireAuth.customSnackBar(
-                content:
-                'The account already exists with a different credential',
+                content: 'The account already exists with a different credential',
               ),
             );
           } else if (e.code == 'invalid-credential') {
             ScaffoldMessenger.of(context).showSnackBar(
               FireAuth.customSnackBar(
-                content:
-                'Error occurred while accessing credentials. Try again.',
+                content: 'Error occurred while accessing credentials. Try again.',
               ),
             );
           }

@@ -13,6 +13,16 @@ class HistoryOutput extends StatefulWidget {
   const HistoryOutput({Key? key}) : super(key: key);
   @override
   State<HistoryOutput> createState() => _HistoryOutputState();
+
+  static SnackBar customSnackBar({required String content}) {
+    return SnackBar(
+      backgroundColor: Colors.black,
+      content: Text(
+        content,
+        style: const TextStyle(color: Colors.redAccent, letterSpacing: 0.5),
+      ),
+    );
+  }
 }
 
 class _HistoryOutputState extends State<HistoryOutput> {
@@ -36,7 +46,7 @@ class _HistoryOutputState extends State<HistoryOutput> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Scaffold build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           title: const Text('Slot Data History'),
@@ -45,56 +55,47 @@ class _HistoryOutputState extends State<HistoryOutput> {
         body: SingleChildScrollView(
           child: Column(
             children: <Widget>[
-              // https://tipsfordev.com/flutter-futurebuilder-snapshot-is-null-but-future-does-return-data
               FutureBuilder(
                   future: _txReceiptRef.child('txreceipts/$userId').orderByChild("timestamp").once(),
                   // future: _txReceiptRef.child('txreceipts').orderByChild("timestamp").limitToLast(10).once(),
-                  builder: (context, AsyncSnapshot<DataSnapshot> snapshot) {
-                    // Check Null Value in Instance of 'DataSnapshot'
-                    _txReceiptRef.child('txreceipts/$userId').orderByChild("timestamp").once().then((DataSnapshot data){
-                      if(data.value == null){
-                        // const Text("No Transaction History Data");
-                        // return null;
-                        print(data.exists);
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const <Widget>[
-                            Text("No Transaction History Data"),
-                          ]
-                        );
+                  builder: (BuildContext context, AsyncSnapshot snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      if(snapshot.data.value == null) {
+                        return const Text('\n No History Transaction Data Existed.', textScaleFactor: 1.5, style: TextStyle(color: Colors.red));
                       } else {
-                        print(data.exists);
-                        print(data.value);
-                        print(data.toString());
                         // 'DataSnapshot' value != null
-                        if(snapshot.hasData) {  // snapshot.hasData = true
-                          lists.clear();
-                          Map<dynamic, dynamic> values = snapshot.data?.value;
-                          values.forEach((key, values) {
-                            lists.add(values);
-                          });
-                          return ListView.builder(
-                              primary: false,
-                              shrinkWrap: true,
-                              itemCount: lists.length,
-                              itemBuilder: (BuildContext context, int index) {
-                                return Card(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Text("Date: " + lists[index]["date"]),
-                                      Text("SlotData: "+ lists[index]["slotData"]),
-                                      RichText(
-                                          text: TextSpan(
-                                              children: [
-                                                const TextSpan(
-                                                  style: TextStyle(color: Colors.black, fontSize: 14),
-                                                  text: "TransactionHash: ",
-                                                ),
-                                                TextSpan(
-                                                    style: const TextStyle(color: Colors.blueAccent, fontSize: 14),
-                                                    text: lists[index]["transactionHash"],
-                                                    recognizer: TapGestureRecognizer()..onTap =  () async{
+                        lists.clear();
+                        Map<dynamic, dynamic> values = snapshot.data?.value;
+                        values.forEach((key, values) {
+                          lists.add(values);
+                        });
+                        return ListView.builder(
+                            primary: false,
+                            shrinkWrap: true,
+                            itemCount: lists.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return Card(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    Text("Date: " + lists[index]["date"]),
+                                    Text("SlotData: " + lists[index]["slotData"]),
+                                    RichText(
+                                        text: TextSpan(
+                                            children: [
+                                              const TextSpan(
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize: 14),
+                                                text: "TransactionHash: ",
+                                              ),
+                                              TextSpan(
+                                                  style: const TextStyle(
+                                                      color: Colors.blueAccent,
+                                                      fontSize: 14),
+                                                  text: lists[index]["transactionHash"],
+                                                  recognizer: TapGestureRecognizer()
+                                                    ..onTap = () async {
                                                       var url = "https://ropsten.etherscan.io/tx/0x${lists[index]["transactionHash"]}";
                                                       if (await canLaunch(url)) {
                                                         await launch(url);
@@ -102,17 +103,17 @@ class _HistoryOutputState extends State<HistoryOutput> {
                                                         throw 'Could not launch $url';
                                                       }
                                                     }
-                                                ),
-                                              ]
-                                          )),
-                                      Text("Status: " +lists[index]["status"].toString()),
-                                    ],
-                                  ),
-                                );
-                              });
-                        }
+                                              ),
+                                            ]
+                                        )),
+                                    Text("Status: " +
+                                        lists[index]["status"].toString()),
+                                  ],
+                                ),
+                              );
+                            });
                       }
-                    });
+                    }
                     return const CircularProgressIndicator();
                   }),
             ]

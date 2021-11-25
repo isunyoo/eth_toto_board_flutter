@@ -117,7 +117,7 @@ class _LoginPageState extends State<LoginPage> {
                                         _isProcessing = true;
                                       });
 
-                                      User? user = await FireAuth.signInUsingEmailPassword(email: _emailTextController.text, password: _passwordTextController.text);
+                                      User? user = await FireAuth.signInUsingEmailPassword(email: _emailTextController.text, password: _passwordTextController.text, context: context);
 
                                       setState(() {
                                         _isProcessing = false;
