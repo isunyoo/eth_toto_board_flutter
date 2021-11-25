@@ -56,6 +56,10 @@ class _LoginPageState extends State<LoginPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    Image.asset(
+                      'assets/images/lotto_logo.png',
+                      height: 100,
+                    ),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 24.0),
                       child: Text(

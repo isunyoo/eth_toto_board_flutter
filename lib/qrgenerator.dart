@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:eth_toto_board_flutter/boardmain.dart';
 import 'package:eth_toto_board_flutter/screens/login.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:eth_toto_board_flutter/utilities/authenticator.dart';
 
 class QRGenerator extends StatefulWidget {
   final String passedValue1;
@@ -116,6 +117,7 @@ class _QRGeneratorState extends State<QRGenerator> {
                 _isSigningOut = true;
               });
               await FirebaseAuth.instance.signOut();
+              await FireAuth.signOutWithGoogle(context: context);
               setState(() {
                 _isSigningOut = false;
               });
