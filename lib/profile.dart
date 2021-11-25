@@ -7,15 +7,15 @@ import 'package:eth_toto_board_flutter/screens/login.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:eth_toto_board_flutter/utilities/authenticator.dart';
 
-class QRGenerator extends StatefulWidget {
+class ProfilePage extends StatefulWidget {
   final String passedValue1;
-  const QRGenerator({Key? key, required this.passedValue1}) : super(key: key);
+  const ProfilePage({Key? key, required this.passedValue1}) : super(key: key);
 
   @override
-  State<QRGenerator> createState() => _QRGeneratorState();
+  State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _QRGeneratorState extends State<QRGenerator> {
+class _ProfilePageState extends State<ProfilePage> {
   // The user's ID which is unique from the Firebase project
   User? user = FirebaseAuth.instance.currentUser;
   bool _isSigningOut = false;
@@ -121,8 +121,9 @@ class _QRGeneratorState extends State<QRGenerator> {
               setState(() {
                 _isSigningOut = false;
               });
-              // Navigate to the main screen using a named route.
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginPage(),),);
+              // Navigate Push Replacement which will not going back and return back to the LoginPage
+              Navigator.of(context).popUntil((route) => route.isFirst);
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => const LoginPage()));
             },
           ),
           SpeedDialChild(

@@ -93,7 +93,7 @@ class _HistoryOutputState extends State<HistoryOutput> {
                                                   style: const TextStyle(
                                                       color: Colors.blueAccent,
                                                       fontSize: 14),
-                                                  text: lists[index]["transactionHash"],
+                                                  text: '0x${lists[index]["transactionHash"]}',
                                                   recognizer: TapGestureRecognizer()
                                                     ..onTap = () async {
                                                       var url = "https://ropsten.etherscan.io/tx/0x${lists[index]["transactionHash"]}";

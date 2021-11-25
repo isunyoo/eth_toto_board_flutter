@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:eth_toto_board_flutter/history.dart';
+import 'package:eth_toto_board_flutter/profile.dart';
 import 'package:eth_toto_board_flutter/generate.dart';
-import 'package:eth_toto_board_flutter/qrgenerator.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_number_picker/flutter_number_picker.dart';
 
@@ -213,7 +213,7 @@ class _MyHomePageState extends State<MyHomePage> {
               label: 'Profile',
               backgroundColor: Colors.blue,
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => QRGenerator(passedValue1: myAddress)));
+                Navigator.push(context, MaterialPageRoute(builder: (_) => ProfilePage(passedValue1: myAddress)));
               },
             ),
           ]),

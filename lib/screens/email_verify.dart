@@ -58,50 +58,54 @@ class _EmailVerifyPageState extends State<EmailVerifyPage> {
               style: Theme.of(context).textTheme.bodyText1,
             ),
             const SizedBox(height: 20.0),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                const Text("Refresh Email Verification Status"),
-                IconButton(
-                  icon: const Icon(Icons.refresh),
-                  onPressed: () async {
-                    User? user = await FireAuth.refreshUser(_currentUser);
-                    if (user != null) {
-                      setState(() {
-                        _currentUser = user;
-                      });
-                    }
-                    // If user?.emailVerified) == true then route BoardMain Page Scaffold
-                    _launchBoardMain();
-                  },
-                ),
-              ],
-            ),
-            Text(
-                'Email not verified',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyText1!
-                    .copyWith(color: Colors.redAccent, fontWeight: FontWeight.bold),
+            if(_currentUser.emailVerified == false)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  const Text("Refresh Email Verification Status"),
+                  IconButton(
+                    icon: const Icon(Icons.refresh),
+                    onPressed: () async {
+                      User? user = await FireAuth.refreshUser(_currentUser);
+                      if (user != null) {
+                        setState(() {
+                          _currentUser = user;
+                        });
+                      }
+                      // If(user?.emailVerified == true) then route BoardMain Page Scaffold
+                      _launchBoardMain();
+                    },
+                  ),
+                ],
               ),
-            const SizedBox(height: 10.0),
-            _isSendingVerification ? const CircularProgressIndicator() : Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ElevatedButton(
-                  onPressed: () async {
-                    setState(() {
-                      _isSendingVerification = true;
-                    });
-                    await _currentUser.sendEmailVerification();
-                    setState(() {
-                      _isSendingVerification = false;
-                    });
-                  },
-                  child: const Text('Verify Email'),
+              Text(
+                  'Email not verified',
+                  style: Theme.of(context)
+                      .textTheme
+                      .bodyText1!
+                      .copyWith(color: Colors.redAccent, fontWeight: FontWeight.bold),
                 ),
-              ],
-            ),
+              const SizedBox(height: 10.0),
+              _isSendingVerification ? const CircularProgressIndicator() : Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ElevatedButton(
+                    onPressed: () async {
+                      setState(() {
+                        _isSendingVerification = true;
+                      });
+                      await _currentUser.sendEmailVerification();
+                      setState(() {
+                        _isSendingVerification = false;
+                      });
+                    },
+                    child: const Text('Verify Email'),
+                  ),
+                ],
+              ),
+
+
+
           ],
         ),
       ),
@@ -118,11 +122,13 @@ class _EmailVerifyPageState extends State<EmailVerifyPage> {
                   _isSigningOut = true;
                 });
                 await FirebaseAuth.instance.signOut();
+                await FireAuth.signOutWithGoogle(context: context);
                 setState(() {
                   _isSigningOut = false;
                 });
-                // Navigate to the main screen using a named route.
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const LoginPage(),),);
+                // Navigate Push Replacement which will not going back and return back to the LoginPage
+                Navigator.of(context).popUntil((route) => route.isFirst);
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => const LoginPage()));
               },
             ),
           ]
