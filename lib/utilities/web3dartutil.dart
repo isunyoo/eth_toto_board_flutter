@@ -5,10 +5,13 @@ import 'package:flutter/services.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:eth_toto_board_flutter/utilities/remote_config.dart';
 
 class Web3DartHelper {
   late Client httpClient;
   late Web3Client ethClient;
+  late final RemoteConfig _remoteConfig;
 
   Future<void> initState() async {
     await dotenv.load(fileName: "assets/.env");
@@ -22,6 +25,11 @@ class Web3DartHelper {
     ethClient = Web3Client(dotenv.get('Ropsten_HTTPS'), Client(), socketConnector: () {
       return IOWebSocketChannel.connect(dotenv.get('Ropsten_Websockets')).cast<String>();
     });
+    RemoteConfigService _remoteConfigService = RemoteConfigService();
+    _remoteConfig = await _remoteConfigService.setupRemoteConfig();
+    print(_remoteConfig.getValue('Ropsten_HTTPS').source);
+    print(_remoteConfig.lastFetchStatus);
+    print(_remoteConfig.lastFetchTime);
   }
 
   Future<String> getBlkNum() async {
