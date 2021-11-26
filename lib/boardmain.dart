@@ -28,7 +28,7 @@ class BoardMain extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Ether Toto(6/45)',
+      title: 'Ethereum Toto(6/45)',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),

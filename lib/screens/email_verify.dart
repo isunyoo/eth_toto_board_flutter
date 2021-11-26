@@ -49,6 +49,11 @@ class _EmailVerifyPageState extends State<EmailVerifyPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
+              'Welcome to Ethereum Toto(6/45)',
+              style: Theme.of(context).textTheme.subtitle1!.copyWith(color: Colors.blueAccent, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 25.0),
+            Text(
               'NAME: ${_currentUser.displayName}',
               style: Theme.of(context).textTheme.bodyText1,
             ),
@@ -58,54 +63,58 @@ class _EmailVerifyPageState extends State<EmailVerifyPage> {
               style: Theme.of(context).textTheme.bodyText1,
             ),
             const SizedBox(height: 20.0),
+            // Email not verified showing following widgets
             if(_currentUser.emailVerified == false)
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  const Text("Refresh Email Verification Status"),
-                  IconButton(
-                    icon: const Icon(Icons.refresh),
-                    onPressed: () async {
-                      User? user = await FireAuth.refreshUser(_currentUser);
-                      if (user != null) {
-                        setState(() {
-                          _currentUser = user;
-                        });
-                      }
-                      // If(user?.emailVerified == true) then route BoardMain Page Scaffold
-                      _launchBoardMain();
-                    },
+              Center(
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.6,
+                  child: ListView(
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          const Text("Refresh Email Verification Status"),
+                          IconButton(icon: const Icon(Icons.refresh), onPressed: () async {
+                            User? user = await FireAuth.refreshUser(_currentUser);
+                            if (user != null) {
+                              setState(() {
+                                _currentUser = user;
+                              });
+                            }
+                            // If(user?.emailVerified == true) then route BoardMain Page Scaffold
+                            _launchBoardMain();
+                          },),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          Text('Email not verified', style: Theme.of(context).textTheme.bodyText1!.copyWith(color: Colors.redAccent, fontWeight: FontWeight.bold),),
+                        ]
+                      ),
+                      const SizedBox(height: 10.0),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          _isSendingVerification ? const CircularProgressIndicator() : Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ElevatedButton(
+                                onPressed: () async {
+                                  setState(() { _isSendingVerification = true; });
+                                  await _currentUser.sendEmailVerification();
+                                  setState(() { _isSendingVerification = false; });
+                                },
+                                child: const Text('Verify Email'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              Text(
-                  'Email not verified',
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyText1!
-                      .copyWith(color: Colors.redAccent, fontWeight: FontWeight.bold),
                 ),
-              const SizedBox(height: 10.0),
-              _isSendingVerification ? const CircularProgressIndicator() : Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ElevatedButton(
-                    onPressed: () async {
-                      setState(() {
-                        _isSendingVerification = true;
-                      });
-                      await _currentUser.sendEmailVerification();
-                      setState(() {
-                        _isSendingVerification = false;
-                      });
-                    },
-                    child: const Text('Verify Email'),
-                  ),
-                ],
               ),
-
-
-
           ],
         ),
       ),
