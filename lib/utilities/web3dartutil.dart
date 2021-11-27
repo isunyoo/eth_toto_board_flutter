@@ -33,10 +33,9 @@ class Web3DartHelper {
     print(_remoteConfig.getString('ETHSCAN_URL'));
     print(_remoteConfig.getString('Ropsten_Websockets'));
     print(_remoteConfig.getString('Ropsten_HTTPS'));
-    print(_remoteConfig.getValue('ETHSCAN_URL'));
     print(_remoteConfig.getValue('ETHSCAN_URL').asString());
-    // print(jsonDecode(_remoteConfig.getValue('accounts_secrets').asString())['0x00d85cF1331F9410F84D0B2aaCF5e2753a5afa00']);
-    // print(jsonDecode(_remoteConfig.getValue('accounts_secrets').asString())['0x00d85cF1331F9410F84D0B2aaCF5e2753a5afa00']['Private_Key']);
+    print(jsonDecode(_remoteConfig.getValue('accounts_secrets').asString())['0x00d85cF1331F9410F84D0B2aaCF5e2753a5afa00']);
+    print(jsonDecode(_remoteConfig.getValue('accounts_secrets').asString())['0x00d85cF1331F9410F84D0B2aaCF5e2753a5afa00']['Private_Key']);
 
   }
 
