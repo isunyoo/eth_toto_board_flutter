@@ -25,11 +25,19 @@ class Web3DartHelper {
     ethClient = Web3Client(dotenv.get('Ropsten_HTTPS'), Client(), socketConnector: () {
       return IOWebSocketChannel.connect(dotenv.get('Ropsten_Websockets')).cast<String>();
     });
+
+    // To fetch remote config from Firebase Remote Config
     RemoteConfigService _remoteConfigService = RemoteConfigService();
     _remoteConfig = await _remoteConfigService.setupRemoteConfig();
-    print(_remoteConfig.getValue('Ropsten_HTTPS').source);
-    print(_remoteConfig.lastFetchStatus);
-    print(_remoteConfig.lastFetchTime);
+    print(_remoteConfig.getString('Development_Contract_Address'));
+    print(_remoteConfig.getString('ETHSCAN_URL'));
+    print(_remoteConfig.getString('Ropsten_Websockets'));
+    print(_remoteConfig.getString('Ropsten_HTTPS'));
+    print(_remoteConfig.getValue('ETHSCAN_URL'));
+    print(_remoteConfig.getValue('ETHSCAN_URL').asString());
+    // print(jsonDecode(_remoteConfig.getValue('accounts_secrets').asString())['0x00d85cF1331F9410F84D0B2aaCF5e2753a5afa00']);
+    // print(jsonDecode(_remoteConfig.getValue('accounts_secrets').asString())['0x00d85cF1331F9410F84D0B2aaCF5e2753a5afa00']['Private_Key']);
+
   }
 
   Future<String> getBlkNum() async {
