@@ -28,8 +28,8 @@ class HistoryOutput extends StatefulWidget {
 }
 
 class _HistoryOutputState extends State<HistoryOutput> {
-
-  late final RemoteConfig _remoteConfig;
+  // To create a new Firebase Remote Config instance
+  late RemoteConfig _remoteConfig = RemoteConfig.instance;
   // Create a DatabaseReference which references a node called txreceipts
   late final DatabaseReference _txReceiptRef = FirebaseDatabase(databaseURL:_remoteConfig.getString('Firebase_Database')).reference();
   // The user's ID which is unique from the Firebase project
@@ -50,14 +50,6 @@ class _HistoryOutputState extends State<HistoryOutput> {
     // To fetch remote config from Firebase Remote Config
     RemoteConfigService _remoteConfigService = RemoteConfigService();
     _remoteConfig = await _remoteConfigService.setupRemoteConfig();
-  }
-
-  Future<String> firebaseDBName() async {
-    // To fetch remote config from Firebase Remote Config
-    RemoteConfigService _remoteConfigService = RemoteConfigService();
-    RemoteConfig _remoteConfig = await _remoteConfigService.setupRemoteConfig();
-    String _dbName = _remoteConfig.getString('Firebase_Database');
-    return _dbName;
   }
 
   @override
