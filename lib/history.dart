@@ -85,7 +85,7 @@ class _HistoryOutputState extends State<HistoryOutput> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: <Widget>[
-                                    Text("Date: " + lists[index]["date"]),
+                                    Text("Date: " + lists[index]["date"] + " , Transaction Status: " + lists[index]["status"].toString()),
                                     Text("SlotData: " + lists[index]["slotData"]),
                                     RichText(
                                         text: TextSpan(
@@ -94,7 +94,7 @@ class _HistoryOutputState extends State<HistoryOutput> {
                                                 style: TextStyle(
                                                     color: Colors.black,
                                                     fontSize: 14),
-                                                text: "TransactionHash: ",
+                                                text: "Transaction Hash: ",
                                               ),
                                               TextSpan(
                                                   style: const TextStyle(
@@ -113,8 +113,6 @@ class _HistoryOutputState extends State<HistoryOutput> {
                                               ),
                                             ]
                                         )),
-                                    Text("Status: " +
-                                        lists[index]["status"].toString()),
                                   ],
                                 ),
                               );
