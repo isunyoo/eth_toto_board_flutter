@@ -11,32 +11,29 @@ import 'package:eth_toto_board_flutter/utilities/remote_config.dart';
 class Web3DartHelper {
   late Client httpClient;
   late Web3Client ethClient;
+  late final String _privateKey;
   late final RemoteConfig _remoteConfig;
 
   Future<void> initState() async {
+    // To fetch remote config from Firebase Remote Config
+    RemoteConfigService _remoteConfigService = RemoteConfigService();
+    _remoteConfig = await _remoteConfigService.setupRemoteConfig();
+    // To fetch local config from assets
     await dotenv.load(fileName: "assets/.env");
+
     // Initialize the httpClient and ethCLient in the initState() method.
     // Client class is the interface for HTTP clients that take care of maintaining persistent connections
     httpClient = Client();
     // Web3Client class used for for sending requests over an HTTP JSON-RPC API endpoint to Ethereum clients
     // ethClient = Web3Client(dotenv.get('Ganache_HTTP'), httpClient);
-    // ethClient = Web3Client(dotenv.get('Ropsten_HTTPS'), httpClient);
+    // ethClient = Web3Client(_remoteConfig.getString('Ropsten_HTTPS'), httpClient);
     // WebSocket stream channels
-    ethClient = Web3Client(dotenv.get('Ropsten_HTTPS'), Client(), socketConnector: () {
-      return IOWebSocketChannel.connect(dotenv.get('Ropsten_Websockets')).cast<String>();
+    ethClient = Web3Client(_remoteConfig.getString('Ropsten_HTTPS'), Client(), socketConnector: () {
+      return IOWebSocketChannel.connect(_remoteConfig.getString('Ropsten_Websockets')).cast<String>();
     });
 
-    // To fetch remote config from Firebase Remote Config
-    RemoteConfigService _remoteConfigService = RemoteConfigService();
-    _remoteConfig = await _remoteConfigService.setupRemoteConfig();
-    print(_remoteConfig.getString('Development_Contract_Address'));
-    print(_remoteConfig.getString('ETHSCAN_URL'));
-    print(_remoteConfig.getString('Ropsten_Websockets'));
-    print(_remoteConfig.getString('Ropsten_HTTPS'));
-    print(_remoteConfig.getValue('ETHSCAN_URL').asString());
-    print(jsonDecode(_remoteConfig.getValue('accounts_secrets').asString())['0x00d85cF1331F9410F84D0B2aaCF5e2753a5afa00']);
-    print(jsonDecode(_remoteConfig.getValue('accounts_secrets').asString())['0x00d85cF1331F9410F84D0B2aaCF5e2753a5afa00']['Private_Key']);
-
+    print(jsonDecode(_remoteConfig.getValue('accounts_secrets').asString())['0x82d85cF1331F9410F84D0B2aaCF5e2753a5afa82']);
+    _privateKey = jsonDecode(_remoteConfig.getValue('accounts_secrets').asString())['0x82d85cF1331F9410F84D0B2aaCF5e2753a5afa82']['Private_Key'];
   }
 
   Future<String> getBlkNum() async {
@@ -46,13 +43,13 @@ class Web3DartHelper {
   }
 
   Future<String> getAddress() async {
-    var _credentials = EthPrivateKey.fromHex(dotenv.get('Private_Key'));
+    var _credentials = EthPrivateKey.fromHex(_privateKey);
     var myAddress = await _credentials.extractAddress();
     return myAddress.toString();
   }
 
   Future<String> getEthBalance() async {
-    var _credentials = EthPrivateKey.fromHex(dotenv.get('Private_Key'));
+    var _credentials = EthPrivateKey.fromHex(_privateKey);
     var myAddress = await _credentials.extractAddress();
     // print('address: $_address');
     // Get native balance
@@ -66,14 +63,14 @@ class Web3DartHelper {
   Future<DeployedContract> loadContract() async {
     String abiCode = await rootBundle.loadString("assets/abi.json");
     // String contractAddress = dotenv.get('Development_Contract_Address');
-    String contractAddress = dotenv.get('Ropsten_Contract_Address');
+    String contractAddress = _remoteConfig.getString('Ropsten_Contract_Address');
     final contract = DeployedContract(ContractAbi.fromJson(abiCode, "TotoSlots"), EthereumAddress.fromHex(contractAddress));
     return contract;
   }
 
   // The submit() function essentially signs and sends a transaction to the blockchain network from web3dart library.
   Future<String> submit(String functionName, List<dynamic> args) async {
-    EthPrivateKey credentials = EthPrivateKey.fromHex(dotenv.get('Private_Key'));
+    EthPrivateKey credentials = EthPrivateKey.fromHex(_privateKey);
     DeployedContract contract = await loadContract();
     final ethFunction = contract.function(functionName);
     final result = await ethClient.sendTransaction(credentials,
@@ -194,7 +191,7 @@ class Web3DartHelper {
     num balanceUSD;
     var balanceEther = await getEthBalance();
     // Make a network request
-    Response response = await get(Uri.parse(dotenv.get('ETHSCAN_URL')));
+    Response response = await get(Uri.parse(_remoteConfig.getString('ETH_Price_URL')));
     // If the server did return a 200 OK response then parse the JSON.
     if (response.statusCode == 200) {
       // print(jsonDecode(response.body));

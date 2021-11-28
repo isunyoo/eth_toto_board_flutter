@@ -3,14 +3,15 @@ import 'package:flutter/gestures.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:eth_toto_board_flutter/boardmain.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:eth_toto_board_flutter/utilities/remote_config.dart';
 
 class HistoryOutput extends StatefulWidget {
-
   const HistoryOutput({Key? key}) : super(key: key);
+
   @override
   State<HistoryOutput> createState() => _HistoryOutputState();
 
@@ -23,11 +24,14 @@ class HistoryOutput extends StatefulWidget {
       ),
     );
   }
+
 }
 
 class _HistoryOutputState extends State<HistoryOutput> {
+
+  late final RemoteConfig _remoteConfig;
   // Create a DatabaseReference which references a node called txreceipts
-  final DatabaseReference _txReceiptRef = FirebaseDatabase(databaseURL:dotenv.get('Firebase_Database')).reference();
+  late final DatabaseReference _txReceiptRef = FirebaseDatabase(databaseURL:_remoteConfig.getString('Firebase_Database')).reference();
   // The user's ID which is unique from the Firebase project
   String? userId = FirebaseAuth.instance.currentUser?.uid;
   List<Map<dynamic, dynamic>> lists = [];
@@ -43,6 +47,17 @@ class _HistoryOutputState extends State<HistoryOutput> {
     // Firebase Initialize App Function
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp();
+    // To fetch remote config from Firebase Remote Config
+    RemoteConfigService _remoteConfigService = RemoteConfigService();
+    _remoteConfig = await _remoteConfigService.setupRemoteConfig();
+  }
+
+  Future<String> firebaseDBName() async {
+    // To fetch remote config from Firebase Remote Config
+    RemoteConfigService _remoteConfigService = RemoteConfigService();
+    RemoteConfig _remoteConfig = await _remoteConfigService.setupRemoteConfig();
+    String _dbName = _remoteConfig.getString('Firebase_Database');
+    return _dbName;
   }
 
   @override
