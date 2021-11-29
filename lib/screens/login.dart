@@ -176,6 +176,3 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-// https://blog.codemagic.io/firebase-authentication-google-sign-in-using-flutter/
-// https://pub.dev/packages/google_sign_in/example
-// https://github.com/sbis04/flutterfire-samples/blob/google-sign-in/lib/

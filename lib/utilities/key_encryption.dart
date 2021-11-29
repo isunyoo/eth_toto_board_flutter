@@ -1,34 +1,26 @@
-// https://pub.dev/packages/flutter_string_encryption
-// https://github.com/sroddy/flutter_string_encryption/blob/1fa478d59842931f5959e288880c384077d52bb7/lib/flutter_string_encryption.dart#L31
-// import 'package:flutter_string_encryption/flutter_string_encryption.dart' show PlatformStringCryptor;
+// https://stackoverflow.com/questions/57109308/how-to-encrypt-a-string-and-decrypt-this-encrypted-string-in-other-device-in-flu
 import 'package:encrypt/encrypt.dart';
 
 class KeyEncrypt {
 
-  // late final _encryptedPrivateKey;
-  // String _key;
-  // PlatformStringCryptor _crypto;
-
   // Activate the AES Symmetric encrypt
-  String encrypt(String privateKey, String keyRing) {
+  Encrypted getEncryption(String privateKey, String passphrase) {
     // Gets a key from the given keyRing
-    final key = Key.fromUtf8(keyRing);
-    final iv = IV.fromLength(16);
+    final key = Key.fromUtf8(passphrase);
+    final iv = IV.fromLength(8);
     final encrypter = Encrypter(AES(key));
     final _encryptedPrivateKey = encrypter.encrypt(privateKey, iv: iv);
 
-    return _encryptedPrivateKey.base64;
+    return _encryptedPrivateKey;
   }
 
   // Activate the AES Symmetric decrypt
-  String decrypt(String encryptedPrivateKey, String keyRing) {
-    final key = Key.fromUtf8(keyRing);
-    final iv = IV.fromLength(16);
+  String getDecryption(Encrypted encryptedPrivateKey, String passphrase) {
+    final key = Key.fromUtf8(passphrase);
+    final iv = IV.fromLength(8);
     final encrypter = Encrypter(AES(key));
-    final Encrypted _encryptedPrivateKey = encrypt(encryptedPrivateKey, keyRing) as Encrypted;
     // To decrypt with keyRing
-    final _decryptedPrivateKey = encrypter.decrypt(_encryptedPrivateKey, iv: iv);
-    print('Decrypted Output:  $_decryptedPrivateKey');
+    final _decryptedPrivateKey = encrypter.decrypt(encryptedPrivateKey, iv: iv);
 
     return _decryptedPrivateKey;
   }

@@ -53,78 +53,69 @@ class _ImportKeyState extends State<ImportKey> {
     _remoteConfig = await _remoteConfigService.setupRemoteConfig();
   }
 
+  // Auto login(If a user has logged in to the app and then closed it, when the user comes back to the app, it should automatically sign in)
+  Future<FirebaseApp> _initializeFirebase() async {
+    FirebaseApp firebaseApp = await Firebase.initializeApp();
+
+    User? user = FirebaseAuth.instance.currentUser;
+
+    return firebaseApp;
+  }
+
   @override
   Scaffold build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Import Private Key'),
+        title: const Text('Import Account'),
         automaticallyImplyLeading: false,
       ),
-      // body: SingleChildScrollView(
-      //   child: Column(
-      //       children: <Widget>[
-      //         FutureBuilder(
-      //             future: _txReceiptRef.child('vaults/$userId').orderByChild("timestamp").once(),
-      //             // future: _txReceiptRef.child('txreceipts').orderByChild("timestamp").limitToLast(10).once(),
-      //             builder: (BuildContext context, AsyncSnapshot snapshot) {
-      //               if (snapshot.connectionState == ConnectionState.done) {
-      //                 if(snapshot.data.value == null) {
-      //                   return const Text('\n No History Transaction Data Existed.', textScaleFactor: 1.5, style: TextStyle(color: Colors.red));
-      //                 } else {
-      //                   // 'DataSnapshot' value != null
-      //                   lists.clear();
-      //                   Map<dynamic, dynamic> values = snapshot.data?.value;
-      //                   values.forEach((key, values) {
-      //                     lists.add(values);
-      //                   });
-      //                   return ListView.builder(
-      //                       primary: false,
-      //                       shrinkWrap: true,
-      //                       itemCount: lists.length,
-      //                       itemBuilder: (BuildContext context, int index) {
-      //                         return Card(
-      //                           child: Column(
-      //                             crossAxisAlignment: CrossAxisAlignment.start,
-      //                             children: <Widget>[
-      //                               Text("Date: " + lists[index]["date"] + " , Transaction Status: " + lists[index]["status"].toString()),
-      //                               Text("SlotData: " + lists[index]["slotData"]),
-      //                               RichText(
-      //                                   text: TextSpan(
-      //                                       children: [
-      //                                         const TextSpan(
-      //                                           style: TextStyle(
-      //                                               color: Colors.black,
-      //                                               fontSize: 14),
-      //                                           text: "Transaction Hash: ",
-      //                                         ),
-      //                                         TextSpan(
-      //                                             style: const TextStyle(
-      //                                                 color: Colors.blueAccent,
-      //                                                 fontSize: 14),
-      //                                             text: '0x${lists[index]["transactionHash"]}',
-      //                                             recognizer: TapGestureRecognizer()
-      //                                               ..onTap = () async {
-      //                                                 var url = "https://ropsten.etherscan.io/tx/0x${lists[index]["transactionHash"]}";
-      //                                                 if (await canLaunch(url)) {
-      //                                                   await launch(url);
-      //                                                 } else {
-      //                                                   throw 'Could not launch $url';
-      //                                                 }
-      //                                               }
-      //                                         ),
-      //                                       ]
-      //                                   )),
-      //                             ],
-      //                           ),
-      //                         );
-      //                       });
-      //                 }
-      //               }
-      //               return const CircularProgressIndicator();
-      //             }),
-      //       ]
-      //   ),
-      // ),
+      body: SingleChildScrollView(
+        child: Padding(
+                  padding: const EdgeInsets.only(left: 24.0, right: 24.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('Paste your private key string here:'),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 25.0),
+                        child: Text(
+                          'Login',
+                          style: Theme.of(context).textTheme.headline4,
+                        ),
+                      ),
+                      Form(
+                        child: Column(
+                          children: <Widget>[
+                            TextFormField(
+                              decoration: InputDecoration(
+                                hintText: "Email",
+                                errorBorder: UnderlineInputBorder(
+                                  borderRadius: BorderRadius.circular(6.0),
+                                  borderSide: const BorderSide(
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 25.0),
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  // Navigator.of(context).push(MaterialPageRoute(builder: (context) => const RegisterPage(),),);
+                                },
+                                child: const Text(
+                                  'Register',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+      ),
       floatingActionButton: SpeedDial(
           icon: Icons.menu,
           backgroundColor: Colors.blueAccent,

@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:convert';
 import 'package:http/http.dart';
+import 'package:encrypt/encrypt.dart';
 import 'package:flutter/services.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/io.dart';
@@ -35,9 +36,10 @@ class Web3DartHelper {
 
     print(jsonDecode(_remoteConfig.getValue('accounts_secrets').asString())['0x82d85cF1331F9410F84D0B2aaCF5e2753a5afa82']);
     _privateKey = jsonDecode(_remoteConfig.getValue('accounts_secrets').asString())['0x82d85cF1331F9410F84D0B2aaCF5e2753a5afa82']['Private_Key'];
-    String _encryptedPrivateKey = KeyEncrypt().encrypt(_privateKey, 'my32lengthsupersecretnooneknows1');
-    print(_encryptedPrivateKey);
-    print(KeyEncrypt().encrypt(_encryptedPrivateKey, 'my32lengthsupersecretnooneknows1'));
+    Encrypted _encryptedPrivateKey = KeyEncrypt().getEncryption(_privateKey, 'my32lengthsupers'); //my32lengthsupersecretnooneknows1
+    print('Encrypted Key: ${_encryptedPrivateKey.base64}');
+    String _decryptedPrivateKey = KeyEncrypt().getDecryption(_encryptedPrivateKey, 'my32lengthsupers');
+    print('Decrypted Key:  $_decryptedPrivateKey');
   }
 
   Future<String> getBlkNum() async {
