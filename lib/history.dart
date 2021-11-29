@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -31,7 +32,7 @@ class _HistoryOutputState extends State<HistoryOutput> {
   // To create a new Firebase Remote Config instance
   late RemoteConfig _remoteConfig = RemoteConfig.instance;
   // Create a DatabaseReference which references a node called txreceipts
-  late final DatabaseReference _txReceiptRef = FirebaseDatabase(databaseURL:_remoteConfig.getString('Firebase_Database')).reference();
+  late final DatabaseReference _txReceiptRef = FirebaseDatabase(databaseURL:jsonDecode(_remoteConfig.getValue('Connection_Config').asString())['Firebase']['Firebase_Database']).reference();
   // The user's ID which is unique from the Firebase project
   String? userId = FirebaseAuth.instance.currentUser?.uid;
   List<Map<dynamic, dynamic>> lists = [];

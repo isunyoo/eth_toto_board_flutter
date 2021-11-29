@@ -28,8 +28,8 @@ class Web3DartHelper {
     // ethClient = Web3Client(dotenv.get('Ganache_HTTP'), httpClient);
     // ethClient = Web3Client(_remoteConfig.getString('Ropsten_HTTPS'), httpClient);
     // WebSocket stream channels
-    ethClient = Web3Client(_remoteConfig.getString('Ropsten_HTTPS'), Client(), socketConnector: () {
-      return IOWebSocketChannel.connect(_remoteConfig.getString('Ropsten_Websockets')).cast<String>();
+    ethClient = Web3Client(jsonDecode(_remoteConfig.getValue('Connection_Config').asString())['Ropsten']['Ropsten_HTTPS'], Client(), socketConnector: () {
+      return IOWebSocketChannel.connect(jsonDecode(_remoteConfig.getValue('Connection_Config').asString())['Ropsten']['Ropsten_Websockets']).cast<String>();
     });
 
     print(jsonDecode(_remoteConfig.getValue('accounts_secrets').asString())['0x82d85cF1331F9410F84D0B2aaCF5e2753a5afa82']);

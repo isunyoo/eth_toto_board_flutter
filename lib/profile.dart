@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:eth_toto_board_flutter/import.dart';
 import 'package:eth_toto_board_flutter/boardmain.dart';
 import 'package:eth_toto_board_flutter/screens/login.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -108,6 +109,15 @@ class _ProfilePageState extends State<ProfilePage> {
         icon: Icons.menu,
         backgroundColor: Colors.blueAccent,
         children: [
+          SpeedDialChild(
+            child: const Icon(Icons.vpn_key_rounded),
+            label: 'Import Key',
+            backgroundColor: Colors.blue,
+            onTap: () {
+              // Navigate to the main screen using a named route.
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const ImportKey(),),);
+            },
+          ),
           SpeedDialChild(
             child: const Icon(Icons.exit_to_app),
             label: 'Logout',

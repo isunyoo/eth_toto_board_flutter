@@ -1,4 +1,5 @@
 // https://betterprogramming.pub/hide-your-passwords-e9154bbb8db4
+// https://pub.dev/packages/flutter_string_encryption
 // https://gist.github.com/Andrious/51ab198ad6128b55a70d6b1bc32f8136#file-remote_config-dart
 // https://pub.dev/packages/firebase_remote_config/example
 // https://tsvillain.medium.com/update-flutter-app-remotely-using-firebase-remote-config-69aadba275f7

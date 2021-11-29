@@ -38,7 +38,7 @@ class _OutputState extends State<Output> {
   Web3DartHelper web3util = Web3DartHelper();
   late AnimationController controller;
   // Create a DatabaseReference which references a node called txreceipts
-  late final DatabaseReference _txReceiptRef = FirebaseDatabase(databaseURL:_remoteConfig.getString('Firebase_Database')).reference();
+  late final DatabaseReference _txReceiptRef = FirebaseDatabase(databaseURL:jsonDecode(_remoteConfig.getValue('Connection_Config').asString())['Firebase']['Firebase_Database']).reference();
   // The user's ID which is unique from the Firebase project
   String? userId = FirebaseAuth.instance.currentUser?.uid;
   // FutureBuilder helps in awaiting long-running operations in the Scaffold.
