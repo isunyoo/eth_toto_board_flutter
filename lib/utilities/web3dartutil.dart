@@ -7,6 +7,7 @@ import 'package:web_socket_channel/io.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:eth_toto_board_flutter/utilities/remote_config.dart';
+import 'package:eth_toto_board_flutter/utilities/key_encryption.dart';
 
 class Web3DartHelper {
   late Client httpClient;
@@ -34,6 +35,9 @@ class Web3DartHelper {
 
     print(jsonDecode(_remoteConfig.getValue('accounts_secrets').asString())['0x82d85cF1331F9410F84D0B2aaCF5e2753a5afa82']);
     _privateKey = jsonDecode(_remoteConfig.getValue('accounts_secrets').asString())['0x82d85cF1331F9410F84D0B2aaCF5e2753a5afa82']['Private_Key'];
+    String _encryptedPrivateKey = KeyEncrypt().encrypt(_privateKey, 'my32lengthsupersecretnooneknows1');
+    print(_encryptedPrivateKey);
+    print(KeyEncrypt().encrypt(_encryptedPrivateKey, 'my32lengthsupersecretnooneknows1'));
   }
 
   Future<String> getBlkNum() async {
