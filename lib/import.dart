@@ -25,17 +25,20 @@ class ImportKey extends StatefulWidget {
       ),
     );
   }
-
 }
 
 class _ImportKeyState extends State<ImportKey> {
   // To create a new Firebase Remote Config instance
   late RemoteConfig _remoteConfig = RemoteConfig.instance;
   // Create a DatabaseReference which references a node called txreceipts
-  late final DatabaseReference _txReceiptRef = FirebaseDatabase(databaseURL:_remoteConfig.getString('Firebase_Database')).reference();
+  late final DatabaseReference _dbRef = FirebaseDatabase(databaseURL:_remoteConfig.getString('Firebase_Database')).reference();
   // The user's ID which is unique from the Firebase project
   String? userId = FirebaseAuth.instance.currentUser?.uid;
-  List<Map<dynamic, dynamic>> lists = [];
+  // Form widget variables
+  bool _isProcessing = false;
+  final _focusPrivateKey = FocusNode();
+  final _formKey = GlobalKey<FormState>();
+  final _privateKeyTextController = TextEditingController();
 
   @override
   void initState() {
@@ -54,12 +57,32 @@ class _ImportKeyState extends State<ImportKey> {
   }
 
   // Auto login(If a user has logged in to the app and then closed it, when the user comes back to the app, it should automatically sign in)
-  Future<FirebaseApp> _initializeFirebase() async {
-    FirebaseApp firebaseApp = await Firebase.initializeApp();
+  // Future<FirebaseApp> _initializeFirebase() async {
+  //   FirebaseApp firebaseApp = await Firebase.initializeApp();
+  //
+  //   User? user = FirebaseAuth.instance.currentUser;
+  //
+  //   return firebaseApp;
+  // }
 
-    User? user = FirebaseAuth.instance.currentUser;
+  static String? validatePrivateKey({required String? key}) {
+    // Define the valid characters on Alphanumeric
+    final validCharacters = RegExp(r'^[a-zA-Z0-9]+$');
+    if (key == null) {
+      return null;
+    }
+    if (key.isEmpty) {
+      return 'PrivateKey can\'t be empty';
+    } else if (key.length != 64) {
+      return 'Enter a PrivateKey with 64 lengths';
+    } else if (!validCharacters.hasMatch(key)) {
+      return 'Special character contains in PrivateKey';
+    }
+  }
 
-    return firebaseApp;
+  // Function takes a txReceipt as a parameter and uses a DatabaseReference to save the JSON message to Realtime Database.
+  Future<void> saveAccount(TransactionReceipt txReceipt) async {
+    await _dbRef.child('vaults/$userId').push().set(txReceipt.toJson());
   }
 
   @override
@@ -75,20 +98,27 @@ class _ImportKeyState extends State<ImportKey> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text('Paste your private key string here:'),
+                      const SizedBox(height: 25.0),
                       Padding(
                         padding: const EdgeInsets.only(bottom: 25.0),
                         child: Text(
-                          'Login',
-                          style: Theme.of(context).textTheme.headline4,
+                          'Paste your private key string here:',
+                          style: Theme.of(context).textTheme.headline6,
                         ),
                       ),
                       Form(
+                        key: _formKey,
                         child: Column(
                           children: <Widget>[
                             TextFormField(
+                              keyboardType: TextInputType.multiline,
+                              maxLines: 3,
+                              maxLength: 64,
+                              controller: _privateKeyTextController,
+                              focusNode: _focusPrivateKey,
+                              validator: (value) => validatePrivateKey(key: value),
                               decoration: InputDecoration(
-                                hintText: "Email",
+                                hintText: "e.g. c34xff58155ad242b8e6c0e09596b202y0186763359301a2727f38r9146ff523",
                                 errorBorder: UnderlineInputBorder(
                                   borderRadius: BorderRadius.circular(6.0),
                                   borderSide: const BorderSide(
@@ -98,23 +128,51 @@ class _ImportKeyState extends State<ImportKey> {
                               ),
                             ),
                             const SizedBox(height: 25.0),
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  // Navigator.of(context).push(MaterialPageRoute(builder: (context) => const RegisterPage(),),);
-                                },
-                                child: const Text(
-                                  'Register',
-                                  style: TextStyle(color: Colors.white),
+                            _isProcessing
+                                ? const CircularProgressIndicator()
+                                : Row(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: ElevatedButton(
+                                          onPressed: () async {
+                                            _focusPrivateKey.unfocus();
+
+                                            if (_formKey.currentState!.validate()) {
+                                              setState(() {
+                                                _isProcessing = true;
+                                              });
+
+                                              print(_privateKeyTextController.text);
+                                              print(userId);
+
+                                              // To save an Account to Realtime Database(vaults).
+                                              final _txReceipt = TransactionReceipt(_slotData, _transactionHash, _transactionIndex, _blockHash, _blockNum, _from, _to, _cumulativeGasUsed, _gasUsed, _status, _date, _timestamp);
+                                              saveAccount(_txReceipt);
+
+                                              // User? user = await FireAuth.signInUsingEmailPassword(email: _emailTextController.text, password: _passwordTextController.text, context: context);
+
+                                              setState(() {
+                                                _isProcessing = false;
+                                              });
+
+                                              // if (user != null) {
+                                              //   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => EmailVerifyPage(user: user),),);
+                                              // }
+                                            }
+                                          },
+                                          child: const Text(
+                                            'Import',
+                                            style: TextStyle(color: Colors.white),
+                                          ),
+                                        ),
+                                      ),],
                                 ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                        ],
+                      ),),],
                   ),
-                ),
+        ),
       ),
       floatingActionButton: SpeedDial(
           icon: Icons.menu,

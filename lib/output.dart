@@ -85,7 +85,6 @@ class _OutputState extends State<Output> {
   // Function takes a txReceipt as a parameter and uses a DatabaseReference to save the JSON message to Realtime Database.
   Future<void> saveTxReceipt(TransactionReceipt txReceipt) async {
     await _txReceiptRef.child('txreceipts/$userId').push().set(txReceipt.toJson());
-    // _txReceiptRef.child('txreceipt/$txreceiptId').push().set(txReceipt.toJson());
   }
 
   // Retrieving data from the given Realtime Database reference
@@ -100,8 +99,6 @@ class _OutputState extends State<Output> {
       });
     });
   }
-  // https://www.woolha.com/tutorials/flutter-using-firebase-realtime-database
-  // https://medium.com/firebase-tips-tricks/how-to-use-firebase-queries-in-flutter-361f21005467
 
   // Updating data to Realtime FirebaseDatabase
   Future<void> updateData() async {
