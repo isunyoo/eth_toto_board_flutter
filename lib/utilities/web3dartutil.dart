@@ -36,7 +36,7 @@ class Web3DartHelper {
 
     print(jsonDecode(_remoteConfig.getValue('accounts_secrets').asString())['0x82d85cF1331F9410F84D0B2aaCF5e2753a5afa82']);
     _privateKey = jsonDecode(_remoteConfig.getValue('accounts_secrets').asString())['0x82d85cF1331F9410F84D0B2aaCF5e2753a5afa82']['Private_Key'];
-    Encrypted _encryptedPrivateKey = KeyEncrypt().getEncryption(_privateKey, 'my32lengthsupers'); //my32lengthsupersecretnooneknows1
+    Encrypted _encryptedPrivateKey = KeyEncrypt().getEncryption(_privateKey, 'my32lengthsupers');
     print('Encrypted Key: ${_encryptedPrivateKey.base64}');
     String _decryptedPrivateKey = KeyEncrypt().getDecryption(_encryptedPrivateKey, 'my32lengthsupers');
     print('Decrypted Key:  $_decryptedPrivateKey');
@@ -50,6 +50,12 @@ class Web3DartHelper {
 
   Future<String> getAddress() async {
     var _credentials = EthPrivateKey.fromHex(_privateKey);
+    var myAddress = await _credentials.extractAddress();
+    return myAddress.toString();
+  }
+
+  Future<String> getAccountAddress(String inputPrivateKey) async {
+    var _credentials = EthPrivateKey.fromHex(inputPrivateKey);
     var myAddress = await _credentials.extractAddress();
     return myAddress.toString();
   }

@@ -1,6 +1,9 @@
+import 'dart:convert';
+import 'utilities/web3dartutil.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:eth_toto_board_flutter/profile.dart';
@@ -9,6 +12,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:eth_toto_board_flutter/utilities/remote_config.dart';
+import 'package:eth_toto_board_flutter/utilities/key_encryption.dart';
 
 class ImportKey extends StatefulWidget {
   const ImportKey({Key? key}) : super(key: key);
@@ -28,6 +32,8 @@ class ImportKey extends StatefulWidget {
 }
 
 class _ImportKeyState extends State<ImportKey> {
+  // Initialize the Web3DartHelper class from utility packages
+  Web3DartHelper web3util = Web3DartHelper();
   // To create a new Firebase Remote Config instance
   late RemoteConfig _remoteConfig = RemoteConfig.instance;
   // Create a DatabaseReference which references a node called txreceipts
@@ -81,8 +87,16 @@ class _ImportKeyState extends State<ImportKey> {
   }
 
   // Function takes a txReceipt as a parameter and uses a DatabaseReference to save the JSON message to Realtime Database.
-  Future<void> saveAccount(TransactionReceipt txReceipt) async {
-    await _dbRef.child('vaults/$userId').push().set(txReceipt.toJson());
+  Future<void> saveAccount(String privateKeyContext) async {
+    encrypt.Encrypted _encryptedPrivateKey = KeyEncrypt().getEncryption(privateKeyContext, 'my32lengthsupers');
+    print(userId);
+    print(await web3util.getAccountAddress(privateKeyContext));
+    print(privateKeyContext);
+    print(_encryptedPrivateKey.base64);
+    // Convert json object to String data using json.encode() method
+    String vaultContent=json.encode({"accountAddress": await web3util.getAccountAddress(privateKeyContext), "encryptedPrivateKey": _encryptedPrivateKey.base64});
+    // await _dbRef.child('vaults/$userId').push().set(vaultContent.toJson());
+    await _dbRef.child('vaults/$userId').push().set(vaultContent);
   }
 
   @override
@@ -144,12 +158,9 @@ class _ImportKeyState extends State<ImportKey> {
                                                 _isProcessing = true;
                                               });
 
-                                              print(_privateKeyTextController.text);
-                                              print(userId);
 
                                               // To save an Account to Realtime Database(vaults).
-                                              final _txReceipt = TransactionReceipt(_slotData, _transactionHash, _transactionIndex, _blockHash, _blockNum, _from, _to, _cumulativeGasUsed, _gasUsed, _status, _date, _timestamp);
-                                              saveAccount(_txReceipt);
+                                              await saveAccount(_privateKeyTextController.text);
 
                                               // User? user = await FireAuth.signInUsingEmailPassword(email: _emailTextController.text, password: _passwordTextController.text, context: context);
 
