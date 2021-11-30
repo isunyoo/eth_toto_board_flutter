@@ -1,8 +1,8 @@
 import 'dart:convert';
+import 'dart:collection';
+import 'models/vault.dart';
 import 'utilities/web3dartutil.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -36,8 +36,8 @@ class _ImportKeyState extends State<ImportKey> {
   Web3DartHelper web3util = Web3DartHelper();
   // To create a new Firebase Remote Config instance
   late RemoteConfig _remoteConfig = RemoteConfig.instance;
-  // Create a DatabaseReference which references a node called txreceipts
-  late final DatabaseReference _dbRef = FirebaseDatabase(databaseURL:_remoteConfig.getString('Firebase_Database')).reference();
+  // Create a DatabaseReference which references a node called dbRef
+  late final DatabaseReference _dbRef = FirebaseDatabase(databaseURL:jsonDecode(_remoteConfig.getValue('Connection_Config').asString())['Firebase']['Firebase_Database']).reference();
   // The user's ID which is unique from the Firebase project
   String? userId = FirebaseAuth.instance.currentUser?.uid;
   // Form widget variables
@@ -86,16 +86,58 @@ class _ImportKeyState extends State<ImportKey> {
     }
   }
 
-  // Function takes a txReceipt as a parameter and uses a DatabaseReference to save the JSON message to Realtime Database.
+  // Get the key and value properties data from returning DataSnapshot value
+  Future<VaultData> getVaultData() async {
+    return await _dbRef.child('vaults/$userId').once().then((DataSnapshot result) {
+      final LinkedHashMap value = result.value;
+      print(VaultData.fromMap(value));
+      return VaultData.fromMap(value);
+    });
+  }
+  // https://www.woolha.com/tutorials/flutter-using-firebase-realtime-database
+  // Future<VaultData?> getVaultData() async {
+  // // Future<void> getVaultData() async {
+  //   await _dbRef.child('vaults/$userId').once().then((DataSnapshot result) {
+  //     // final LinkedHashMap value = result.value;
+  //     // print(VaultData.fromMap(value));
+  //     VaultData.fromMap(result.value);
+  //     print(result.value);
+  //     print(VaultData.fromMap(result.value).accountAddress);
+  //     return VaultData.fromMap(result.value);
+  //   });
+  // }
+
+  // Future<List<MatchModel>> fetchMatches() async {
+  //   var dio = Dio();
+  //   final response = await dio.post(AppUrls.getMatches);
+  //   print(response.data);
+  //   final body = response.data['matches'] as List;
+  //   return body.map((dynamic json) {
+  //     return MatchModel(
+  //       id: json['id'] as int,
+  //       date: json['date'] as String,
+  //       dateGmt: json['dateTimeGMT'] as String,
+  //       teamOne: json['team-1'] as String,
+  //       teamTwo: json['team-2'] as String,
+  //       tossWinnerTeam: json['toss_winner_team'] as String,
+  //       matchStarted: json['matchStarted'] as bool,
+  //       type: json['type'] as String,
+  //       winnerTeam: json['winner_team'] as String,
+  //     );
+  //   }).toList();
+  // }
+
+  // Function takes a txReceipt as a parameter and uses a DatabaseReference to save the MAP message to Realtime Database.
   Future<void> saveAccount(String privateKeyContext) async {
+    // var snapshot = await _dbRef.child("vaults/$userId/accessTokens").child(token).once();
+    // if (snapshot.value != null) {
+    // }
+    // Encryption of PrivateKey
     encrypt.Encrypted _encryptedPrivateKey = KeyEncrypt().getEncryption(privateKeyContext, 'my32lengthsupers');
-    print(userId);
-    print(await web3util.getAccountAddress(privateKeyContext));
-    print(privateKeyContext);
-    print(_encryptedPrivateKey.base64);
-    // Convert json object to String data using json.encode() method
-    String vaultContent=json.encode({"accountAddress": await web3util.getAccountAddress(privateKeyContext), "encryptedPrivateKey": _encryptedPrivateKey.base64});
-    // await _dbRef.child('vaults/$userId').push().set(vaultContent.toJson());
+    // Converting string to map
+    String _accountAddress = await web3util.getAccountAddress(privateKeyContext);
+    Map<String, String> vaultContent = <String, String>{'accountAddress': _accountAddress, 'encryptedPrivateKey': _encryptedPrivateKey.base64};
+    // Save to Realtime Database(vaults)
     await _dbRef.child('vaults/$userId').push().set(vaultContent);
   }
 
@@ -116,7 +158,7 @@ class _ImportKeyState extends State<ImportKey> {
                       Padding(
                         padding: const EdgeInsets.only(bottom: 25.0),
                         child: Text(
-                          'Paste your private key string here:',
+                          'Paste your private key string',
                           style: Theme.of(context).textTheme.headline6,
                         ),
                       ),
@@ -160,7 +202,8 @@ class _ImportKeyState extends State<ImportKey> {
 
 
                                               // To save an Account to Realtime Database(vaults).
-                                              await saveAccount(_privateKeyTextController.text);
+                                              // await saveAccount(_privateKeyTextController.text);
+                                              await getVaultData();
 
                                               // User? user = await FireAuth.signInUsingEmailPassword(email: _emailTextController.text, password: _passwordTextController.text, context: context);
 
