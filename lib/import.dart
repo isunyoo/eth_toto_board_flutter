@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:collection';
-import 'models/vault.dart';
+import 'package:intl/intl.dart';
 import 'utilities/web3dartutil.dart';
+import 'package:encrypt/encrypt.dart';
 import 'package:flutter/material.dart';
 import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:firebase_core/firebase_core.dart';
@@ -61,15 +62,6 @@ class _ImportKeyState extends State<ImportKey> {
     _remoteConfig = await _remoteConfigService.setupRemoteConfig();
   }
 
-  // Auto login(If a user has logged in to the app and then closed it, when the user comes back to the app, it should automatically sign in)
-  // Future<FirebaseApp> _initializeFirebase() async {
-  //   FirebaseApp firebaseApp = await Firebase.initializeApp();
-  //
-  //   User? user = FirebaseAuth.instance.currentUser;
-  //
-  //   return firebaseApp;
-  // }
-
   static String? validatePrivateKey({required String? key}) {
     // Define the valid characters on Alphanumeric
     final validCharacters = RegExp(r'^[a-zA-Z0-9]+$');
@@ -85,7 +77,7 @@ class _ImportKeyState extends State<ImportKey> {
     }
   }
 
-  // Display a snackbar
+  // Display a snackbar widget
   static SnackBar customSnackBar({required String content}) {
     return SnackBar(
       backgroundColor: Colors.black,
@@ -96,48 +88,56 @@ class _ImportKeyState extends State<ImportKey> {
     );
   }
 
-  // Get the key and value properties data from returning DataSnapshot value
-  // Future<VaultData> getVaultData() async {
-  //   return await _dbRef.child('vaults/$userId').once().then((DataSnapshot result) {
-  //     final LinkedHashMap value = result.value;
-  //     print(VaultData.fromMap(value));
-  //     return VaultData.fromMap(value);
-  //   });
-  // }
-  // https://www.woolha.com/tutorials/flutter-using-firebase-realtime-database
+  // Get the key and value properties data from returning DataSnapshot vaults' values
   Future<List<Map>> getVaultData() async {
     DataSnapshot snapshotResult = await _dbRef.child('vaults/$userId').once();
-    print(snapshotResult.value);
-    final LinkedHashMap hashMapValue = snapshotResult.value;
-    lists.clear();
-    Map<dynamic, dynamic> mapValues = hashMapValue;
-    mapValues.forEach((key, mapValues) {
-      lists.add(mapValues);
-    });
-    return lists;
+    if(snapshotResult.value == null ) {
+      lists.clear();
+      return lists;
+    } else {
+      final LinkedHashMap hashMapValue = snapshotResult.value;
+      lists.clear();
+      Map<dynamic, dynamic> mapValues = hashMapValue;
+      mapValues.forEach((key, mapValues) {
+        lists.add(mapValues);
+      });
+      return lists;
+    }
   }
-
 
   // Function takes a txReceipt as a parameter and uses a DatabaseReference to save the MAP message to Realtime Database.
   Future<void> saveAccount(String privateKeyContext) async {
-    lists = await getVaultData();
-    for (int i = 0; i < lists.length; i++) {
-      print(lists[i]["accountAddress"]);
-    }
-
     // Encryption of PrivateKey
     encrypt.Encrypted _encryptedPrivateKey = KeyEncrypt().getEncryption(privateKeyContext);
     // encrypt.Encrypted _encryptedPrivateKey = KeyEncrypt().getEncryptionKeyRing(privateKeyContext, 'my32lengthsupers');
-    // Converting string to map
+    // Get Account Address from inserted privateKeyContext
     String _accountAddress = await web3util.getAccountAddress(privateKeyContext);
-    Map<String, String> vaultContent = <String, String>{'accountAddress': _accountAddress, 'encryptedPrivateKey': _encryptedPrivateKey.base64};
-    // Save to Realtime Database(vaults)
-    await _dbRef.child('vaults/$userId').push().set(vaultContent);
-    ScaffoldMessenger.of(context).showSnackBar(
-      customSnackBar(
-        content: 'Account($_accountAddress) has imported successfully.',
-      ),
-    );
+
+    // Retrieve current database snapshot on vaults
+    lists = await getVaultData();
+    if(lists.isEmpty){
+      // Map<String, String> vaultContent = <String, String>{'accountAddress': _accountAddress, 'encryptedPrivateKey': _encryptedPrivateKey.base64};
+      Map<String, Encrypted> vaultContent = <String, Encrypted>{'accountAddress': _accountAddress, 'encryptedPrivateKey': _encryptedPrivateKey};
+      // Save to Realtime Database(vaults)
+      await _dbRef.child('vaults/$userId').push().set(vaultContent);
+      ScaffoldMessenger.of(context).showSnackBar(
+        customSnackBar(
+          content: 'Account($_accountAddress) has imported successfully.',
+        ),
+      );
+    } else {
+      for (int i = 0; i < lists.length; i++) {
+        if(_accountAddress == lists[i]["accountAddress"]) {
+          // print(lists[i]["accountAddress"]);
+          ScaffoldMessenger.of(context).showSnackBar(
+            customSnackBar(
+              content: 'Account($_accountAddress) has already existed in wallet.',
+            ),
+          );
+        }
+      }
+    }
+
   }
 
   @override

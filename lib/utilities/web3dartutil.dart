@@ -1,11 +1,14 @@
 import 'dart:math';
 import 'dart:convert';
+import 'dart:collection';
 import 'package:http/http.dart';
 import 'package:encrypt/encrypt.dart';
 import 'package:flutter/services.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/io.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:eth_toto_board_flutter/utilities/remote_config.dart';
 import 'package:eth_toto_board_flutter/utilities/key_encryption.dart';
@@ -15,11 +18,22 @@ class Web3DartHelper {
   late Web3Client ethClient;
   late final String _privateKey;
   late final RemoteConfig _remoteConfig;
+  // Get DataSnapshot value lists
+  List<Map<dynamic, dynamic>> lists = [];
+
+  // Create a DatabaseReference which references a node called dbRef
+  late final DatabaseReference _dbRef = FirebaseDatabase(
+      databaseURL: jsonDecode(_remoteConfig.getValue('Connection_Config')
+          .asString())['Firebase']['Firebase_Database']).reference();
+
+  // The user's ID which is unique from the Firebase project
+  String? userId = FirebaseAuth.instance.currentUser?.uid;
 
   Future<void> initState() async {
     // To fetch remote config from Firebase Remote Config
     RemoteConfigService _remoteConfigService = RemoteConfigService();
     _remoteConfig = await _remoteConfigService.setupRemoteConfig();
+
     // To fetch local config from assets
     await dotenv.load(fileName: "assets/.env");
 
@@ -34,14 +48,53 @@ class Web3DartHelper {
       return IOWebSocketChannel.connect(jsonDecode(_remoteConfig.getValue('Connection_Config').asString())['Ropsten']['Ropsten_Websockets']).cast<String>();
     });
 
+    // Get PrivateKey Definition from firebase remote config json object
     print(jsonDecode(_remoteConfig.getValue('accounts_secrets').asString())['0x82d85cF1331F9410F84D0B2aaCF5e2753a5afa82']);
     _privateKey = jsonDecode(_remoteConfig.getValue('accounts_secrets').asString())['0x82d85cF1331F9410F84D0B2aaCF5e2753a5afa82']['Private_Key'];
+
     // Encrypted _encryptedPrivateKey = KeyEncrypt().getEncryptionKeyRing(_privateKey, 'my32lengthsupers');
     Encrypted _encryptedPrivateKey = KeyEncrypt().getEncryption(_privateKey);
+    print(_encryptedPrivateKey.bytes);
+    print(_encryptedPrivateKey.runtimeType);
     print('Encrypted Key: ${_encryptedPrivateKey.base64}');
+    print(_encryptedPrivateKey.base64.runtimeType);
     // String _decryptedPrivateKey = KeyEncrypt().getDecryptionKeyRing(_encryptedPrivateKey, 'my32lengthsupers');
     String _decryptedPrivateKey = KeyEncrypt().getDecryption(_encryptedPrivateKey);
     print('Decrypted Key:  $_decryptedPrivateKey');
+
+    // // Retrieve current database snapshot on vaults
+    // lists = await getVaultData();
+    // if(lists.isEmpty){
+    //   // Map<String, String> vaultContent = <String, String>{'accountAddress': _accountAddress, 'encryptedPrivateKey': _encryptedPrivateKey.base64};
+    //   print("No account has imported yet.");
+    // } else {
+    //   for (int i = 0; i < lists.length; i++) {
+    //     // if(_accountAddress == lists[i]["accountAddress"]) {
+    //     //   print(lists[i]["accountAddress"]);
+    //     // }
+    //     print(lists[i]["encryptedPrivateKey"]);
+    //     Encrypted _encryptedPrivateKey = lists[i]["encryptedPrivateKey"] as Encrypted;
+    //     print(KeyEncrypt().getDecryption(_encryptedPrivateKey));
+    //   }
+    // }
+
+  }
+
+  // Get the key and value properties data from returning DataSnapshot vaults' values
+  Future<List<Map>> getVaultData() async {
+    DataSnapshot snapshotResult = await _dbRef.child('vaults/$userId').once();
+    if(snapshotResult.value == null ) {
+      lists.clear();
+      return lists;
+    } else {
+      final LinkedHashMap hashMapValue = snapshotResult.value;
+      lists.clear();
+      Map<dynamic, dynamic> mapValues = hashMapValue;
+      mapValues.forEach((key, mapValues) {
+        lists.add(mapValues);
+      });
+      return lists;
+    }
   }
 
   Future<String> getBlkNum() async {
