@@ -16,16 +16,6 @@ class HistoryOutput extends StatefulWidget {
   @override
   State<HistoryOutput> createState() => _HistoryOutputState();
 
-  static SnackBar customSnackBar({required String content}) {
-    return SnackBar(
-      backgroundColor: Colors.black,
-      content: Text(
-        content,
-        style: const TextStyle(color: Colors.redAccent, letterSpacing: 0.5),
-      ),
-    );
-  }
-
 }
 
 class _HistoryOutputState extends State<HistoryOutput> {

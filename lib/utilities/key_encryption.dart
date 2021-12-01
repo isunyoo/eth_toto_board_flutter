@@ -2,7 +2,7 @@ import 'package:encrypt/encrypt.dart';
 
 class KeyEncrypt {
 
-  // Activate the AES Symmetric encrypt with passphrase input
+  // Activate the AES Symmetric encrypt with keyring input
   Encrypted getEncryptionKeyRing(String privateKey, String passphrase) {
     // Gets a key from the given keyRing
     final key = Key.fromUtf8(passphrase);
@@ -13,7 +13,7 @@ class KeyEncrypt {
     return _encryptedPrivateKey;
   }
 
-  // Activate the AES Symmetric decrypt with passphrase input
+  // Activate the AES Symmetric decrypt with keyring input
   String getDecryptionKeyRing(Encrypted encryptedPrivateKey, String passphrase) {
     final key = Key.fromUtf8(passphrase);
     final iv = IV.fromLength(8);

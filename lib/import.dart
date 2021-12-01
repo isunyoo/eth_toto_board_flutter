@@ -19,32 +19,29 @@ class ImportKey extends StatefulWidget {
 
   @override
   State<ImportKey> createState() => _ImportKeyState();
-
-  static SnackBar customSnackBar({required String content}) {
-    return SnackBar(
-      backgroundColor: Colors.black,
-      content: Text(
-        content,
-        style: const TextStyle(color: Colors.redAccent, letterSpacing: 0.5),
-      ),
-    );
-  }
 }
 
 class _ImportKeyState extends State<ImportKey> {
   // Initialize the Web3DartHelper class from utility packages
   Web3DartHelper web3util = Web3DartHelper();
+
   // To create a new Firebase Remote Config instance
   late RemoteConfig _remoteConfig = RemoteConfig.instance;
+
   // Create a DatabaseReference which references a node called dbRef
-  late final DatabaseReference _dbRef = FirebaseDatabase(databaseURL:jsonDecode(_remoteConfig.getValue('Connection_Config').asString())['Firebase']['Firebase_Database']).reference();
+  late final DatabaseReference _dbRef = FirebaseDatabase(
+      databaseURL: jsonDecode(_remoteConfig.getValue('Connection_Config')
+          .asString())['Firebase']['Firebase_Database']).reference();
+
   // The user's ID which is unique from the Firebase project
   String? userId = FirebaseAuth.instance.currentUser?.uid;
+
   // Form widget variables
   bool _isProcessing = false;
   final _focusPrivateKey = FocusNode();
   final _formKey = GlobalKey<FormState>();
   final _privateKeyTextController = TextEditingController();
+
   // Get DataSnapshot value lists
   List<Map<dynamic, dynamic>> lists = [];
 
@@ -88,6 +85,17 @@ class _ImportKeyState extends State<ImportKey> {
     }
   }
 
+  // Display a snackbar
+  static SnackBar customSnackBar({required String content}) {
+    return SnackBar(
+      backgroundColor: Colors.black,
+      content: Text(
+        content,
+        style: const TextStyle(color: Colors.redAccent, letterSpacing: 0.5),
+      ),
+    );
+  }
+
   // Get the key and value properties data from returning DataSnapshot value
   // Future<VaultData> getVaultData() async {
   //   return await _dbRef.child('vaults/$userId').once().then((DataSnapshot result) {
@@ -98,54 +106,38 @@ class _ImportKeyState extends State<ImportKey> {
   // }
   // https://www.woolha.com/tutorials/flutter-using-firebase-realtime-database
   Future<List<Map>> getVaultData() async {
-  // Future<void> getVaultData() async {
-    DataSnapshot result = await _dbRef.child('vaults/$userId').once();
-    final LinkedHashMap value = result.value;
-
+    DataSnapshot snapshotResult = await _dbRef.child('vaults/$userId').once();
+    print(snapshotResult.value);
+    final LinkedHashMap hashMapValue = snapshotResult.value;
     lists.clear();
-    Map<dynamic, dynamic> values = value;
-    values.forEach((key, values) {
-      lists.add(values);
+    Map<dynamic, dynamic> mapValues = hashMapValue;
+    mapValues.forEach((key, mapValues) {
+      lists.add(mapValues);
     });
     return lists;
-
   }
 
-  // Future<List<MatchModel>> fetchMatches() async {
-  //   var dio = Dio();
-  //   final response = await dio.post(AppUrls.getMatches);
-  //   print(response.data);
-  //   final body = response.data['matches'] as List;
-  //   return body.map((dynamic json) {
-  //     return MatchModel(
-  //       id: json['id'] as int,
-  //       date: json['date'] as String,
-  //       dateGmt: json['dateTimeGMT'] as String,
-  //       teamOne: json['team-1'] as String,
-  //       teamTwo: json['team-2'] as String,
-  //       tossWinnerTeam: json['toss_winner_team'] as String,
-  //       matchStarted: json['matchStarted'] as bool,
-  //       type: json['type'] as String,
-  //       winnerTeam: json['winner_team'] as String,
-  //     );
-  //   }).toList();
-  // }
 
   // Function takes a txReceipt as a parameter and uses a DatabaseReference to save the MAP message to Realtime Database.
   Future<void> saveAccount(String privateKeyContext) async {
     lists = await getVaultData();
-    for(int i=0; i < lists.length; i++){
+    for (int i = 0; i < lists.length; i++) {
       print(lists[i]["accountAddress"]);
     }
 
     // Encryption of PrivateKey
-    // encrypt.Encrypted _encryptedPrivateKey = KeyEncrypt().getEncryptionKeyRing(privateKeyContext, 'my32lengthsupers');
     encrypt.Encrypted _encryptedPrivateKey = KeyEncrypt().getEncryption(privateKeyContext);
+    // encrypt.Encrypted _encryptedPrivateKey = KeyEncrypt().getEncryptionKeyRing(privateKeyContext, 'my32lengthsupers');
     // Converting string to map
     String _accountAddress = await web3util.getAccountAddress(privateKeyContext);
     Map<String, String> vaultContent = <String, String>{'accountAddress': _accountAddress, 'encryptedPrivateKey': _encryptedPrivateKey.base64};
     // Save to Realtime Database(vaults)
     await _dbRef.child('vaults/$userId').push().set(vaultContent);
+    ScaffoldMessenger.of(context).showSnackBar(
+      customSnackBar(
+        content: 'Account($_accountAddress) has imported successfully.',
+      ),
+    );
   }
 
   @override
@@ -157,82 +149,88 @@ class _ImportKeyState extends State<ImportKey> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-                  padding: const EdgeInsets.only(left: 24.0, right: 24.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 25.0),
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 25.0),
-                        child: Text(
-                          'Paste your private key string',
-                          style: Theme.of(context).textTheme.headline6,
+          padding: const EdgeInsets.only(left: 24.0, right: 24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 25.0),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 25.0),
+                child: Text(
+                  'Paste your private key string',
+                  style: Theme
+                      .of(context)
+                      .textTheme
+                      .headline6,
+                ),
+              ),
+              Form(
+                key: _formKey,
+                child: Column(
+                  children: <Widget>[
+                    TextFormField(
+                      keyboardType: TextInputType.multiline,
+                      maxLines: 3,
+                      maxLength: 64,
+                      controller: _privateKeyTextController,
+                      focusNode: _focusPrivateKey,
+                      validator: (value) => validatePrivateKey(key: value),
+                      decoration: InputDecoration(
+                        hintText: "e.g. c34xff58155ad242b8e6c0e09596b202y0186763359301a2727f38r9146ff523",
+                        errorBorder: UnderlineInputBorder(
+                          borderRadius: BorderRadius.circular(6.0),
+                          borderSide: const BorderSide(
+                            color: Colors.red,
+                          ),
                         ),
                       ),
-                      Form(
-                        key: _formKey,
-                        child: Column(
-                          children: <Widget>[
-                            TextFormField(
-                              keyboardType: TextInputType.multiline,
-                              maxLines: 3,
-                              maxLength: 64,
-                              controller: _privateKeyTextController,
-                              focusNode: _focusPrivateKey,
-                              validator: (value) => validatePrivateKey(key: value),
-                              decoration: InputDecoration(
-                                hintText: "e.g. c34xff58155ad242b8e6c0e09596b202y0186763359301a2727f38r9146ff523",
-                                errorBorder: UnderlineInputBorder(
-                                  borderRadius: BorderRadius.circular(6.0),
-                                  borderSide: const BorderSide(
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ),
+                    ),
+                    const SizedBox(height: 25.0),
+                    _isProcessing
+                        ? const CircularProgressIndicator()
+                        : Row(
+                      mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              _focusPrivateKey.unfocus();
+
+                              if (_formKey.currentState!.validate()) {
+                                setState(() {
+                                  _isProcessing = true;
+                                });
+
+
+                                // To save an Account to Realtime Database(vaults).
+                                await saveAccount(
+                                    _privateKeyTextController.text);
+                                // await getVaultData();
+
+                                // User? user = await FireAuth.signInUsingEmailPassword(email: _emailTextController.text, password: _passwordTextController.text, context: context);
+
+                                setState(() {
+                                  _isProcessing = false;
+                                });
+
+                                // if (user != null) {
+                                //   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => EmailVerifyPage(user: user),),);
+                                // }
+                              }
+                            },
+                            child: const Text(
+                              'Import',
+                              style: TextStyle(color: Colors.white),
                             ),
-                            const SizedBox(height: 25.0),
-                            _isProcessing
-                                ? const CircularProgressIndicator()
-                                : Row(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: ElevatedButton(
-                                          onPressed: () async {
-                                            _focusPrivateKey.unfocus();
-
-                                            if (_formKey.currentState!.validate()) {
-                                              setState(() {
-                                                _isProcessing = true;
-                                              });
-
-
-                                              // To save an Account to Realtime Database(vaults).
-                                              await saveAccount(_privateKeyTextController.text);
-                                              // await getVaultData();
-
-                                              // User? user = await FireAuth.signInUsingEmailPassword(email: _emailTextController.text, password: _passwordTextController.text, context: context);
-
-                                              setState(() {
-                                                _isProcessing = false;
-                                              });
-
-                                              // if (user != null) {
-                                              //   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => EmailVerifyPage(user: user),),);
-                                              // }
-                                            }
-                                          },
-                                          child: const Text(
-                                            'Import',
-                                            style: TextStyle(color: Colors.white),
-                                          ),
-                                        ),
-                                      ),],
-                                ),
-                        ],
-                      ),),],
-                  ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),),
+            ],
+          ),
         ),
       ),
       floatingActionButton: SpeedDial(
@@ -253,7 +251,8 @@ class _ImportKeyState extends State<ImportKey> {
               backgroundColor: Colors.blue,
               onTap: () {
                 // Navigate to the main screen using a named route.
-                Navigator.push(context, MaterialPageRoute(builder: (_) => const BoardMain(),),);
+                Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const BoardMain(),),);
               },
             ),
           ]
@@ -262,5 +261,4 @@ class _ImportKeyState extends State<ImportKey> {
   }
 
 }
-
 
