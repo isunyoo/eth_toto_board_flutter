@@ -1,7 +1,7 @@
 class VaultData {
   VaultData({
     required this.accountAddress,
-    required this.encryptedPrivateKey,
+    required this.encryptedPrivateKey
   });
 
   String accountAddress;
@@ -10,16 +10,21 @@ class VaultData {
   Map<String, String> toMap() {
     return {
       'accountAddress': accountAddress,
-      'encryptedPrivateKey': encryptedPrivateKey,
+      'encryptedPrivateKey': encryptedPrivateKey
     };
   }
 
   static VaultData fromMap(Map value) {
     return VaultData(
       accountAddress: value['accountAddress'],
-      encryptedPrivateKey: value['encryptedPrivateKey'],
+      encryptedPrivateKey: value['encryptedPrivateKey']
     );
   }
+
+  Map<String, dynamic> toJson() => <String, dynamic>{
+    'accountAddress': accountAddress,
+    'encryptedPrivateKey': encryptedPrivateKey
+  };
 
   @override
   String toString() {

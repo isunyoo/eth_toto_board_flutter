@@ -64,8 +64,7 @@ class _HistoryOutputState extends State<HistoryOutput> {
           child: Column(
             children: <Widget>[
               FutureBuilder(
-                  future: _txReceiptRef.child('txreceipts/$userId').orderByChild("timestamp").once(),
-                  // future: _txReceiptRef.child('txreceipts').orderByChild("timestamp").limitToLast(10).once(),
+                  future: _txReceiptRef.child('txreceipts/$userId').orderByChild("timestamp").limitToLast(100).once(),
                   builder: (BuildContext context, AsyncSnapshot snapshot) {
                     if (snapshot.connectionState == ConnectionState.done) {
                       if(snapshot.data.value == null) {

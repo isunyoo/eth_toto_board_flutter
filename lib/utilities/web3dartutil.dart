@@ -36,9 +36,11 @@ class Web3DartHelper {
 
     print(jsonDecode(_remoteConfig.getValue('accounts_secrets').asString())['0x82d85cF1331F9410F84D0B2aaCF5e2753a5afa82']);
     _privateKey = jsonDecode(_remoteConfig.getValue('accounts_secrets').asString())['0x82d85cF1331F9410F84D0B2aaCF5e2753a5afa82']['Private_Key'];
-    Encrypted _encryptedPrivateKey = KeyEncrypt().getEncryption(_privateKey, 'my32lengthsupers');
+    // Encrypted _encryptedPrivateKey = KeyEncrypt().getEncryptionKeyRing(_privateKey, 'my32lengthsupers');
+    Encrypted _encryptedPrivateKey = KeyEncrypt().getEncryption(_privateKey);
     print('Encrypted Key: ${_encryptedPrivateKey.base64}');
-    String _decryptedPrivateKey = KeyEncrypt().getDecryption(_encryptedPrivateKey, 'my32lengthsupers');
+    // String _decryptedPrivateKey = KeyEncrypt().getDecryptionKeyRing(_encryptedPrivateKey, 'my32lengthsupers');
+    String _decryptedPrivateKey = KeyEncrypt().getDecryption(_encryptedPrivateKey);
     print('Decrypted Key:  $_decryptedPrivateKey');
   }
 

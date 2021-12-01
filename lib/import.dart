@@ -45,6 +45,8 @@ class _ImportKeyState extends State<ImportKey> {
   final _focusPrivateKey = FocusNode();
   final _formKey = GlobalKey<FormState>();
   final _privateKeyTextController = TextEditingController();
+  // Get DataSnapshot value lists
+  List<Map<dynamic, dynamic>> lists = [];
 
   @override
   void initState() {
@@ -87,25 +89,27 @@ class _ImportKeyState extends State<ImportKey> {
   }
 
   // Get the key and value properties data from returning DataSnapshot value
-  Future<VaultData> getVaultData() async {
-    return await _dbRef.child('vaults/$userId').once().then((DataSnapshot result) {
-      final LinkedHashMap value = result.value;
-      print(VaultData.fromMap(value));
-      return VaultData.fromMap(value);
-    });
-  }
-  // https://www.woolha.com/tutorials/flutter-using-firebase-realtime-database
-  // Future<VaultData?> getVaultData() async {
-  // // Future<void> getVaultData() async {
-  //   await _dbRef.child('vaults/$userId').once().then((DataSnapshot result) {
-  //     // final LinkedHashMap value = result.value;
-  //     // print(VaultData.fromMap(value));
-  //     VaultData.fromMap(result.value);
-  //     print(result.value);
-  //     print(VaultData.fromMap(result.value).accountAddress);
-  //     return VaultData.fromMap(result.value);
+  // Future<VaultData> getVaultData() async {
+  //   return await _dbRef.child('vaults/$userId').once().then((DataSnapshot result) {
+  //     final LinkedHashMap value = result.value;
+  //     print(VaultData.fromMap(value));
+  //     return VaultData.fromMap(value);
   //   });
   // }
+  // https://www.woolha.com/tutorials/flutter-using-firebase-realtime-database
+  Future<List<Map>> getVaultData() async {
+  // Future<void> getVaultData() async {
+    DataSnapshot result = await _dbRef.child('vaults/$userId').once();
+    final LinkedHashMap value = result.value;
+
+    lists.clear();
+    Map<dynamic, dynamic> values = value;
+    values.forEach((key, values) {
+      lists.add(values);
+    });
+    return lists;
+
+  }
 
   // Future<List<MatchModel>> fetchMatches() async {
   //   var dio = Dio();
@@ -129,11 +133,14 @@ class _ImportKeyState extends State<ImportKey> {
 
   // Function takes a txReceipt as a parameter and uses a DatabaseReference to save the MAP message to Realtime Database.
   Future<void> saveAccount(String privateKeyContext) async {
-    // var snapshot = await _dbRef.child("vaults/$userId/accessTokens").child(token).once();
-    // if (snapshot.value != null) {
-    // }
+    lists = await getVaultData();
+    for(int i=0; i < lists.length; i++){
+      print(lists[i]["accountAddress"]);
+    }
+
     // Encryption of PrivateKey
-    encrypt.Encrypted _encryptedPrivateKey = KeyEncrypt().getEncryption(privateKeyContext, 'my32lengthsupers');
+    // encrypt.Encrypted _encryptedPrivateKey = KeyEncrypt().getEncryptionKeyRing(privateKeyContext, 'my32lengthsupers');
+    encrypt.Encrypted _encryptedPrivateKey = KeyEncrypt().getEncryption(privateKeyContext);
     // Converting string to map
     String _accountAddress = await web3util.getAccountAddress(privateKeyContext);
     Map<String, String> vaultContent = <String, String>{'accountAddress': _accountAddress, 'encryptedPrivateKey': _encryptedPrivateKey.base64};
@@ -202,8 +209,8 @@ class _ImportKeyState extends State<ImportKey> {
 
 
                                               // To save an Account to Realtime Database(vaults).
-                                              // await saveAccount(_privateKeyTextController.text);
-                                              await getVaultData();
+                                              await saveAccount(_privateKeyTextController.text);
+                                              // await getVaultData();
 
                                               // User? user = await FireAuth.signInUsingEmailPassword(email: _emailTextController.text, password: _passwordTextController.text, context: context);
 
