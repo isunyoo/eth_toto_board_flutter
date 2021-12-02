@@ -2,11 +2,12 @@ import 'dart:math';
 import 'dart:convert';
 import 'dart:collection';
 import 'package:http/http.dart';
-import 'package:encrypt/encrypt.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:eth_toto_board_flutter/import.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
@@ -48,35 +49,31 @@ class Web3DartHelper {
       return IOWebSocketChannel.connect(jsonDecode(_remoteConfig.getValue('Connection_Config').asString())['Ropsten']['Ropsten_Websockets']).cast<String>();
     });
 
-    // Get PrivateKey Definition from firebase remote config json object
-    print(jsonDecode(_remoteConfig.getValue('accounts_secrets').asString())['0x82d85cF1331F9410F84D0B2aaCF5e2753a5afa82']);
-    _privateKey = jsonDecode(_remoteConfig.getValue('accounts_secrets').asString())['0x82d85cF1331F9410F84D0B2aaCF5e2753a5afa82']['Private_Key'];
+    // Retrieve current database snapshot on vaults
+    lists = await getVaultData();
+    if(lists.isEmpty){
+      print("No account has imported yet.");
+      // The delay to route BoardMain Page Scaffold
+      // Future.delayed(const Duration(milliseconds: 100)).then((_) {
+      //   // Navigate to the main screen using a named route.
+      //   Navigator.push(context, MaterialPageRoute(builder: (context) => const ImportKey()));
+      // });
+    } else {
+      // Get PrivateKey Definition from firebaseDatabase Vaults data
+      _privateKey = KeyEncrypt().getDecryption(lists[0]["encryptedPrivateKey"]);
+      for (int i = 0; i < lists.length; i++) {
+        print(lists[i]["encryptedPrivateKey"]);
+        String _encryptedPrivateKey = lists[i]["encryptedPrivateKey"];
+        print(KeyEncrypt().getDecryption(_encryptedPrivateKey));
+      }
+    }
 
-    // Encrypted _encryptedPrivateKey = KeyEncrypt().getEncryptionKeyRing(_privateKey, 'my32lengthsupers');
-    Encrypted _encryptedPrivateKey = KeyEncrypt().getEncryption(_privateKey);
-    print(_encryptedPrivateKey.bytes);
-    print(_encryptedPrivateKey.runtimeType);
-    print('Encrypted Key: ${_encryptedPrivateKey.base64}');
-    print(_encryptedPrivateKey.base64.runtimeType);
+    // String _encryptedPrivateKey = KeyEncrypt().getEncryptionKeyRing(_privateKey, 'my32lengthsupers');
+    String _encryptedPrivateKey = KeyEncrypt().getEncryption(_privateKey);
+    print('Encrypted Key: $_encryptedPrivateKey');
     // String _decryptedPrivateKey = KeyEncrypt().getDecryptionKeyRing(_encryptedPrivateKey, 'my32lengthsupers');
     String _decryptedPrivateKey = KeyEncrypt().getDecryption(_encryptedPrivateKey);
     print('Decrypted Key:  $_decryptedPrivateKey');
-
-    // // Retrieve current database snapshot on vaults
-    // lists = await getVaultData();
-    // if(lists.isEmpty){
-    //   // Map<String, String> vaultContent = <String, String>{'accountAddress': _accountAddress, 'encryptedPrivateKey': _encryptedPrivateKey.base64};
-    //   print("No account has imported yet.");
-    // } else {
-    //   for (int i = 0; i < lists.length; i++) {
-    //     // if(_accountAddress == lists[i]["accountAddress"]) {
-    //     //   print(lists[i]["accountAddress"]);
-    //     // }
-    //     print(lists[i]["encryptedPrivateKey"]);
-    //     Encrypted _encryptedPrivateKey = lists[i]["encryptedPrivateKey"] as Encrypted;
-    //     print(KeyEncrypt().getDecryption(_encryptedPrivateKey));
-    //   }
-    // }
 
   }
 
@@ -110,9 +107,14 @@ class Web3DartHelper {
   }
 
   Future<String> getAccountAddress(String inputPrivateKey) async {
-    var _credentials = EthPrivateKey.fromHex(inputPrivateKey);
-    var myAddress = await _credentials.extractAddress();
-    return myAddress.toString();
+    try {
+      var _credentials = EthPrivateKey.fromHex(inputPrivateKey);
+      var myAddress = await _credentials.extractAddress();
+      return myAddress.toString();
+    } on FormatException catch (e) {
+      print(e);
+      return '';
+    }
   }
 
   Future<String> getEthBalance() async {

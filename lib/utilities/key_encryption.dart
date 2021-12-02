@@ -1,45 +1,48 @@
+// https://medium.com/flutter-community/keep-and-encrypt-data-with-flutter-efea5e8aa97e
 import 'package:encrypt/encrypt.dart';
 
 class KeyEncrypt {
 
   // Activate the AES Symmetric encrypt with keyring input
-  Encrypted getEncryptionKeyRing(String privateKey, String passphrase) {
+  String getEncryptionKeyRing(String privateKey, String passphrase) {
     // Gets a key from the given keyRing
     final key = Key.fromUtf8(passphrase);
     final iv = IV.fromLength(8);
-    final encrypter = Encrypter(AES(key));
+    // To remove padding, pass null to the padding named parameter on the constructor(No/zero padding):
+    final encrypter = Encrypter(AES(key, mode: AESMode.cbc, padding: null));
     final _encryptedPrivateKey = encrypter.encrypt(privateKey, iv: iv);
 
-    return _encryptedPrivateKey;
+    return _encryptedPrivateKey.base64;
   }
 
   // Activate the AES Symmetric decrypt with keyring input
-  String getDecryptionKeyRing(Encrypted encryptedPrivateKey, String passphrase) {
+  String getDecryptionKeyRing(String encryptedPrivateKey, String passphrase) {
     final key = Key.fromUtf8(passphrase);
     final iv = IV.fromLength(8);
-    final encrypter = Encrypter(AES(key));
+    // To remove padding, pass null to the padding named parameter on the constructor(No/zero padding):
+    final encrypter = Encrypter(AES(key, mode: AESMode.cbc, padding: null));
     // To decrypt with keyRing
-    final _decryptedPrivateKey = encrypter.decrypt(encryptedPrivateKey, iv: iv);
+    final _decryptedPrivateKey = encrypter.decrypt(Encrypted.from64(encryptedPrivateKey), iv: iv);
 
     return _decryptedPrivateKey;
   }
 
   // Activate the AES Symmetric encrypt without passphrase input
-  Encrypted getEncryption(String privateKey) {
+  String getEncryption(String privateKey) {
     final key = Key.fromLength(32);
     final iv = IV.fromLength(16);
-    final encrypter = Encrypter(AES(key));
+    final encrypter = Encrypter(AES(key, padding: null));
     final _encryptedPrivateKey = encrypter.encrypt(privateKey, iv: iv);
 
-    return _encryptedPrivateKey;
+    return _encryptedPrivateKey.base64;
   }
 
   // Activate the AES Symmetric decrypt without passphrase input
-  String getDecryption(Encrypted encryptedPrivateKey) {
+  String getDecryption(String encryptedPrivateKey) {
     final key = Key.fromLength(32);
     final iv = IV.fromLength(16);
-    final encrypter = Encrypter(AES(key));
-    final _decryptedPrivateKey = encrypter.decrypt(encryptedPrivateKey, iv: iv);
+    final encrypter = Encrypter(AES(key, padding: null));
+    final _decryptedPrivateKey = encrypter.decrypt(Encrypted.from64(encryptedPrivateKey), iv: iv);
 
     return _decryptedPrivateKey;
   }

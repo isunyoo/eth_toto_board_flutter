@@ -1,10 +1,7 @@
 import 'dart:convert';
 import 'dart:collection';
-import 'package:intl/intl.dart';
 import 'utilities/web3dartutil.dart';
-import 'package:encrypt/encrypt.dart';
 import 'package:flutter/material.dart';
-import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:eth_toto_board_flutter/profile.dart';
@@ -107,37 +104,48 @@ class _ImportKeyState extends State<ImportKey> {
 
   // Function takes a txReceipt as a parameter and uses a DatabaseReference to save the MAP message to Realtime Database.
   Future<void> saveAccount(String privateKeyContext) async {
-    // Encryption of PrivateKey
-    encrypt.Encrypted _encryptedPrivateKey = KeyEncrypt().getEncryption(privateKeyContext);
-    // encrypt.Encrypted _encryptedPrivateKey = KeyEncrypt().getEncryptionKeyRing(privateKeyContext, 'my32lengthsupers');
     // Get Account Address from inserted privateKeyContext
     String _accountAddress = await web3util.getAccountAddress(privateKeyContext);
+    // Encryption of PrivateKey
+    // encrypt.Encrypted _encryptedPrivateKey = KeyEncrypt().getEncryption(privateKeyContext);
+    String _encryptedPrivateKey = KeyEncrypt().getEncryption(privateKeyContext);
+    // encrypt.Encrypted _encryptedPrivateKey = KeyEncrypt().getEncryptionKeyRing(privateKeyContext, 'my32lengthsupers');
 
     // Retrieve current database snapshot on vaults
     lists = await getVaultData();
-    if(lists.isEmpty){
-      // Map<String, String> vaultContent = <String, String>{'accountAddress': _accountAddress, 'encryptedPrivateKey': _encryptedPrivateKey.base64};
-      Map<String, Encrypted> vaultContent = <String, Encrypted>{'accountAddress': _accountAddress, 'encryptedPrivateKey': _encryptedPrivateKey};
-      // Save to Realtime Database(vaults)
-      await _dbRef.child('vaults/$userId').push().set(vaultContent);
-      ScaffoldMessenger.of(context).showSnackBar(
-        customSnackBar(
-          content: 'Account($_accountAddress) has imported successfully.',
-        ),
-      );
-    } else {
-      for (int i = 0; i < lists.length; i++) {
-        if(_accountAddress == lists[i]["accountAddress"]) {
-          // print(lists[i]["accountAddress"]);
-          ScaffoldMessenger.of(context).showSnackBar(
-            customSnackBar(
-              content: 'Account($_accountAddress) has already existed in wallet.',
-            ),
-          );
-        }
+    // Check duplicated accounts in database
+    bool _duplicatedStatus = false;
+    for(int i = 0; i < lists.length; i++) {
+      if(_accountAddress == lists[i]["accountAddress"]) {
+        _duplicatedStatus = true;
       }
     }
 
+    // Handle FormatException which Invalid PrivateKey
+    if(_accountAddress == '') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        customSnackBar(
+          content: 'Import Error: Invalid PrivateKey',
+        ),
+      );
+    } else {
+      if(_duplicatedStatus==true) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          customSnackBar(
+            content: 'Account($_accountAddress) has already existed in wallet.',
+          ),
+        );
+      } else if(lists.isEmpty || _duplicatedStatus==false) {
+        Map<String, String> vaultContent = <String, String>{'accountAddress': _accountAddress, 'encryptedPrivateKey': _encryptedPrivateKey};
+        // Save to Realtime Database(vaults)
+        await _dbRef.child('vaults/$userId').push().set(vaultContent);
+        ScaffoldMessenger.of(context).showSnackBar(
+          customSnackBar(
+            content: 'Account($_accountAddress) has imported successfully.',
+          ),
+        );
+      }
+    }
   }
 
   @override
