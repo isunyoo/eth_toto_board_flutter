@@ -1,13 +1,11 @@
 import 'dart:math';
 import 'dart:convert';
 import 'dart:collection';
-import 'package:get/get.dart';
+import 'package:http/http.dart';
 import 'package:flutter/services.dart';
 import 'package:web3dart/web3dart.dart';
-import 'package:http/http.dart' as http;
 import 'package:web_socket_channel/io.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:eth_toto_board_flutter/import.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
@@ -15,7 +13,7 @@ import 'package:eth_toto_board_flutter/utilities/remote_config.dart';
 import 'package:eth_toto_board_flutter/utilities/key_encryption.dart';
 
 class Web3DartHelper {
-  late http.Client httpClient;
+  late Client httpClient;
   late Web3Client ethClient;
   late final String _privateKey;
   late final RemoteConfig _remoteConfig;
@@ -40,21 +38,20 @@ class Web3DartHelper {
 
     // Initialize the httpClient and ethCLient in the initState() method.
     // Client class is the interface for HTTP clients that take care of maintaining persistent connections
-    httpClient = http.Client();
+    httpClient = Client();
     // Web3Client class used for for sending requests over an HTTP JSON-RPC API endpoint to Ethereum clients
     // ethClient = Web3Client(dotenv.get('Ganache_HTTP'), httpClient);
     // ethClient = Web3Client(_remoteConfig.getString('Ropsten_HTTPS'), httpClient);
     // WebSocket stream channels
-    ethClient = Web3Client(jsonDecode(_remoteConfig.getValue('Connection_Config').asString())['Ropsten']['Ropsten_HTTPS'], http.Client(), socketConnector: () {
+    ethClient = Web3Client(jsonDecode(_remoteConfig.getValue('Connection_Config').asString())['Ropsten']['Ropsten_HTTPS'], Client(), socketConnector: () {
       return IOWebSocketChannel.connect(jsonDecode(_remoteConfig.getValue('Connection_Config').asString())['Ropsten']['Ropsten_Websockets']).cast<String>();
     });
 
     // Retrieve current database snapshot on vaults
     lists = await getVaultData();
     if(lists.isEmpty){
-      print("No account has imported yet.");
-      // https://pub.dev/packages/get
-      Get.to(const ImportKey());
+      // No account has imported yet in vault database
+      _privateKey = '';
     } else {
       // Get PrivateKey Definition from firebaseDatabase Vaults data
       _privateKey = KeyEncrypt().getDecryption(lists[0]["encryptedPrivateKey"]);
@@ -98,9 +95,13 @@ class Web3DartHelper {
   }
 
   Future<String> getAddress() async {
-    var _credentials = EthPrivateKey.fromHex(_privateKey);
-    var myAddress = await _credentials.extractAddress();
-    return myAddress.toString();
+    if(_privateKey == ''){
+      return '';
+    } else {
+      var _credentials = EthPrivateKey.fromHex(_privateKey);
+      var myAddress = await _credentials.extractAddress();
+      return myAddress.toString();
+    }
   }
 
   Future<String> getAccountAddress(String inputPrivateKey) async {
@@ -108,8 +109,7 @@ class Web3DartHelper {
       var _credentials = EthPrivateKey.fromHex(inputPrivateKey);
       var myAddress = await _credentials.extractAddress();
       return myAddress.toString();
-    } on FormatException catch (e) {
-      print(e);
+    } on FormatException {
       return '';
     }
   }
@@ -247,7 +247,6 @@ class Web3DartHelper {
       }
       randomSlots.add(numberList);
     }
-    // print(randomSlots);
     // print(randomSlots.runtimeType);
     return randomSlots;
   }
@@ -257,7 +256,7 @@ class Web3DartHelper {
     num balanceUSD;
     var balanceEther = await getEthBalance();
     // Make a network request
-    Response response = (await http.get(Uri.parse(_remoteConfig.getString('ETH_Price_URL')))) as Response;
+    Response response = (await get(Uri.parse(_remoteConfig.getString('ETH_Price_URL'))));
     // If the server did return a 200 OK response then parse the JSON.
     if (response.statusCode == 200) {
       // print(jsonDecode(response.body)["USD"]);

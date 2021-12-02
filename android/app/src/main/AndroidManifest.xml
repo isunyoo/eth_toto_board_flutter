@@ -2,6 +2,8 @@
     package="com.solidity.eth_toto_board_flutter">
    <application
         android:label="성재의 대박꿈"
+        android:usesCleartextTraffic="true"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
@@ -28,5 +30,6 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
     </application>
 </manifest>

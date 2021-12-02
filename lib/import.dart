@@ -42,6 +42,7 @@ class _ImportKeyState extends State<ImportKey> {
 
   // Get DataSnapshot value lists
   List<Map<dynamic, dynamic>> lists = [];
+  late String _myAddress='';
 
   @override
   void initState() {
@@ -51,14 +52,50 @@ class _ImportKeyState extends State<ImportKey> {
   }
 
   Future<void> initialSetup() async {
+    // Initialize web3utility
+    await web3util.initState();
     // Firebase Initialize App Function
     WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp();
     // To fetch remote config from Firebase Remote Config
     RemoteConfigService _remoteConfigService = RemoteConfigService();
     _remoteConfig = await _remoteConfigService.setupRemoteConfig();
+    // No account has imported yet in vault database
+    _myAddress = await web3util.getAddress();
+    if(_myAddress == ''){
+      // Popup an alert dialog to be informed
+      _showApproveDialog();
+    }
   }
 
+  // An alert dialog informs the user about situations that require acknowledgement.
+  Future<void> _showApproveDialog() async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Register Ethereum Account'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: const <Widget>[
+                Text('There is no stored address yet in Blockchain Ethereum Lotto(6/45).\n'),
+                Text('Please paste ethereum private key to save account.'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context, 'OK'),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Alphanumeric validity function
   static String? validatePrivateKey({required String? key}) {
     // Define the valid characters on Alphanumeric
     final validCharacters = RegExp(r'^[a-zA-Z0-9]+$');

@@ -6,6 +6,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:eth_toto_board_flutter/import.dart';
 import 'package:eth_toto_board_flutter/history.dart';
 import 'package:eth_toto_board_flutter/profile.dart';
 import 'package:eth_toto_board_flutter/generate.dart';
@@ -58,15 +59,22 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<void> initialSetup() async {
+    // Initialize web3utility
     await web3util.initState();
     await readTransactionInfoJson();
-    currentBlkNum = await web3util.getBlkNum();
     myAddress = await web3util.getAddress();
-    balanceEther = await web3util.getEthBalance();
-    balanceUsd = await web3util.getConvUSD();
-    arrayLength = await web3util.getArrayLength();
-    allArrayData = await web3util.getAllArray();
-    // arrayData = await web3util.getArray(1);
+    // No account has imported yet in vault database
+    if(myAddress == ''){
+      // Navigate to the main screen using a named route.
+      Navigator.push(context, MaterialPageRoute(builder: (context) => const ImportKey()));
+    } else {
+      currentBlkNum = await web3util.getBlkNum();
+      balanceEther = await web3util.getEthBalance();
+      balanceUsd = await web3util.getConvUSD();
+      arrayLength = await web3util.getArrayLength();
+      allArrayData = await web3util.getAllArray();
+      // arrayData = await web3util.getArray(1);
+    }
     setState(() {
       currentBlkNum;
       storedBlkNum;
