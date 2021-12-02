@@ -1,10 +1,10 @@
 import 'dart:math';
 import 'dart:convert';
 import 'dart:collection';
-import 'package:http/http.dart';
+import 'package:get/get.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/material.dart';
 import 'package:web3dart/web3dart.dart';
+import 'package:http/http.dart' as http;
 import 'package:web_socket_channel/io.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:eth_toto_board_flutter/import.dart';
@@ -15,7 +15,7 @@ import 'package:eth_toto_board_flutter/utilities/remote_config.dart';
 import 'package:eth_toto_board_flutter/utilities/key_encryption.dart';
 
 class Web3DartHelper {
-  late Client httpClient;
+  late http.Client httpClient;
   late Web3Client ethClient;
   late final String _privateKey;
   late final RemoteConfig _remoteConfig;
@@ -40,12 +40,12 @@ class Web3DartHelper {
 
     // Initialize the httpClient and ethCLient in the initState() method.
     // Client class is the interface for HTTP clients that take care of maintaining persistent connections
-    httpClient = Client();
+    httpClient = http.Client();
     // Web3Client class used for for sending requests over an HTTP JSON-RPC API endpoint to Ethereum clients
     // ethClient = Web3Client(dotenv.get('Ganache_HTTP'), httpClient);
     // ethClient = Web3Client(_remoteConfig.getString('Ropsten_HTTPS'), httpClient);
     // WebSocket stream channels
-    ethClient = Web3Client(jsonDecode(_remoteConfig.getValue('Connection_Config').asString())['Ropsten']['Ropsten_HTTPS'], Client(), socketConnector: () {
+    ethClient = Web3Client(jsonDecode(_remoteConfig.getValue('Connection_Config').asString())['Ropsten']['Ropsten_HTTPS'], http.Client(), socketConnector: () {
       return IOWebSocketChannel.connect(jsonDecode(_remoteConfig.getValue('Connection_Config').asString())['Ropsten']['Ropsten_Websockets']).cast<String>();
     });
 
@@ -53,11 +53,8 @@ class Web3DartHelper {
     lists = await getVaultData();
     if(lists.isEmpty){
       print("No account has imported yet.");
-      // The delay to route BoardMain Page Scaffold
-      // Future.delayed(const Duration(milliseconds: 100)).then((_) {
-      //   // Navigate to the main screen using a named route.
-      //   Navigator.push(context, MaterialPageRoute(builder: (context) => const ImportKey()));
-      // });
+      // https://pub.dev/packages/get
+      Get.to(const ImportKey());
     } else {
       // Get PrivateKey Definition from firebaseDatabase Vaults data
       _privateKey = KeyEncrypt().getDecryption(lists[0]["encryptedPrivateKey"]);
@@ -260,12 +257,10 @@ class Web3DartHelper {
     num balanceUSD;
     var balanceEther = await getEthBalance();
     // Make a network request
-    Response response = await get(Uri.parse(_remoteConfig.getString('ETH_Price_URL')));
+    Response response = (await http.get(Uri.parse(_remoteConfig.getString('ETH_Price_URL')))) as Response;
     // If the server did return a 200 OK response then parse the JSON.
     if (response.statusCode == 200) {
-      // print(jsonDecode(response.body));
       // print(jsonDecode(response.body)["USD"]);
-      // print(jsonDecode(response.body)["USD"].runtimeType);
       // Get the current USD price of cryptocurrency conversion from API URL
       balanceUSD = double.parse(balanceEther) * jsonDecode(response.body)["USD"];
     } else {
