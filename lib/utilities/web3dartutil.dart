@@ -162,10 +162,17 @@ class Web3DartHelper {
       }
       bigIntsList.add(bigNumberList);
     }
-    // Transaction of array_pushData
-    var transactionHash = await submit("array_pushData", [bigIntsList]);
-    // Hash of the transaction record return(String)
-    return transactionHash;
+    try {
+      // Transaction of array_pushData
+      var transactionHash = await submit("array_pushData", [bigIntsList]);
+      // Hash of the transaction record return(String)
+      return transactionHash;
+    } catch(e) {
+      print(e);
+      print("Insufficient funds for gas * price + value");
+      return '';
+    }
+
   }
 
   Future<String> addData(int num) async {
