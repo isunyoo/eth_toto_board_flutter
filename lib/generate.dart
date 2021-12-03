@@ -28,6 +28,17 @@ class _GeneratedOutputState extends State<GeneratedOutput> {
     await web3util.initState();
   }
 
+  // Display a snackbar widget
+  static SnackBar customSnackBar({required String content}) {
+    return SnackBar(
+      backgroundColor: Colors.black,
+      content: Text(
+        content,
+        style: const TextStyle(color: Colors.redAccent, letterSpacing: 0.5),
+      ),
+    );
+  }
+
   // An alert dialog informs the user about situations that require acknowledgement.
   Future<void> _showApproveDialog() async {
     return showDialog<void>(
@@ -54,7 +65,18 @@ class _GeneratedOutputState extends State<GeneratedOutput> {
                 var newSlotData = widget.passedValue1;
                 var newSlotDataLength = widget.passedValue1.length;
                 var transactionHash = await web3util.pushArrayData(newSlotData);
-                Navigator.push(context, MaterialPageRoute(builder: (_) => Output(passedValue1: newSlotData, passedValue2: newSlotDataLength, passedValue3: transactionHash),),);
+                // Insufficient funds for ethereum account for transaction
+                if(transactionHash == ''){
+                  Navigator.pop(context, 'Cancel');
+                  // Future.delayed(const Duration(milliseconds: 50)).then((_) {
+                  //   ScaffoldMessenger.of(context).showSnackBar(
+                  //     customSnackBar(content: 'Insufficient funds for gas * price + value. Please deposit ethereum funds in account.'),
+                  //   );
+                  // });
+                  const Text('\n Insufficient funds for gas * price + value. Please deposit ethereum funds in account.', textScaleFactor: 1.5, style: TextStyle(color: Colors.red));
+                } else {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => Output(passedValue1: newSlotData, passedValue2: newSlotDataLength, passedValue3: transactionHash),),);
+                }
               },
               child: const Text('OK'),
             ),

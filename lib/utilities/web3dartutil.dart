@@ -168,11 +168,9 @@ class Web3DartHelper {
       // Hash of the transaction record return(String)
       return transactionHash;
     } catch(e) {
-      print(e);
-      print("Insufficient funds for gas * price + value");
+      // print(e);
       return '';
     }
-
   }
 
   Future<String> addData(int num) async {
