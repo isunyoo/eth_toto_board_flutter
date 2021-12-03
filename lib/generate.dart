@@ -65,18 +65,7 @@ class _GeneratedOutputState extends State<GeneratedOutput> {
                 var newSlotData = widget.passedValue1;
                 var newSlotDataLength = widget.passedValue1.length;
                 var transactionHash = await web3util.pushArrayData(newSlotData);
-                // Insufficient funds for ethereum account for transaction
-                if(transactionHash == ''){
-                  Navigator.pop(context, 'Cancel');
-                  // Future.delayed(const Duration(milliseconds: 50)).then((_) {
-                  //   ScaffoldMessenger.of(context).showSnackBar(
-                  //     customSnackBar(content: 'Insufficient funds for gas * price + value. Please deposit ethereum funds in account.'),
-                  //   );
-                  // });
-                  const Text('\n Insufficient funds for gas * price + value. Please deposit ethereum funds in account.', textScaleFactor: 1.5, style: TextStyle(color: Colors.red));
-                } else {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => Output(passedValue1: newSlotData, passedValue2: newSlotDataLength, passedValue3: transactionHash),),);
-                }
+                Navigator.push(context, MaterialPageRoute(builder: (_) => Output(passedValue1: newSlotData, passedValue2: newSlotDataLength, passedValue3: transactionHash),),);
               },
               child: const Text('OK'),
             ),
@@ -124,12 +113,21 @@ class _GeneratedOutputState extends State<GeneratedOutput> {
               child: const Icon(Icons.party_mode_sharp),
               label: 'Submit',
               backgroundColor: Colors.blue,
-              onTap: () {
-                _showApproveDialog();
+              onTap: () async {
+                var newSlotData = widget.passedValue1;
+                var transactionHash = await web3util.pushArrayData(newSlotData);
+                // Insufficient funds for ethereum account for transaction
+                if(transactionHash == ''){
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    customSnackBar(content: 'Insufficient funds for gas * price + value.\nPlease deposit ethereum funds in account.'),
+                  );
+                } else {
+                  // Sufficient funds for ethereum account for transaction
+                  _showApproveDialog();
+                }
               },
             ),
             SpeedDialChild(
-
               child: const Icon(Icons.menu_rounded),
               label: 'Main',
               backgroundColor: Colors.blue,

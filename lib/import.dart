@@ -62,10 +62,10 @@ class _ImportKeyState extends State<ImportKey> {
     _remoteConfig = await _remoteConfigService.setupRemoteConfig();
     // No account has imported yet in vault database
     _myAddress = await web3util.getAddress();
-    if(_myAddress == ''){
-      // Popup an alert dialog to be informed
-      _showApproveDialog();
-    }
+    // if(_myAddress == ''){
+    //   // Popup an alert dialog to be informed
+    //   _showApproveDialog();
+    // }
   }
 
   // An alert dialog informs the user about situations that require acknowledgement.
@@ -181,12 +181,21 @@ class _ImportKeyState extends State<ImportKey> {
             content: 'Account($_accountAddress) has imported successfully.',
           ),
         );
+        Navigator.push(context, MaterialPageRoute(builder: (_) => ProfilePage(passAddressValue: _accountAddress)));
       }
     }
   }
 
   @override
   Scaffold build(BuildContext context) {
+    // No account has imported yet in vault database
+    if(_myAddress == ''){
+      // The delay to route BoardMain Page Scaffold
+      Future.delayed(const Duration(milliseconds: 100)).then((_) {
+        // Popup an alert dialog to be informed
+        _showApproveDialog();
+      });
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text('Import Account'),
@@ -247,21 +256,12 @@ class _ImportKeyState extends State<ImportKey> {
                                   _isProcessing = true;
                                 });
 
-
                                 // To save an Account to Realtime Database(vaults).
-                                await saveAccount(
-                                    _privateKeyTextController.text);
-                                // await getVaultData();
-
-                                // User? user = await FireAuth.signInUsingEmailPassword(email: _emailTextController.text, password: _passwordTextController.text, context: context);
+                                await saveAccount(_privateKeyTextController.text);
 
                                 setState(() {
                                   _isProcessing = false;
                                 });
-
-                                // if (user != null) {
-                                //   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => EmailVerifyPage(user: user),),);
-                                // }
                               }
                             },
                             child: const Text(
@@ -287,7 +287,7 @@ class _ImportKeyState extends State<ImportKey> {
               label: 'Profile',
               backgroundColor: Colors.blue,
               onTap: () {
-                // Navigator.push(context, MaterialPageRoute(builder: (_) => ProfilePage(passedValue1: myAddress)));
+                Navigator.push(context, MaterialPageRoute(builder: (_) => ProfilePage(passAddressValue: _myAddress)));
               },
             ),
             SpeedDialChild(

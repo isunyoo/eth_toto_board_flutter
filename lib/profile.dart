@@ -9,8 +9,8 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:eth_toto_board_flutter/utilities/authenticator.dart';
 
 class ProfilePage extends StatefulWidget {
-  final String passedValue1;
-  const ProfilePage({Key? key, required this.passedValue1}) : super(key: key);
+  final String passAddressValue;
+  const ProfilePage({Key? key, required this.passAddressValue}) : super(key: key);
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -27,6 +27,7 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
   }
 
+  // QRCode Display Widget
   _qrContentWidget() {
     return  Container(
       color: const Color(0xFFFFFFFF),
@@ -53,7 +54,7 @@ class _ProfilePageState extends State<ProfilePage> {
           Row(
             children: <Widget>[ Expanded(
               child: Text(
-                "\nWallet Account Address: ${widget.passedValue1}\n",
+                "\nCurrent Wallet Account Address: ${widget.passAddressValue}\n",
                 textScaleFactor: 1.2,
               ),
             ),
@@ -61,7 +62,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           Center(
               child: QrImage(
-                        data: widget.passedValue1,
+                        data: widget.passAddressValue,
                         version: QrVersions.auto,
                         size: 200,
                         gapless: false,
@@ -72,7 +73,7 @@ class _ProfilePageState extends State<ProfilePage> {
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(elevation: 3),
                 onPressed: () {
-                  Clipboard.setData(ClipboardData(text: widget.passedValue1)).then((value) {
+                  Clipboard.setData(ClipboardData(text: widget.passAddressValue)).then((value) {
                     final snackBar = SnackBar(
                         content: const Text('Copied to Clipboard'),
                         action: SnackBarAction(
@@ -97,6 +98,14 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    // No account has imported yet in vault database
+    if(widget.passAddressValue == '') {
+      // The delay to route BoardMain Page Scaffold
+      Future.delayed(const Duration(milliseconds: 100)).then((_) {
+        // Navigate to the main screen using a named route.
+        Navigator.push(context, MaterialPageRoute(builder: (context) => const ImportKey()));
+      });
+    }
     // SigningOut Status Parameter
     _isSigningOut;
     return Scaffold(
@@ -115,7 +124,7 @@ class _ProfilePageState extends State<ProfilePage> {
             backgroundColor: Colors.blue,
             onTap: () {
               // Navigate to the main screen using a named route.
-              Navigator.push(context, MaterialPageRoute(builder: (_) => const ImportKey(),),);
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const ImportKey()));
             },
           ),
           SpeedDialChild(

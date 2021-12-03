@@ -221,7 +221,7 @@ class _MyHomePageState extends State<MyHomePage> {
               label: 'Profile',
               backgroundColor: Colors.blue,
               onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => ProfilePage(passedValue1: myAddress)));
+                Navigator.push(context, MaterialPageRoute(builder: (_) => ProfilePage(passAddressValue: myAddress)));
               },
             ),
           ]),
