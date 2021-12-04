@@ -56,7 +56,7 @@ class _HistoryOutputState extends State<HistoryOutput> {
               FutureBuilder(
                   future: _txReceiptRef.child('txreceipts/$userId').orderByChild("timestamp").limitToLast(100).once(),
                   builder: (BuildContext context, AsyncSnapshot snapshot) {
-                    if (snapshot.connectionState == ConnectionState.done) {
+                    if(snapshot.connectionState == ConnectionState.done) {
                       if(snapshot.data.value == null) {
                         return const Text('\n No History Transaction Data Existed.', textScaleFactor: 1.5, style: TextStyle(color: Colors.red));
                       } else {

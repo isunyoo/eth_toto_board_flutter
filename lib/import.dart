@@ -24,7 +24,7 @@ class _ImportKeyState extends State<ImportKey> {
   Web3DartHelper web3util = Web3DartHelper();
 
   // To create a new Firebase Remote Config instance
-  late RemoteConfig _remoteConfig = RemoteConfig.instance;
+  late final RemoteConfig _remoteConfig = RemoteConfig.instance;
 
   // Create a DatabaseReference which references a node called dbRef
   late final DatabaseReference _dbRef = FirebaseDatabase(
@@ -53,13 +53,13 @@ class _ImportKeyState extends State<ImportKey> {
 
   Future<void> initialSetup() async {
     // Initialize web3utility
-    await web3util.initState();
-    // Firebase Initialize App Function
-    WidgetsFlutterBinding.ensureInitialized();
-    await Firebase.initializeApp();
-    // To fetch remote config from Firebase Remote Config
-    RemoteConfigService _remoteConfigService = RemoteConfigService();
-    _remoteConfig = await _remoteConfigService.setupRemoteConfig();
+    // await web3util.initState();
+    // // Firebase Initialize App Function
+    // WidgetsFlutterBinding.ensureInitialized();
+    // await Firebase.initializeApp();
+    // // To fetch remote config from Firebase Remote Config
+    // RemoteConfigService _remoteConfigService = RemoteConfigService();
+    // _remoteConfig = await _remoteConfigService.setupRemoteConfig();
     // No account has imported yet in vault database
     _myAddress = await web3util.getAddress();
     // print(_myAddress);
@@ -189,15 +189,15 @@ class _ImportKeyState extends State<ImportKey> {
 
   @override
   Widget build(BuildContext context) {
-    // No account has imported yet in vault database
-    print(_myAddress);
-    if(_myAddress == '') {
-      // The delay to route BoardMain Page Scaffold
-      Future.delayed(const Duration(milliseconds: 100)).then((_) async {
-        // Popup an alert dialog to be informed
-        await _showApproveDialog();
-      });
-    }
+    // // No account has imported yet in vault database
+    // print(_myAddress);
+    // if(_myAddress == '') {
+    //   // The delay to route BoardMain Page Scaffold
+    //   Future.delayed(const Duration(milliseconds: 100)).then((_) async {
+    //     // Popup an alert dialog to be informed
+    //     await _showApproveDialog();
+    //   });
+    // }
     return Scaffold(
       appBar: AppBar(
         title: const Text('Import Account'),
@@ -251,8 +251,8 @@ class _ImportKeyState extends State<ImportKey> {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () async {
-                              // _focusPrivateKey.unfocus();
-                              _focusPrivateKey.requestFocus();
+                              _focusPrivateKey.unfocus();
+                              // _focusPrivateKey.requestFocus();
 
                               if (_formKey.currentState!.validate()) {
                                 setState(() {
@@ -277,6 +277,9 @@ class _ImportKeyState extends State<ImportKey> {
                     ),
                   ],
                 ),),
+               // No account has imported yet in vault database
+               if(_myAddress == '')
+                 const Text('\nThere is no stored address yet in Blockchain Ethereum Lotto(6/45).\n\nPlease paste ethereum private key to save account.', textScaleFactor: 1.5, style: TextStyle(color: Colors.red)),
             ],
           ),
         ),
