@@ -7,6 +7,7 @@ import 'package:eth_toto_board_flutter/screens/email_verify.dart';
 
 class FireAuth {
 
+  // Display a snackbar notification widget
   static SnackBar customSnackBar({required String content}) {
     return SnackBar(
       backgroundColor: Colors.black,

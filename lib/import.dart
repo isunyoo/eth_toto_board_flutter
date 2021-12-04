@@ -24,7 +24,7 @@ class _ImportKeyState extends State<ImportKey> {
   Web3DartHelper web3util = Web3DartHelper();
 
   // To create a new Firebase Remote Config instance
-  late final RemoteConfig _remoteConfig = RemoteConfig.instance;
+  late RemoteConfig _remoteConfig = RemoteConfig.instance;
 
   // Create a DatabaseReference which references a node called dbRef
   late final DatabaseReference _dbRef = FirebaseDatabase(
@@ -53,24 +53,27 @@ class _ImportKeyState extends State<ImportKey> {
 
   Future<void> initialSetup() async {
     // Initialize web3utility
-    // await web3util.initState();
-    // // Firebase Initialize App Function
-    // WidgetsFlutterBinding.ensureInitialized();
-    // await Firebase.initializeApp();
-    // // To fetch remote config from Firebase Remote Config
-    // RemoteConfigService _remoteConfigService = RemoteConfigService();
-    // _remoteConfig = await _remoteConfigService.setupRemoteConfig();
-    // No account has imported yet in vault database
+    await web3util.initState();
+    // Firebase Initialize App Function
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
+    // To fetch remote config from Firebase Remote Config
+    RemoteConfigService _remoteConfigService = RemoteConfigService();
+    _remoteConfig = await _remoteConfigService.setupRemoteConfig();
+    // To retrieve current account address
     _myAddress = await web3util.getAddress();
-    // print(_myAddress);
-    // if(_myAddress == ''){
-    //   // Popup an alert dialog to be informed
-    //   await _showApproveDialog();
-    // }
+    setState(() {
+      _myAddress;
+    });
+    // No account has imported yet in vault database
+    if(_myAddress == ''){
+      // Popup an alert dialog to be informed
+      await _showNoticeDialog();
+    }
   }
 
   // An alert dialog informs the user about situations that require acknowledgement.
-  Future<void> _showApproveDialog() async {
+  Future<void> _showNoticeDialog() async {
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!
@@ -112,7 +115,7 @@ class _ImportKeyState extends State<ImportKey> {
     }
   }
 
-  // Display a snackbar widget
+  // Display a snackbar notification widget
   static SnackBar customSnackBar({required String content}) {
     return SnackBar(
       backgroundColor: Colors.black,
@@ -188,451 +191,206 @@ class _ImportKeyState extends State<ImportKey> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    // // No account has imported yet in vault database
-    // print(_myAddress);
-    // if(_myAddress == '') {
-    //   // The delay to route BoardMain Page Scaffold
-    //   Future.delayed(const Duration(milliseconds: 100)).then((_) async {
-    //     // Popup an alert dialog to be informed
-    //     await _showApproveDialog();
-    //   });
-    // }
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Import Account'),
-        automaticallyImplyLeading: false,
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.only(left: 24.0, right: 24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const SizedBox(height: 25.0),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 25.0),
-                child: Text(
-                  'Paste your private key string',
-                  style: Theme
-                      .of(context)
-                      .textTheme
-                      .headline6,
+  Scaffold build(BuildContext context) {
+    // No account has imported yet in vault database
+    if (_myAddress == '') {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Import Account'),
+          automaticallyImplyLeading: false,
+        ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 24.0, right: 24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 25.0),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 25.0),
+                  child: Text(
+                    'Paste your private key string',
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .headline6,
+                  ),
                 ),
-              ),
-              Form(
-                key: _formKey,
-                child: Column(
-                  children: <Widget>[
-                    TextFormField(
-                      keyboardType: TextInputType.multiline,
-                      maxLines: 3,
-                      maxLength: 64,
-                      controller: _privateKeyTextController,
-                      focusNode: _focusPrivateKey,
-                      validator: (value) => validatePrivateKey(key: value),
-                      decoration: InputDecoration(
-                        hintText: "e.g. c34xff58155ad242b8e6c0e09596b202y0186763359301a2727f38r9146ff523",
-                        errorBorder: UnderlineInputBorder(
-                          borderRadius: BorderRadius.circular(6.0),
-                          borderSide: const BorderSide(
-                            color: Colors.red,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 25.0),
-                    _isProcessing
-                        ? const CircularProgressIndicator()
-                        : Row(
-                      mainAxisAlignment:
-                      MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () async {
-                              _focusPrivateKey.unfocus();
-                              // _focusPrivateKey.requestFocus();
-
-                              if (_formKey.currentState!.validate()) {
-                                setState(() {
-                                  _isProcessing = true;
-                                });
-
-                                // To save an Account to Realtime Database(vaults).
-                                await saveAccount(_privateKeyTextController.text);
-
-                                setState(() {
-                                  _isProcessing = false;
-                                });
-                              }
-                            },
-                            child: const Text(
-                              'Import',
-                              style: TextStyle(color: Colors.white),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: <Widget>[
+                      TextFormField(
+                        keyboardType: TextInputType.multiline,
+                        maxLines: 3,
+                        maxLength: 64,
+                        controller: _privateKeyTextController,
+                        focusNode: _focusPrivateKey,
+                        validator: (value) => validatePrivateKey(key: value),
+                        decoration: InputDecoration(
+                          hintText: "e.g. c34xff58155ad242b8e6c0e09596b202y0186763359301a2727f38r9146ff523",
+                          errorBorder: UnderlineInputBorder(
+                            borderRadius: BorderRadius.circular(6.0),
+                            borderSide: const BorderSide(
+                              color: Colors.red,
                             ),
                           ),
                         ),
-                      ],
-                    ),
-                  ],
-                ),),
-               // No account has imported yet in vault database
-               if(_myAddress == '')
-                 const Text('\nThere is no stored address yet in Blockchain Ethereum Lotto(6/45).\n\nPlease paste ethereum private key to save account.', textScaleFactor: 1.5, style: TextStyle(color: Colors.red)),
-            ],
+                      ),
+                      const SizedBox(height: 25.0),
+                      _isProcessing
+                          ? const CircularProgressIndicator()
+                          : Row(
+                        mainAxisAlignment:
+                        MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                _focusPrivateKey.unfocus();
+
+                                if (_formKey.currentState!.validate()) {
+                                  setState(() {
+                                    _isProcessing = true;
+                                  });
+
+                                  // To save an Account to Realtime Database(vaults).
+                                  await saveAccount(
+                                      _privateKeyTextController.text);
+
+                                  setState(() {
+                                    _isProcessing = false;
+                                  });
+                                }
+                              },
+                              child: const Text(
+                                'Import',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),),
+              ],
+            ),
           ),
         ),
-      ),
-      floatingActionButton: SpeedDial(
-          icon: Icons.menu,
-          backgroundColor: Colors.blueAccent,
-          children: [
-            SpeedDialChild(
-              child: const Icon(Icons.account_circle_sharp),
-              label: 'Profile',
-              backgroundColor: Colors.blue,
-              onTap: () {
-                Navigator.push(context, MaterialPageRoute(builder: (_) => ProfilePage(passAddressValue: _myAddress)));
-              },
-            ),
-            SpeedDialChild(
-              child: const Icon(Icons.menu_rounded),
-              label: 'Main',
-              backgroundColor: Colors.blue,
-              onTap: () {
-                // Navigate to the main screen using a named route.
-                Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const BoardMain(),),);
-              },
-            ),
-          ]
-      ),
-    );
+      );
+    // Account has imported past in vault database
+    } else {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Import Account'),
+          automaticallyImplyLeading: false,
+        ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 24.0, right: 24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 25.0),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 25.0),
+                  child: Text(
+                    'Paste your private key string',
+                    style: Theme
+                        .of(context)
+                        .textTheme
+                        .headline6,
+                  ),
+                ),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: <Widget>[
+                      TextFormField(
+                        keyboardType: TextInputType.multiline,
+                        maxLines: 3,
+                        maxLength: 64,
+                        controller: _privateKeyTextController,
+                        focusNode: _focusPrivateKey,
+                        validator: (value) => validatePrivateKey(key: value),
+                        decoration: InputDecoration(
+                          hintText: "e.g. c34xff58155ad242b8e6c0e09596b202y0186763359301a2727f38r9146ff523",
+                          errorBorder: UnderlineInputBorder(
+                            borderRadius: BorderRadius.circular(6.0),
+                            borderSide: const BorderSide(
+                              color: Colors.red,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 25.0),
+                      _isProcessing
+                          ? const CircularProgressIndicator()
+                          : Row(
+                        mainAxisAlignment:
+                        MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                _focusPrivateKey.unfocus();
 
+                                if (_formKey.currentState!.validate()) {
+                                  setState(() {
+                                    _isProcessing = true;
+                                  });
+
+                                  // To save an Account to Realtime Database(vaults).
+                                  await saveAccount(
+                                      _privateKeyTextController.text);
+
+                                  setState(() {
+                                    _isProcessing = false;
+                                  });
+                                }
+                              },
+                              child: const Text(
+                                'Import',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),),
+              ],
+            ),
+          ),
+        ),
+        floatingActionButton: SpeedDial(
+            icon: Icons.menu,
+            backgroundColor: Colors.blueAccent,
+            children: [
+              SpeedDialChild(
+                child: const Icon(Icons.account_circle_sharp),
+                label: 'Profile',
+                backgroundColor: Colors.blue,
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) =>
+                      ProfilePage(passAddressValue: _myAddress)));
+                },
+              ),
+              SpeedDialChild(
+                child: const Icon(Icons.menu_rounded),
+                label: 'Main',
+                backgroundColor: Colors.blue,
+                onTap: () {
+                  // Navigate to the main screen using a named route.
+                  Navigator.push(context,
+                    MaterialPageRoute(builder: (_) => const BoardMain(),),);
+                },
+              ),
+            ]
+        ),
+      );
+    }
   }
-
-  // @override
-  // Scaffold build(BuildContext context) {
-  //   // // No account has imported yet in vault database
-  //   // if(_myAddress == ''){
-  //   //   // The delay to route BoardMain Page Scaffold
-  //   //   Future.delayed(const Duration(milliseconds: 100)).then((_) async {
-  //   //     // Popup an alert dialog to be informed
-  //   //     await _showApproveDialog();
-  //   //   });
-  //   // }
-  //   // No account has imported yet in vault database
-  //   print(_myAddress);
-  //   if(_myAddress == ''){
-  //     // The delay to route BoardMain Page Scaffold
-  //     Future.delayed(const Duration(milliseconds: 100)).then((_) async {
-  //       // Popup an alert dialog to be informed
-  //       await _showApproveDialog();
-  //     });
-  //     return Scaffold(
-  //         appBar: AppBar(
-  //           title: const Text('Import Account'),
-  //           automaticallyImplyLeading: false,
-  //         ),
-  //         body: SingleChildScrollView(
-  //           child: Padding(
-  //             padding: const EdgeInsets.only(left: 24.0, right: 24.0),
-  //             child: Column(
-  //               mainAxisAlignment: MainAxisAlignment.center,
-  //               children: [
-  //                 const SizedBox(height: 25.0),
-  //                 Padding(
-  //                   padding: const EdgeInsets.only(bottom: 25.0),
-  //                   child: Text(
-  //                     'Paste your private key string',
-  //                     style: Theme
-  //                         .of(context)
-  //                         .textTheme
-  //                         .headline6,
-  //                   ),
-  //                 ),
-  //                 Form(
-  //                   key: _formKey,
-  //                   child: Column(
-  //                     children: <Widget>[
-  //                       TextFormField(
-  //                         keyboardType: TextInputType.multiline,
-  //                         maxLines: 3,
-  //                         maxLength: 64,
-  //                         controller: _privateKeyTextController,
-  //                         focusNode: _focusPrivateKey,
-  //                         validator: (value) => validatePrivateKey(key: value),
-  //                         decoration: InputDecoration(
-  //                           hintText: "e.g. c34xff58155ad242b8e6c0e09596b202y0186763359301a2727f38r9146ff523",
-  //                           errorBorder: UnderlineInputBorder(
-  //                             borderRadius: BorderRadius.circular(6.0),
-  //                             borderSide: const BorderSide(
-  //                               color: Colors.red,
-  //                             ),
-  //                           ),
-  //                         ),
-  //                       ),
-  //                       const SizedBox(height: 25.0),
-  //                       _isProcessing
-  //                           ? const CircularProgressIndicator()
-  //                           : Row(
-  //                         mainAxisAlignment:
-  //                         MainAxisAlignment.spaceBetween,
-  //                         children: [
-  //                           Expanded(
-  //                             child: ElevatedButton(
-  //                               onPressed: () async {
-  //                                 _focusPrivateKey.unfocus();
-  //
-  //                                 if (_formKey.currentState!.validate()) {
-  //                                   setState(() {
-  //                                     _isProcessing = true;
-  //                                   });
-  //
-  //                                   // To save an Account to Realtime Database(vaults).
-  //                                   await saveAccount(_privateKeyTextController.text);
-  //
-  //                                   setState(() {
-  //                                     _isProcessing = false;
-  //                                   });
-  //                                 }
-  //                               },
-  //                               child: const Text(
-  //                                 'Import',
-  //                                 style: TextStyle(color: Colors.white),
-  //                               ),
-  //                             ),
-  //                           ),
-  //                         ],
-  //                       ),
-  //                     ],
-  //                   ),),
-  //               ],
-  //             ),
-  //           ),
-  //         ),
-  //     );
-  //   } else {
-  //     return Scaffold(
-  //       appBar: AppBar(
-  //         title: const Text('Import Account'),
-  //         automaticallyImplyLeading: false,
-  //       ),
-  //       body: SingleChildScrollView(
-  //         child: Padding(
-  //           padding: const EdgeInsets.only(left: 24.0, right: 24.0),
-  //           child: Column(
-  //             mainAxisAlignment: MainAxisAlignment.center,
-  //             children: [
-  //               const SizedBox(height: 25.0),
-  //               Padding(
-  //                 padding: const EdgeInsets.only(bottom: 25.0),
-  //                 child: Text(
-  //                   'Paste your private key string',
-  //                   style: Theme
-  //                       .of(context)
-  //                       .textTheme
-  //                       .headline6,
-  //                 ),
-  //               ),
-  //               Form(
-  //                 key: _formKey,
-  //                 child: Column(
-  //                   children: <Widget>[
-  //                     TextFormField(
-  //                       keyboardType: TextInputType.multiline,
-  //                       maxLines: 3,
-  //                       maxLength: 64,
-  //                       controller: _privateKeyTextController,
-  //                       focusNode: _focusPrivateKey,
-  //                       validator: (value) => validatePrivateKey(key: value),
-  //                       decoration: InputDecoration(
-  //                         hintText: "e.g. c34xff58155ad242b8e6c0e09596b202y0186763359301a2727f38r9146ff523",
-  //                         errorBorder: UnderlineInputBorder(
-  //                           borderRadius: BorderRadius.circular(6.0),
-  //                           borderSide: const BorderSide(
-  //                             color: Colors.red,
-  //                           ),
-  //                         ),
-  //                       ),
-  //                     ),
-  //                     const SizedBox(height: 25.0),
-  //                     _isProcessing
-  //                         ? const CircularProgressIndicator()
-  //                         : Row(
-  //                       mainAxisAlignment:
-  //                       MainAxisAlignment.spaceBetween,
-  //                       children: [
-  //                         Expanded(
-  //                           child: ElevatedButton(
-  //                             onPressed: () async {
-  //                               _focusPrivateKey.unfocus();
-  //
-  //                               if (_formKey.currentState!.validate()) {
-  //                                 setState(() {
-  //                                   _isProcessing = true;
-  //                                 });
-  //
-  //                                 // To save an Account to Realtime Database(vaults).
-  //                                 await saveAccount(_privateKeyTextController.text);
-  //
-  //                                 setState(() {
-  //                                   _isProcessing = false;
-  //                                 });
-  //                               }
-  //                             },
-  //                             child: const Text(
-  //                               'Import',
-  //                               style: TextStyle(color: Colors.white),
-  //                             ),
-  //                           ),
-  //                         ),
-  //                       ],
-  //                     ),
-  //                   ],
-  //                 ),),
-  //             ],
-  //           ),
-  //         ),
-  //       ),
-  //       floatingActionButton: SpeedDial(
-  //           icon: Icons.menu,
-  //           backgroundColor: Colors.blueAccent,
-  //           children: [
-  //             SpeedDialChild(
-  //               child: const Icon(Icons.account_circle_sharp),
-  //               label: 'Profile',
-  //               backgroundColor: Colors.blue,
-  //               onTap: () {
-  //                 Navigator.push(context, MaterialPageRoute(builder: (_) => ProfilePage(passAddressValue: _myAddress)));
-  //               },
-  //             ),
-  //             SpeedDialChild(
-  //               child: const Icon(Icons.menu_rounded),
-  //               label: 'Main',
-  //               backgroundColor: Colors.blue,
-  //               onTap: () {
-  //                 // Navigate to the main screen using a named route.
-  //                 Navigator.push(context,
-  //                   MaterialPageRoute(builder: (_) => const BoardMain(),),);
-  //               },
-  //             ),
-  //           ]
-  //       ),
-  //     );
-  //
-  //   }
-
-
-    // return Scaffold(
-    //   appBar: AppBar(
-    //     title: const Text('Import Account'),
-    //     automaticallyImplyLeading: false,
-    //   ),
-    //   body: SingleChildScrollView(
-    //     child: Padding(
-    //       padding: const EdgeInsets.only(left: 24.0, right: 24.0),
-    //       child: Column(
-    //         mainAxisAlignment: MainAxisAlignment.center,
-    //         children: [
-    //           const SizedBox(height: 25.0),
-    //           Padding(
-    //             padding: const EdgeInsets.only(bottom: 25.0),
-    //             child: Text(
-    //               'Paste your private key string',
-    //               style: Theme
-    //                   .of(context)
-    //                   .textTheme
-    //                   .headline6,
-    //             ),
-    //           ),
-    //           Form(
-    //             key: _formKey,
-    //             child: Column(
-    //               children: <Widget>[
-    //                 TextFormField(
-    //                   keyboardType: TextInputType.multiline,
-    //                   maxLines: 3,
-    //                   maxLength: 64,
-    //                   controller: _privateKeyTextController,
-    //                   focusNode: _focusPrivateKey,
-    //                   validator: (value) => validatePrivateKey(key: value),
-    //                   decoration: InputDecoration(
-    //                     hintText: "e.g. c34xff58155ad242b8e6c0e09596b202y0186763359301a2727f38r9146ff523",
-    //                     errorBorder: UnderlineInputBorder(
-    //                       borderRadius: BorderRadius.circular(6.0),
-    //                       borderSide: const BorderSide(
-    //                         color: Colors.red,
-    //                       ),
-    //                     ),
-    //                   ),
-    //                 ),
-    //                 const SizedBox(height: 25.0),
-    //                 _isProcessing
-    //                     ? const CircularProgressIndicator()
-    //                     : Row(
-    //                   mainAxisAlignment:
-    //                   MainAxisAlignment.spaceBetween,
-    //                   children: [
-    //                     Expanded(
-    //                       child: ElevatedButton(
-    //                         onPressed: () async {
-    //                           _focusPrivateKey.unfocus();
-    //
-    //                           if (_formKey.currentState!.validate()) {
-    //                             setState(() {
-    //                               _isProcessing = true;
-    //                             });
-    //
-    //                             // To save an Account to Realtime Database(vaults).
-    //                             await saveAccount(_privateKeyTextController.text);
-    //
-    //                             setState(() {
-    //                               _isProcessing = false;
-    //                             });
-    //                           }
-    //                         },
-    //                         child: const Text(
-    //                           'Import',
-    //                           style: TextStyle(color: Colors.white),
-    //                         ),
-    //                       ),
-    //                     ),
-    //                   ],
-    //                 ),
-    //               ],
-    //             ),),
-    //         ],
-    //       ),
-    //     ),
-    //   ),
-    //   floatingActionButton: SpeedDial(
-    //       icon: Icons.menu,
-    //       backgroundColor: Colors.blueAccent,
-    //       children: [
-    //         SpeedDialChild(
-    //           child: const Icon(Icons.account_circle_sharp),
-    //           label: 'Profile',
-    //           backgroundColor: Colors.blue,
-    //           onTap: () {
-    //             Navigator.push(context, MaterialPageRoute(builder: (_) => ProfilePage(passAddressValue: _myAddress)));
-    //           },
-    //         ),
-    //         SpeedDialChild(
-    //           child: const Icon(Icons.menu_rounded),
-    //           label: 'Main',
-    //           backgroundColor: Colors.blue,
-    //           onTap: () {
-    //             // Navigate to the main screen using a named route.
-    //             Navigator.push(context,
-    //               MaterialPageRoute(builder: (_) => const BoardMain(),),);
-    //           },
-    //         ),
-    //       ]
-    //   ),
-    // );
- // }
 
 }
 

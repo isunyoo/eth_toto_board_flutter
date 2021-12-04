@@ -140,6 +140,15 @@ class _EmailVerifyPageState extends State<EmailVerifyPage> {
                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (BuildContext context) => const LoginPage()));
               },
             ),
+            SpeedDialChild(
+              child: const Icon(Icons.menu_rounded),
+              label: 'Main',
+              backgroundColor: Colors.blue,
+              onTap: () {
+                // If(user?.emailVerified == true) then route BoardMain Page Scaffold
+                _launchBoardMain();
+              },
+            ),
           ]
       ),
     );

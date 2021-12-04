@@ -76,6 +76,7 @@ class _HistoryOutputState extends State<HistoryOutput> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: <Widget>[
                                     Text("Date: " + lists[index]["date"] + " , Transaction Status: " + lists[index]["status"].toString()),
+                                    Text("Account: " + lists[index]["from"]),
                                     Text("SlotData: " + lists[index]["slotData"]),
                                     RichText(
                                         text: TextSpan(
