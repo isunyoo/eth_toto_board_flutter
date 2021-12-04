@@ -62,9 +62,10 @@ class _ImportKeyState extends State<ImportKey> {
     _remoteConfig = await _remoteConfigService.setupRemoteConfig();
     // No account has imported yet in vault database
     _myAddress = await web3util.getAddress();
+    // print(_myAddress);
     // if(_myAddress == ''){
     //   // Popup an alert dialog to be informed
-    //   _showApproveDialog();
+    //   await _showApproveDialog();
     // }
   }
 
@@ -187,13 +188,14 @@ class _ImportKeyState extends State<ImportKey> {
   }
 
   @override
-  Scaffold build(BuildContext context) {
+  Widget build(BuildContext context) {
     // No account has imported yet in vault database
-    if(_myAddress == ''){
+    print(_myAddress);
+    if(_myAddress == '') {
       // The delay to route BoardMain Page Scaffold
-      Future.delayed(const Duration(milliseconds: 100)).then((_) {
+      Future.delayed(const Duration(milliseconds: 100)).then((_) async {
         // Popup an alert dialog to be informed
-        _showApproveDialog();
+        await _showApproveDialog();
       });
     }
     return Scaffold(
@@ -249,7 +251,8 @@ class _ImportKeyState extends State<ImportKey> {
                         Expanded(
                           child: ElevatedButton(
                             onPressed: () async {
-                              _focusPrivateKey.unfocus();
+                              // _focusPrivateKey.unfocus();
+                              _focusPrivateKey.requestFocus();
 
                               if (_formKey.currentState!.validate()) {
                                 setState(() {
@@ -303,7 +306,330 @@ class _ImportKeyState extends State<ImportKey> {
           ]
       ),
     );
+
   }
+
+  // @override
+  // Scaffold build(BuildContext context) {
+  //   // // No account has imported yet in vault database
+  //   // if(_myAddress == ''){
+  //   //   // The delay to route BoardMain Page Scaffold
+  //   //   Future.delayed(const Duration(milliseconds: 100)).then((_) async {
+  //   //     // Popup an alert dialog to be informed
+  //   //     await _showApproveDialog();
+  //   //   });
+  //   // }
+  //   // No account has imported yet in vault database
+  //   print(_myAddress);
+  //   if(_myAddress == ''){
+  //     // The delay to route BoardMain Page Scaffold
+  //     Future.delayed(const Duration(milliseconds: 100)).then((_) async {
+  //       // Popup an alert dialog to be informed
+  //       await _showApproveDialog();
+  //     });
+  //     return Scaffold(
+  //         appBar: AppBar(
+  //           title: const Text('Import Account'),
+  //           automaticallyImplyLeading: false,
+  //         ),
+  //         body: SingleChildScrollView(
+  //           child: Padding(
+  //             padding: const EdgeInsets.only(left: 24.0, right: 24.0),
+  //             child: Column(
+  //               mainAxisAlignment: MainAxisAlignment.center,
+  //               children: [
+  //                 const SizedBox(height: 25.0),
+  //                 Padding(
+  //                   padding: const EdgeInsets.only(bottom: 25.0),
+  //                   child: Text(
+  //                     'Paste your private key string',
+  //                     style: Theme
+  //                         .of(context)
+  //                         .textTheme
+  //                         .headline6,
+  //                   ),
+  //                 ),
+  //                 Form(
+  //                   key: _formKey,
+  //                   child: Column(
+  //                     children: <Widget>[
+  //                       TextFormField(
+  //                         keyboardType: TextInputType.multiline,
+  //                         maxLines: 3,
+  //                         maxLength: 64,
+  //                         controller: _privateKeyTextController,
+  //                         focusNode: _focusPrivateKey,
+  //                         validator: (value) => validatePrivateKey(key: value),
+  //                         decoration: InputDecoration(
+  //                           hintText: "e.g. c34xff58155ad242b8e6c0e09596b202y0186763359301a2727f38r9146ff523",
+  //                           errorBorder: UnderlineInputBorder(
+  //                             borderRadius: BorderRadius.circular(6.0),
+  //                             borderSide: const BorderSide(
+  //                               color: Colors.red,
+  //                             ),
+  //                           ),
+  //                         ),
+  //                       ),
+  //                       const SizedBox(height: 25.0),
+  //                       _isProcessing
+  //                           ? const CircularProgressIndicator()
+  //                           : Row(
+  //                         mainAxisAlignment:
+  //                         MainAxisAlignment.spaceBetween,
+  //                         children: [
+  //                           Expanded(
+  //                             child: ElevatedButton(
+  //                               onPressed: () async {
+  //                                 _focusPrivateKey.unfocus();
+  //
+  //                                 if (_formKey.currentState!.validate()) {
+  //                                   setState(() {
+  //                                     _isProcessing = true;
+  //                                   });
+  //
+  //                                   // To save an Account to Realtime Database(vaults).
+  //                                   await saveAccount(_privateKeyTextController.text);
+  //
+  //                                   setState(() {
+  //                                     _isProcessing = false;
+  //                                   });
+  //                                 }
+  //                               },
+  //                               child: const Text(
+  //                                 'Import',
+  //                                 style: TextStyle(color: Colors.white),
+  //                               ),
+  //                             ),
+  //                           ),
+  //                         ],
+  //                       ),
+  //                     ],
+  //                   ),),
+  //               ],
+  //             ),
+  //           ),
+  //         ),
+  //     );
+  //   } else {
+  //     return Scaffold(
+  //       appBar: AppBar(
+  //         title: const Text('Import Account'),
+  //         automaticallyImplyLeading: false,
+  //       ),
+  //       body: SingleChildScrollView(
+  //         child: Padding(
+  //           padding: const EdgeInsets.only(left: 24.0, right: 24.0),
+  //           child: Column(
+  //             mainAxisAlignment: MainAxisAlignment.center,
+  //             children: [
+  //               const SizedBox(height: 25.0),
+  //               Padding(
+  //                 padding: const EdgeInsets.only(bottom: 25.0),
+  //                 child: Text(
+  //                   'Paste your private key string',
+  //                   style: Theme
+  //                       .of(context)
+  //                       .textTheme
+  //                       .headline6,
+  //                 ),
+  //               ),
+  //               Form(
+  //                 key: _formKey,
+  //                 child: Column(
+  //                   children: <Widget>[
+  //                     TextFormField(
+  //                       keyboardType: TextInputType.multiline,
+  //                       maxLines: 3,
+  //                       maxLength: 64,
+  //                       controller: _privateKeyTextController,
+  //                       focusNode: _focusPrivateKey,
+  //                       validator: (value) => validatePrivateKey(key: value),
+  //                       decoration: InputDecoration(
+  //                         hintText: "e.g. c34xff58155ad242b8e6c0e09596b202y0186763359301a2727f38r9146ff523",
+  //                         errorBorder: UnderlineInputBorder(
+  //                           borderRadius: BorderRadius.circular(6.0),
+  //                           borderSide: const BorderSide(
+  //                             color: Colors.red,
+  //                           ),
+  //                         ),
+  //                       ),
+  //                     ),
+  //                     const SizedBox(height: 25.0),
+  //                     _isProcessing
+  //                         ? const CircularProgressIndicator()
+  //                         : Row(
+  //                       mainAxisAlignment:
+  //                       MainAxisAlignment.spaceBetween,
+  //                       children: [
+  //                         Expanded(
+  //                           child: ElevatedButton(
+  //                             onPressed: () async {
+  //                               _focusPrivateKey.unfocus();
+  //
+  //                               if (_formKey.currentState!.validate()) {
+  //                                 setState(() {
+  //                                   _isProcessing = true;
+  //                                 });
+  //
+  //                                 // To save an Account to Realtime Database(vaults).
+  //                                 await saveAccount(_privateKeyTextController.text);
+  //
+  //                                 setState(() {
+  //                                   _isProcessing = false;
+  //                                 });
+  //                               }
+  //                             },
+  //                             child: const Text(
+  //                               'Import',
+  //                               style: TextStyle(color: Colors.white),
+  //                             ),
+  //                           ),
+  //                         ),
+  //                       ],
+  //                     ),
+  //                   ],
+  //                 ),),
+  //             ],
+  //           ),
+  //         ),
+  //       ),
+  //       floatingActionButton: SpeedDial(
+  //           icon: Icons.menu,
+  //           backgroundColor: Colors.blueAccent,
+  //           children: [
+  //             SpeedDialChild(
+  //               child: const Icon(Icons.account_circle_sharp),
+  //               label: 'Profile',
+  //               backgroundColor: Colors.blue,
+  //               onTap: () {
+  //                 Navigator.push(context, MaterialPageRoute(builder: (_) => ProfilePage(passAddressValue: _myAddress)));
+  //               },
+  //             ),
+  //             SpeedDialChild(
+  //               child: const Icon(Icons.menu_rounded),
+  //               label: 'Main',
+  //               backgroundColor: Colors.blue,
+  //               onTap: () {
+  //                 // Navigate to the main screen using a named route.
+  //                 Navigator.push(context,
+  //                   MaterialPageRoute(builder: (_) => const BoardMain(),),);
+  //               },
+  //             ),
+  //           ]
+  //       ),
+  //     );
+  //
+  //   }
+
+
+    // return Scaffold(
+    //   appBar: AppBar(
+    //     title: const Text('Import Account'),
+    //     automaticallyImplyLeading: false,
+    //   ),
+    //   body: SingleChildScrollView(
+    //     child: Padding(
+    //       padding: const EdgeInsets.only(left: 24.0, right: 24.0),
+    //       child: Column(
+    //         mainAxisAlignment: MainAxisAlignment.center,
+    //         children: [
+    //           const SizedBox(height: 25.0),
+    //           Padding(
+    //             padding: const EdgeInsets.only(bottom: 25.0),
+    //             child: Text(
+    //               'Paste your private key string',
+    //               style: Theme
+    //                   .of(context)
+    //                   .textTheme
+    //                   .headline6,
+    //             ),
+    //           ),
+    //           Form(
+    //             key: _formKey,
+    //             child: Column(
+    //               children: <Widget>[
+    //                 TextFormField(
+    //                   keyboardType: TextInputType.multiline,
+    //                   maxLines: 3,
+    //                   maxLength: 64,
+    //                   controller: _privateKeyTextController,
+    //                   focusNode: _focusPrivateKey,
+    //                   validator: (value) => validatePrivateKey(key: value),
+    //                   decoration: InputDecoration(
+    //                     hintText: "e.g. c34xff58155ad242b8e6c0e09596b202y0186763359301a2727f38r9146ff523",
+    //                     errorBorder: UnderlineInputBorder(
+    //                       borderRadius: BorderRadius.circular(6.0),
+    //                       borderSide: const BorderSide(
+    //                         color: Colors.red,
+    //                       ),
+    //                     ),
+    //                   ),
+    //                 ),
+    //                 const SizedBox(height: 25.0),
+    //                 _isProcessing
+    //                     ? const CircularProgressIndicator()
+    //                     : Row(
+    //                   mainAxisAlignment:
+    //                   MainAxisAlignment.spaceBetween,
+    //                   children: [
+    //                     Expanded(
+    //                       child: ElevatedButton(
+    //                         onPressed: () async {
+    //                           _focusPrivateKey.unfocus();
+    //
+    //                           if (_formKey.currentState!.validate()) {
+    //                             setState(() {
+    //                               _isProcessing = true;
+    //                             });
+    //
+    //                             // To save an Account to Realtime Database(vaults).
+    //                             await saveAccount(_privateKeyTextController.text);
+    //
+    //                             setState(() {
+    //                               _isProcessing = false;
+    //                             });
+    //                           }
+    //                         },
+    //                         child: const Text(
+    //                           'Import',
+    //                           style: TextStyle(color: Colors.white),
+    //                         ),
+    //                       ),
+    //                     ),
+    //                   ],
+    //                 ),
+    //               ],
+    //             ),),
+    //         ],
+    //       ),
+    //     ),
+    //   ),
+    //   floatingActionButton: SpeedDial(
+    //       icon: Icons.menu,
+    //       backgroundColor: Colors.blueAccent,
+    //       children: [
+    //         SpeedDialChild(
+    //           child: const Icon(Icons.account_circle_sharp),
+    //           label: 'Profile',
+    //           backgroundColor: Colors.blue,
+    //           onTap: () {
+    //             Navigator.push(context, MaterialPageRoute(builder: (_) => ProfilePage(passAddressValue: _myAddress)));
+    //           },
+    //         ),
+    //         SpeedDialChild(
+    //           child: const Icon(Icons.menu_rounded),
+    //           label: 'Main',
+    //           backgroundColor: Colors.blue,
+    //           onTap: () {
+    //             // Navigate to the main screen using a named route.
+    //             Navigator.push(context,
+    //               MaterialPageRoute(builder: (_) => const BoardMain(),),);
+    //           },
+    //         ),
+    //       ]
+    //   ),
+    // );
+ // }
 
 }
 
