@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:jdenticon_dart/jdenticon_dart.dart';
 import 'package:eth_toto_board_flutter/import.dart';
@@ -28,82 +29,25 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
   }
 
-  // https://pub.dev/packages/jdenticon_dart/example
+  // Jdenticon Display Widget
   Widget _getCardWithIcon(String name) {
   final String rawSvg = Jdenticon.toSvg(name);
   return Card(
     child: Column(
       children: <Widget>[
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SvgPicture.string(
-                rawSvg,
-                fit: BoxFit.fill,
-                height: 32,
-                width: 32,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SvgPicture.string(
-                rawSvg,
-                fit: BoxFit.fill,
-                height: 32,
-                width: 32,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: SvgPicture.string(
-                rawSvg,
-                fit: BoxFit.fill,
-                height: 32,
-                width: 32,
-              ),
-            ),
-          ],
-        ),
         const SizedBox(
-          height: 12.0,
+          height: 5.0,
         ),
         SvgPicture.string(
           rawSvg,
           fit: BoxFit.contain,
-          height: 64,
-          width: 64,
-        ),
-        const SizedBox(
-          height: 12.0,
-        ),
-        SvgPicture.string(
-          rawSvg,
-          fit: BoxFit.scaleDown,
-          height: 128,
-          width: 128,
-        ),
-        const SizedBox(
-          height: 12.0,
-        ),
-        SvgPicture.string(
-          rawSvg,
-          fit: BoxFit.fitWidth,
-          width: 256,
-        ),
-        Text(
-          name,
-          textScaleFactor: 1.5,
-          style: const TextStyle(
-              color: Colors.blue,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.6),
+          height: 50,
+          width: 50,
+          color: Colors.lightBlueAccent,
         ),
       ],
     ),
-  );
-}
+  );}
 
   // QRCode Display Widget
   _qrContentWidget() {
@@ -112,48 +56,30 @@ class _ProfilePageState extends State<ProfilePage> {
       child:  Column(
         children: <Widget>[
           Row(
+            children: <Widget>[
+              Padding(padding: const EdgeInsets.all(5.0),
+                child: Text("\nName: ${user?.displayName}", textScaleFactor: 1.5),
+              ),
+              Padding(padding: const EdgeInsets.all(5.0),
+                child: _getCardWithIcon(widget.passAddressValue),
+              ),
+            ],
+          ),
+          Row(
             children: <Widget>[ Expanded(
               child: Text(
-                "\nName: ${user?.displayName}",
+                " Email: ${user?.email}",
                 textScaleFactor: 1.5,
               ),
-            ),
-            ],
+            ),],
           ),
           Row(
             children: <Widget>[ Expanded(
               child: Text(
-                "Email: ${user?.email}",
-                textScaleFactor: 1.5,
-              ),
-            ),
-            ],
-          ),
-          Row(
-            children: <Widget>[ Expanded(
-              // child: Card(
-              //   child: Column(
-              //     children: <Widget>[
-              //       SvgPicture.string(rawSvg, fit: BoxFit.contain, height: 64, width: 64,),
-              //       const SizedBox(height: 12.0,),
-              //       SvgPicture.string(rawSvg, fit: BoxFit.scaleDown, height: 128, width: 128,),
-              //       const SizedBox(height: 12.0,),
-              //       SvgPicture.string(rawSvg, fit: BoxFit.fitWidth, width: 256,),
-              //     ],
-              //   ),
-              // );
-              child: _getCardWithIcon(widget.passAddressValue),
-            ),
-            ],
-          ),
-          Row(
-            children: <Widget>[ Expanded(
-              child: Text(
-                "\nCurrent Wallet Account Address: ${widget.passAddressValue}\n",
+                "\n Current Wallet Account Address: ${widget.passAddressValue}\n",
                 textScaleFactor: 1.2,
               ),
-            ),
-            ],
+            ),],
           ),
           Center(
               child: QrImage(
@@ -183,8 +109,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
                 child: const Text('Copy Address'),
               )
-            ),
-            ],
+            ),],
           ),
         ],
       ),
@@ -249,8 +174,7 @@ class _ProfilePageState extends State<ProfilePage> {
               Navigator.push(context, MaterialPageRoute(builder: (_) => const BoardMain(),),);
             },
           ),
-        ]
-    ),
+        ]),
     );
   }
 }

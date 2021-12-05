@@ -193,7 +193,7 @@ class _ImportKeyState extends State<ImportKey> {
   @override
   Scaffold build(BuildContext context) {
     // No account has imported yet in vault database
-    if (_myAddress == '') {
+    if(_myAddress == '') {
       return Scaffold(
         appBar: AppBar(
           title: const Text('Import Account'),
