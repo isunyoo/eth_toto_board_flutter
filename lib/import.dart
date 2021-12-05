@@ -241,8 +241,7 @@ class _ImportKeyState extends State<ImportKey> {
                       _isProcessing
                           ? const CircularProgressIndicator()
                           : Row(
-                        mainAxisAlignment:
-                        MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Expanded(
                             child: ElevatedButton(
@@ -263,10 +262,7 @@ class _ImportKeyState extends State<ImportKey> {
                                   });
                                 }
                               },
-                              child: const Text(
-                                'Import',
-                                style: TextStyle(color: Colors.white),
-                              ),
+                              child: const Text('Import', style: TextStyle(color: Colors.white)),
                             ),
                           ),
                         ],

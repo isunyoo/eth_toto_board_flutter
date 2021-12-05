@@ -18,10 +18,13 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
+enum SingingCharacter { lafayette, jefferson }
+
 class _ProfilePageState extends State<ProfilePage> {
   // The user's ID which is unique from the Firebase project
   User? user = FirebaseAuth.instance.currentUser;
   bool _isSigningOut = false;
+  SingingCharacter? _character = SingingCharacter.lafayette;
 
   @override
   void initState() {
@@ -76,7 +79,7 @@ class _ProfilePageState extends State<ProfilePage> {
           Row(
             children: <Widget>[ Expanded(
               child: Text(
-                "\n Current Wallet Account Address: ${widget.passAddressValue}\n",
+                "\n Current Account Address: ${widget.passAddressValue}\n",
                 textScaleFactor: 1.2,
               ),
             ),],
@@ -90,6 +93,7 @@ class _ProfilePageState extends State<ProfilePage> {
                      )
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[ Expanded(
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(elevation: 3),
@@ -107,9 +111,43 @@ class _ProfilePageState extends State<ProfilePage> {
                     ScaffoldMessenger.of(context).showSnackBar(snackBar);
                   });
                 },
-                child: const Text('Copy Address'),
+                child: const Text('Copy Address', style: TextStyle(color: Colors.white)),
               )
             ),],
+          ),
+          Row(
+            children: const <Widget>[ Expanded(
+              child: Text(
+                "\n My Accounts",
+                textScaleFactor: 1.2,
+              ),
+            ),],
+          ),
+          Column(
+            children: <Widget>[
+              RadioListTile<SingingCharacter>(
+                title: const Text('Lafayette'),
+                value: SingingCharacter.lafayette,
+                groupValue: _character,
+                onChanged: (SingingCharacter? value) {
+                  setState(() {
+                  _character = value;
+                  print(_character);
+                  });
+                },
+              ),
+              RadioListTile<SingingCharacter>(
+                title: const Text('Thomas Jefferson'),
+                value: SingingCharacter.jefferson,
+                groupValue: _character,
+                onChanged: (SingingCharacter? value) {
+                  setState(() {
+                  _character = value;
+                  print(_character);
+                 });
+                },
+              ),
+            ],
           ),
         ],
       ),
