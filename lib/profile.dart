@@ -1,13 +1,18 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:jdenticon_dart/jdenticon_dart.dart';
 import 'package:eth_toto_board_flutter/import.dart';
 import 'package:eth_toto_board_flutter/boardmain.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:eth_toto_board_flutter/screens/login.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:eth_toto_board_flutter/utilities/remote_config.dart';
 import 'package:eth_toto_board_flutter/utilities/authenticator.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -21,6 +26,10 @@ class ProfilePage extends StatefulWidget {
 enum SingingCharacter { lafayette, jefferson }
 
 class _ProfilePageState extends State<ProfilePage> {
+  // To create a new Firebase Remote Config instance
+  late RemoteConfig _remoteConfig = RemoteConfig.instance;
+  // Create a DatabaseReference which references a node called txreceipts
+  late final DatabaseReference _txReceiptRef = FirebaseDatabase(databaseURL:jsonDecode(_remoteConfig.getValue('Connection_Config').asString())['Firebase']['Firebase_Database']).reference();
   // The user's ID which is unique from the Firebase project
   User? user = FirebaseAuth.instance.currentUser;
   bool _isSigningOut = false;
@@ -30,6 +39,16 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    initialSetup();
+  }
+
+  Future<void> initialSetup() async {
+    // Firebase Initialize App Function
+    WidgetsFlutterBinding.ensureInitialized();
+    await Firebase.initializeApp();
+    // To fetch remote config from Firebase Remote Config
+    RemoteConfigService _remoteConfigService = RemoteConfigService();
+    _remoteConfig = await _remoteConfigService.setupRemoteConfig();
   }
 
   // Jdenticon Display Widget
@@ -56,100 +75,101 @@ class _ProfilePageState extends State<ProfilePage> {
   _qrContentWidget() {
     return  Container(
       color: const Color(0xFFFFFFFF),
-      child:  Column(
-        children: <Widget>[
-          Row(
-            children: <Widget>[
-              Padding(padding: const EdgeInsets.all(5.0),
-                child: Text("\nName: ${user?.displayName}", textScaleFactor: 1.5),
-              ),
-              Padding(padding: const EdgeInsets.all(5.0),
-                child: _getCardWithIcon(widget.passAddressValue),
-              ),
-            ],
-          ),
-          Row(
-            children: <Widget>[ Expanded(
-              child: Text(
-                " Email: ${user?.email}",
-                textScaleFactor: 1.5,
-              ),
-            ),],
-          ),
-          Row(
-            children: <Widget>[ Expanded(
-              child: Text(
-                "\n Current Account Address: ${widget.passAddressValue}\n",
-                textScaleFactor: 1.2,
-              ),
-            ),],
-          ),
-          Center(
-              child: QrImage(
-                        data: widget.passAddressValue,
-                        version: QrVersions.auto,
-                        size: 200,
-                        gapless: false,
-                     )
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[ Expanded(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(elevation: 3),
-                onPressed: () {
-                  Clipboard.setData(ClipboardData(text: widget.passAddressValue)).then((value) {
-                    final snackBar = SnackBar(
-                        content: const Text('Copied to Clipboard'),
-                        action: SnackBarAction(
-                          label: 'Undo',
-                          onPressed: () {
-                            Clipboard.setData(const ClipboardData(text: ''));
-                          },
-                        ),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  });
-                },
-                child: const Text('Copy Address', style: TextStyle(color: Colors.white)),
-              )
-            ),],
-          ),
-          Row(
-            children: const <Widget>[ Expanded(
-              child: Text(
-                "\n My Accounts",
-                textScaleFactor: 1.2,
-              ),
-            ),],
-          ),
-          Column(
-            children: <Widget>[
-              RadioListTile<SingingCharacter>(
-                title: const Text('Lafayette'),
-                value: SingingCharacter.lafayette,
-                groupValue: _character,
-                onChanged: (SingingCharacter? value) {
-                  setState(() {
-                  _character = value;
-                  print(_character);
-                  });
-                },
-              ),
-              RadioListTile<SingingCharacter>(
-                title: const Text('Thomas Jefferson'),
-                value: SingingCharacter.jefferson,
-                groupValue: _character,
-                onChanged: (SingingCharacter? value) {
-                  setState(() {
-                  _character = value;
-                  print(_character);
-                 });
-                },
-              ),
-            ],
-          ),
-        ],
+      child: SingleChildScrollView(
+        child:  Column(
+          children: <Widget>[
+            Row(
+              children: <Widget>[ Expanded(
+                child: Text("\n Name: ${user?.displayName}", textScaleFactor: 1.5),
+              ),],
+            ),
+            Row(
+              children: <Widget>[ Expanded(
+                child: Text(" Email: ${user?.email}", textScaleFactor: 1.5),
+              ),],
+            ),
+            Row(
+              children: <Widget>[
+                Padding(padding: const EdgeInsets.all(5.0),
+                  child: _getCardWithIcon(widget.passAddressValue),
+                ),
+                const Padding(padding: EdgeInsets.all(5.0),
+                  child: Text("\nCurrent Account Address: ", textScaleFactor: 1.5),
+                ),
+              ],
+            ),
+            Row(
+              children: <Widget>[ Expanded(
+                child: Text(" ${widget.passAddressValue}\n", textScaleFactor: 1.2),
+              ),],
+            ),
+            Center(
+                child: QrImage(
+                          data: widget.passAddressValue,
+                          version: QrVersions.auto,
+                          size: 200,
+                          gapless: false,
+                       )
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[ Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(elevation: 3),
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: widget.passAddressValue)).then((value) {
+                      final snackBar = SnackBar(
+                          content: const Text('Copied to Clipboard'),
+                          action: SnackBarAction(
+                            label: 'Undo',
+                            onPressed: () {
+                              Clipboard.setData(const ClipboardData(text: ''));
+                            },
+                          ),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                    });
+                  },
+                  child: const Text('Copy Address', style: TextStyle(color: Colors.white)),
+                )
+              ),],
+            ),
+            Row(
+              children: const <Widget>[ Expanded(
+                child: Text(
+                  "\n My Accounts",
+                  textScaleFactor: 1.2,
+                ),
+              ),],
+            ),
+            Column(
+              children: <Widget>[
+                RadioListTile<SingingCharacter>(
+                  title: const Text('Lafayette'),
+                  value: SingingCharacter.lafayette,
+                  groupValue: _character,
+                  onChanged: (SingingCharacter? value) {
+                    setState(() {
+                    _character = value;
+                    print(_character);
+                    });
+                  },
+                ),
+                RadioListTile<SingingCharacter>(
+                  title: const Text('Thomas Jefferson'),
+                  value: SingingCharacter.jefferson,
+                  groupValue: _character,
+                  onChanged: (SingingCharacter? value) {
+                    setState(() {
+                    _character = value;
+                    print(_character);
+                   });
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
