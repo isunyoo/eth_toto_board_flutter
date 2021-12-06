@@ -11,6 +11,7 @@ import 'package:eth_toto_board_flutter/boardmain.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:eth_toto_board_flutter/screens/login.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:eth_toto_board_flutter/utilities/web3dartutil.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:eth_toto_board_flutter/utilities/remote_config.dart';
 import 'package:eth_toto_board_flutter/utilities/authenticator.dart';
@@ -26,14 +27,17 @@ class ProfilePage extends StatefulWidget {
 enum SingingCharacter { lafayette, jefferson }
 
 class _ProfilePageState extends State<ProfilePage> {
+  // Initialize the Web3DartHelper class from utility packages
+  Web3DartHelper web3util = Web3DartHelper();
   // To create a new Firebase Remote Config instance
-  late RemoteConfig _remoteConfig = RemoteConfig.instance;
+  late final RemoteConfig _remoteConfig = RemoteConfig.instance;
   // Create a DatabaseReference which references a node called txreceipts
-  late final DatabaseReference _txReceiptRef = FirebaseDatabase(databaseURL:jsonDecode(_remoteConfig.getValue('Connection_Config').asString())['Firebase']['Firebase_Database']).reference();
+  late final DatabaseReference _dbRef = FirebaseDatabase(databaseURL:jsonDecode(_remoteConfig.getValue('Connection_Config').asString())['Firebase']['Firebase_Database']).reference();
   // The user's ID which is unique from the Firebase project
   User? user = FirebaseAuth.instance.currentUser;
   bool _isSigningOut = false;
   SingingCharacter? _character = SingingCharacter.lafayette;
+  List<Map<dynamic, dynamic>> lists = [];
 
   @override
   void initState() {
@@ -43,12 +47,21 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Future<void> initialSetup() async {
+    // Initialize web3utility
+    // await web3util.initState();
     // Firebase Initialize App Function
-    WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp();
+    WidgetsFlutterBinding.ensureInitialized();
     // To fetch remote config from Firebase Remote Config
-    RemoteConfigService _remoteConfigService = RemoteConfigService();
-    _remoteConfig = await _remoteConfigService.setupRemoteConfig();
+    // RemoteConfigService _remoteConfigService = RemoteConfigService();
+    // _remoteConfig = await _remoteConfigService.setupRemoteConfig();
+    // print(await web3util.getAccountEthBalance('0x35c74387683bfaadda78241b0c04a91cc6ae55e8')+' (ETH)');
+    // print(await web3util.getConvEthUSD(await web3util.getAccountEthBalance('0x35c74387683bfaadda78241b0c04a91cc6ae55e8'))+' (USD)');
+  }
+
+  Future<String> getEthValue(String address) async {
+    String value = await web3util.getAccountEthBalance(address);
+    return value;
   }
 
   // Jdenticon Display Widget
@@ -137,37 +150,112 @@ class _ProfilePageState extends State<ProfilePage> {
             Row(
               children: const <Widget>[ Expanded(
                 child: Text(
-                  "\n My Accounts",
+                  "\n My Accounts: ",
                   textScaleFactor: 1.2,
                 ),
               ),],
             ),
+            // Column(
+            //   children: <Widget>[
+            //     RadioListTile<SingingCharacter>(
+            //       title: const Text('Lafayette'),
+            //       value: SingingCharacter.lafayette,
+            //       groupValue: _character,
+            //       onChanged: (SingingCharacter? value) {
+            //         setState(() {
+            //         _character = value;
+            //         print(_character);
+            //         });
+            //       },
+            //     ),
+            //     RadioListTile<SingingCharacter>(
+            //       title: const Text('Thomas Jefferson'),
+            //       value: SingingCharacter.jefferson,
+            //       groupValue: _character,
+            //       onChanged: (SingingCharacter? value) {
+            //         setState(() {
+            //         _character = value;
+            //         print(_character);
+            //        });
+            //       },
+            //     ),
+            //   ],
+            // ),
+
             Column(
-              children: <Widget>[
-                RadioListTile<SingingCharacter>(
-                  title: const Text('Lafayette'),
-                  value: SingingCharacter.lafayette,
-                  groupValue: _character,
-                  onChanged: (SingingCharacter? value) {
-                    setState(() {
-                    _character = value;
-                    print(_character);
-                    });
-                  },
-                ),
-                RadioListTile<SingingCharacter>(
-                  title: const Text('Thomas Jefferson'),
-                  value: SingingCharacter.jefferson,
-                  groupValue: _character,
-                  onChanged: (SingingCharacter? value) {
-                    setState(() {
-                    _character = value;
-                    print(_character);
-                   });
-                  },
-                ),
-              ],
+                children: <Widget>[
+                  FutureBuilder(
+                      future: _dbRef.child('vaults/${user?.uid}').once(),
+                      builder: (BuildContext context, AsyncSnapshot snapshot) {
+                        if(snapshot.connectionState == ConnectionState.done) {
+                          if(snapshot.data.value == null) {
+                            return const Text('\n No Account Data has Existed.', textScaleFactor: 1.5, style: TextStyle(color: Colors.red));
+                          } else {
+                            // 'DataSnapshot' value != null
+                            lists.clear();
+                            Map<dynamic, dynamic> values = snapshot.data?.value;
+                            values.forEach((key, values) async {
+                              // Initialize web3utility
+                              await web3util.initState();
+                              lists.add(values);
+                              print(lists.length);
+                              // print(lists.toString());
+                              print(lists.first['accountAddress']);
+                              print(await web3util.getAccountEthBalance(lists.first['accountAddress'])+' (ETH)');
+                            });
+                            return ListView.builder(
+                                primary: false,
+                                shrinkWrap: true,
+                                itemCount: lists.length,
+                                itemBuilder: (BuildContext context, int index) {
+                                  return Card(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        // Text("Date: " + lists[index]["date"] + " , Transaction Status: " + lists[index]["status"].toString()),
+                                        Text("Address: " + lists[index]["accountAddress"]),
+                                        // Text("Ethereum: " + await web3util.getAccountEthBalance(lists[index]["accountAddress"])),
+                                        Text("USD: " + lists[index]["accountAddress"]),
+                                        // Text("SlotData: " + lists[index]["slotData"]),
+                                        // RichText(
+                                        //     text: TextSpan(
+                                        //         children: [
+                                        //           const TextSpan(
+                                        //             style: TextStyle(
+                                        //                 color: Colors.black,
+                                        //                 fontSize: 14),
+                                        //             text: "Transaction Hash: ",
+                                        //           ),
+                                        //           TextSpan(
+                                        //               style: const TextStyle(
+                                        //                   color: Colors.blueAccent,
+                                        //                   fontSize: 14),
+                                        //               text: '0x${lists[index]["transactionHash"]}',
+                                        //               recognizer: TapGestureRecognizer()
+                                        //                 ..onTap = () async {
+                                        //                   var url = "https://ropsten.etherscan.io/tx/0x${lists[index]["transactionHash"]}";
+                                        //                   if (await canLaunch(url)) {
+                                        //                     await launch(url);
+                                        //                   } else {
+                                        //                     throw 'Could not launch $url';
+                                        //                   }
+                                        //                 }
+                                        //           ),
+                                        //         ]
+                                        //     )),
+                                      ],
+                                    ),
+                                  );
+                                });
+                          }
+                        }
+                        return const CircularProgressIndicator();
+                      }),
+                ]
             ),
+
+
+
           ],
         ),
       ),

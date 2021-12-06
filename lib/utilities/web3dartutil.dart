@@ -114,12 +114,21 @@ class Web3DartHelper {
     }
   }
 
+  // Function to return Ethereum values
   Future<String> getEthBalance() async {
     var _credentials = EthPrivateKey.fromHex(_privateKey);
     var myAddress = await _credentials.extractAddress();
     // print('address: $_address');
     // Get native balance
     var balanceObj = await ethClient.getBalance(myAddress);
+    var balanceEther = balanceObj.getValueInUnit(EtherUnit.ether);
+    // print('balance before transaction: ${balanceObj.getInWei} wei (${balanceObj.getValueInUnit(EtherUnit.ether)} ether)');
+    return balanceEther.toStringAsFixed(4);
+  }
+
+  Future<String> getAccountEthBalance(String myAddress) async {
+    // Get native balance
+    var balanceObj = await ethClient.getBalance(EthereumAddress.fromHex(myAddress));
     var balanceEther = balanceObj.getValueInUnit(EtherUnit.ether);
     // print('balance before transaction: ${balanceObj.getInWei} wei (${balanceObj.getValueInUnit(EtherUnit.ether)} ether)');
     return balanceEther.toStringAsFixed(4);
@@ -269,7 +278,24 @@ class Web3DartHelper {
       balanceUSD = double.parse(balanceEther) * jsonDecode(response.body)["USD"];
     } else {
       // If the server did not return a 200 OK response then throw an exception.
-      throw Exception('Failed to load album');
+      throw Exception('Failed to load API');
+    }
+    // String roundedX = balanceUSD.toStringAsFixed(2);
+    return balanceUSD.toStringAsFixed(2);
+  }
+
+  Future<String> getConvEthUSD(String balanceEther) async {
+    num balanceUSD;
+    // Make a network request
+    Response response = (await get(Uri.parse(_remoteConfig.getString('ETH_Price_URL'))));
+    // If the server did return a 200 OK response then parse the JSON.
+    if (response.statusCode == 200) {
+      // print(jsonDecode(response.body)["USD"]);
+      // Get the current USD price of cryptocurrency conversion from API URL
+      balanceUSD = double.parse(balanceEther) * jsonDecode(response.body)["USD"];
+    } else {
+      // If the server did not return a 200 OK response then throw an exception.
+      throw Exception('Failed to load API');
     }
     // String roundedX = balanceUSD.toStringAsFixed(2);
     return balanceUSD.toStringAsFixed(2);

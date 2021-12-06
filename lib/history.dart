@@ -36,8 +36,8 @@ class _HistoryOutputState extends State<HistoryOutput> {
 
   Future<void> initialSetup() async {
     // Firebase Initialize App Function
-    WidgetsFlutterBinding.ensureInitialized();
     await Firebase.initializeApp();
+    WidgetsFlutterBinding.ensureInitialized();
     // To fetch remote config from Firebase Remote Config
     RemoteConfigService _remoteConfigService = RemoteConfigService();
     _remoteConfig = await _remoteConfigService.setupRemoteConfig();
