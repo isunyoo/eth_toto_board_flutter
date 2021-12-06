@@ -30,9 +30,9 @@ class _ProfilePageState extends State<ProfilePage> {
   // Initialize the Web3DartHelper class from utility packages
   Web3DartHelper web3util = Web3DartHelper();
   // To create a new Firebase Remote Config instance
-  late final RemoteConfig _remoteConfig = RemoteConfig.instance;
+  // late final RemoteConfig remoteConfig = RemoteConfig.instance;
   // Create a DatabaseReference which references a node called txreceipts
-  late final DatabaseReference _dbRef = FirebaseDatabase(databaseURL:jsonDecode(_remoteConfig.getValue('Connection_Config').asString())['Firebase']['Firebase_Database']).reference();
+  // late final DatabaseReference _dbRef = FirebaseDatabase(databaseURL:jsonDecode(_remoteConfig.getValue('Connection_Config').asString())['Firebase']['Firebase_Database']).reference();
   // The user's ID which is unique from the Firebase project
   User? user = FirebaseAuth.instance.currentUser;
   bool _isSigningOut = false;
@@ -185,7 +185,7 @@ class _ProfilePageState extends State<ProfilePage> {
             Column(
                 children: <Widget>[
                   FutureBuilder(
-                      future: _dbRef.child('vaults/${user?.uid}').once(),
+                      future: web3util.dbRef.child('vaults/${user?.uid}').once(),
                       builder: (BuildContext context, AsyncSnapshot snapshot) {
                         if(snapshot.connectionState == ConnectionState.done) {
                           if(snapshot.data.value == null) {

@@ -15,14 +15,19 @@ import 'package:eth_toto_board_flutter/utilities/key_encryption.dart';
 class Web3DartHelper {
   late Client httpClient;
   late Web3Client ethClient;
-  late final String _privateKey;
-  late final RemoteConfig _remoteConfig;
+  late String _privateKey;
   // Get DataSnapshot value lists
   List<Map<dynamic, dynamic>> lists = [];
 
+  // To fetch remote config from Firebase Remote Config
+  // late final RemoteConfig remoteConfig;
+  // RemoteConfigService remoteConfigService = RemoteConfigService();
+  // late final RemoteConfig remoteConfig = await remoteConfigService.setupRemoteConfig();
+  late final RemoteConfig remoteConfig = RemoteConfig.instance;
+
   // Create a DatabaseReference which references a node called dbRef
-  late final DatabaseReference _dbRef = FirebaseDatabase(
-      databaseURL: jsonDecode(_remoteConfig.getValue('Connection_Config')
+  late final DatabaseReference dbRef = FirebaseDatabase(
+      databaseURL: jsonDecode(remoteConfig.getValue('Connection_Config')
           .asString())['Firebase']['Firebase_Database']).reference();
 
   // The user's ID which is unique from the Firebase project
@@ -30,8 +35,8 @@ class Web3DartHelper {
 
   Future<void> initState() async {
     // To fetch remote config from Firebase Remote Config
-    RemoteConfigService _remoteConfigService = RemoteConfigService();
-    _remoteConfig = await _remoteConfigService.setupRemoteConfig();
+    // RemoteConfigService remoteConfigService = RemoteConfigService();
+    // remoteConfig = await remoteConfigService.setupRemoteConfig();
 
     // To fetch local config from assets
     await dotenv.load(fileName: "assets/.env");
@@ -43,8 +48,8 @@ class Web3DartHelper {
     // ethClient = Web3Client(dotenv.get('Ganache_HTTP'), httpClient);
     // ethClient = Web3Client(_remoteConfig.getString('Ropsten_HTTPS'), httpClient);
     // WebSocket stream channels
-    ethClient = Web3Client(jsonDecode(_remoteConfig.getValue('Connection_Config').asString())['Ropsten']['Ropsten_HTTPS'], Client(), socketConnector: () {
-      return IOWebSocketChannel.connect(jsonDecode(_remoteConfig.getValue('Connection_Config').asString())['Ropsten']['Ropsten_Websockets']).cast<String>();
+    ethClient = Web3Client(jsonDecode(remoteConfig.getValue('Connection_Config').asString())['Ropsten']['Ropsten_HTTPS'], Client(), socketConnector: () {
+      return IOWebSocketChannel.connect(jsonDecode(remoteConfig.getValue('Connection_Config').asString())['Ropsten']['Ropsten_Websockets']).cast<String>();
     });
 
     // Retrieve current database snapshot on vaults
@@ -73,7 +78,7 @@ class Web3DartHelper {
 
   // Get the key and value properties data from returning DataSnapshot vaults' values
   Future<List<Map>> getVaultData() async {
-    DataSnapshot snapshotResult = await _dbRef.child('vaults/$userId').once();
+    DataSnapshot snapshotResult = await dbRef.child('vaults/$userId').once();
     if(snapshotResult.value == null ) {
       lists.clear();
       return lists;
@@ -138,7 +143,7 @@ class Web3DartHelper {
   Future<DeployedContract> loadContract() async {
     String abiCode = await rootBundle.loadString("assets/abi.json");
     // String contractAddress = dotenv.get('Development_Contract_Address');
-    String contractAddress = _remoteConfig.getString('Ropsten_Contract_Address');
+    String contractAddress = remoteConfig.getString('Ropsten_Contract_Address');
     final contract = DeployedContract(ContractAbi.fromJson(abiCode, "TotoSlots"), EthereumAddress.fromHex(contractAddress));
     return contract;
   }
@@ -270,7 +275,7 @@ class Web3DartHelper {
     num balanceUSD;
     var balanceEther = await getEthBalance();
     // Make a network request
-    Response response = (await get(Uri.parse(_remoteConfig.getString('ETH_Price_URL'))));
+    Response response = (await get(Uri.parse(remoteConfig.getString('ETH_Price_URL'))));
     // If the server did return a 200 OK response then parse the JSON.
     if (response.statusCode == 200) {
       // print(jsonDecode(response.body)["USD"]);
@@ -287,7 +292,7 @@ class Web3DartHelper {
   Future<String> getConvEthUSD(String balanceEther) async {
     num balanceUSD;
     // Make a network request
-    Response response = (await get(Uri.parse(_remoteConfig.getString('ETH_Price_URL'))));
+    Response response = (await get(Uri.parse(remoteConfig.getString('ETH_Price_URL'))));
     // If the server did return a 200 OK response then parse the JSON.
     if (response.statusCode == 200) {
       // print(jsonDecode(response.body)["USD"]);
