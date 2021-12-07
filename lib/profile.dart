@@ -38,6 +38,8 @@ class _ProfilePageState extends State<ProfilePage> {
   bool _isSigningOut = false;
   SingingCharacter? _character = SingingCharacter.lafayette;
   List<Map<dynamic, dynamic>> lists = [];
+  List<String> ethList = [];
+  List<String> usdList = [];
 
   @override
   void initState() {
@@ -48,15 +50,15 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> initialSetup() async {
     // Initialize web3utility
-    // await web3util.initState();
+    await web3util.initState();
     // Firebase Initialize App Function
     await Firebase.initializeApp();
     WidgetsFlutterBinding.ensureInitialized();
     // To fetch remote config from Firebase Remote Config
     // RemoteConfigService _remoteConfigService = RemoteConfigService();
     // _remoteConfig = await _remoteConfigService.setupRemoteConfig();
-    // print(await web3util.getAccountEthBalance('0x35c74387683bfaadda78241b0c04a91cc6ae55e8')+' (ETH)');
-    // print(await web3util.getConvEthUSD(await web3util.getAccountEthBalance('0x35c74387683bfaadda78241b0c04a91cc6ae55e8'))+' (USD)');
+    // print(await web3util.getAccountEthBalance('0x5270d76fe3af7059803c3fbe6a04a6b05edd432b')+'(ETH)');
+    // print(await web3util.getConvEthUSD(await web3util.getAccountEthBalance('0x5270d76fe3af7059803c3fbe6a04a6b05edd432b'))+'(USD)');
   }
 
   Future<String> getEthValue(String address) async {
@@ -193,15 +195,17 @@ class _ProfilePageState extends State<ProfilePage> {
                           } else {
                             // 'DataSnapshot' value != null
                             lists.clear();
+                            ethList.clear();
+                            usdList.clear();
                             Map<dynamic, dynamic> values = snapshot.data?.value;
                             values.forEach((key, values) async {
-                              // Initialize web3utility
-                              await web3util.initState();
                               lists.add(values);
-                              print(lists.length);
-                              // print(lists.toString());
-                              print(lists.first['accountAddress']);
-                              print(await web3util.getAccountEthBalance(lists.first['accountAddress'])+' (ETH)');
+                              String ethPrice = await web3util.getAccountEthBalance(lists[lists.length-1]['accountAddress']);
+                              ethList.add(ethPrice);
+                              String usdPrice = await web3util.getConvEthUSD(ethPrice);
+                              usdList.add(usdPrice);
+                              print(ethList);
+                              print(usdList);
                             });
                             return ListView.builder(
                                 primary: false,
@@ -214,8 +218,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                       children: <Widget>[
                                         // Text("Date: " + lists[index]["date"] + " , Transaction Status: " + lists[index]["status"].toString()),
                                         Text("Address: " + lists[index]["accountAddress"]),
+                                        // Text("Ethereum: " +ethList[index]+" ETH"+"      USD: " +usdList[index]+" \$"),
                                         // Text("Ethereum: " + await web3util.getAccountEthBalance(lists[index]["accountAddress"])),
-                                        Text("USD: " + lists[index]["accountAddress"]),
                                         // Text("SlotData: " + lists[index]["slotData"]),
                                         // RichText(
                                         //     text: TextSpan(
