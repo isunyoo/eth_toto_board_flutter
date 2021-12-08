@@ -48,11 +48,6 @@ class _ProfilePageState extends State<ProfilePage> {
     WidgetsFlutterBinding.ensureInitialized();
   }
 
-  Future<String> getEthValue(String address) async {
-    String value = await web3util.getAccountEthBalance(address);
-    return value;
-  }
-
   // Jdenticon Display Widget
   Widget _getCardWithIcon(String name) {
   final String rawSvg = Jdenticon.toSvg(name);
@@ -73,6 +68,19 @@ class _ProfilePageState extends State<ProfilePage> {
     ),
   );}
 
+  Future<void> getPriceValues(String address) async {
+    // ethList.clear();
+    // usdList.clear();
+    String ethPrice = await web3util.getAccountEthBalance(address);
+    ethList.add(ethPrice);
+    String usdPrice = await web3util.getConvEthUSD(ethPrice);
+    usdList.add(usdPrice);
+    print(ethList);
+    print(usdList);
+    print(ethList.length);
+    print(usdList.length);
+  }
+
   Widget _getAccountVaults(){
 
     return
@@ -87,20 +95,21 @@ class _ProfilePageState extends State<ProfilePage> {
                   } else {
                     // 'DataSnapshot' value != null
                     accountList.clear();
-                    ethList.clear();
-                    usdList.clear();
+                    // ethList.clear();
+                    // usdList.clear();
                     Map<dynamic, dynamic> values = snapshot.data?.value;
                     values.forEach((key, values) async {
                       accountList.add(values);
-                      String ethPrice = await web3util.getAccountEthBalance(accountList[accountList.length-1]['accountAddress']);
-                      ethList.add(ethPrice);
-                      String usdPrice = await web3util.getConvEthUSD(ethPrice);
-                      usdList.add(usdPrice);
-                      print(accountList[accountList.length-1]['accountAddress']);
-                      print(ethList);
-                      print(usdList);
-                      print(ethList.length);
-                      print(usdList.length);
+                      await getPriceValues(accountList[accountList.length-1]['accountAddress']);
+                      // String ethPrice = await web3util.getAccountEthBalance(accountList[accountList.length-1]['accountAddress']);
+                      // ethList.add(ethPrice);
+                      // String usdPrice = await web3util.getConvEthUSD(ethPrice);
+                      // usdList.add(usdPrice);
+                      // print(accountList[accountList.length-1]['accountAddress']);
+                      // print(ethList);
+                      // print(usdList);
+                      // print(ethList.length);
+                      // print(usdList.length);
                     });
                     return ListView.builder(
                         primary: false,
@@ -114,28 +123,19 @@ class _ProfilePageState extends State<ProfilePage> {
                                 RichText(
                                     text: TextSpan(
                                         children: [
-                                          const TextSpan(
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 14),
-                                            text: "Address: ",
-                                          ),
+                                          const TextSpan(style: TextStyle(color: Colors.black, fontSize: 14), text: "Address: "),
                                           TextSpan(
-                                              style: const TextStyle(
-                                                  color: Colors.blueAccent,
-                                                  fontSize: 14),
+                                              style: const TextStyle(color: Colors.blueAccent, fontSize: 14),
                                               text: '${accountList[index]["accountAddress"]}',
-                                              recognizer: TapGestureRecognizer()
-                                                ..onTap = () {
+                                              recognizer: TapGestureRecognizer()..onTap = () {
                                                 setState(() {
-                                                  // print(accountList[index]["accountAddress"]);
                                                   currentAddress = accountList[index]["accountAddress"];
                                                 });
-                                                }
+                                              }
                                           ),
                                         ]
                                     )),
-                                // Text("Ethereum: " +ethList[index]+" ETH"+"      USD: " +usdList[index]+" \$"),
+                                Text("Ethereum: " +ethList[index]+" ETH"+"      USD: " +usdList[index]+" \$"),
                               ],
                             ),
                           );
