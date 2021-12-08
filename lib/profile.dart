@@ -1,4 +1,4 @@
-import 'dart:convert';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -8,12 +8,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:jdenticon_dart/jdenticon_dart.dart';
 import 'package:eth_toto_board_flutter/import.dart';
 import 'package:eth_toto_board_flutter/boardmain.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:eth_toto_board_flutter/screens/login.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:eth_toto_board_flutter/utilities/web3dartutil.dart';
-import 'package:firebase_remote_config/firebase_remote_config.dart';
-import 'package:eth_toto_board_flutter/utilities/remote_config.dart';
 import 'package:eth_toto_board_flutter/utilities/authenticator.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -24,22 +21,17 @@ class ProfilePage extends StatefulWidget {
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
-enum SingingCharacter { lafayette, jefferson }
-
 class _ProfilePageState extends State<ProfilePage> {
+  late String currentAddress = widget.passAddressValue;
   // Initialize the Web3DartHelper class from utility packages
   Web3DartHelper web3util = Web3DartHelper();
-  // To create a new Firebase Remote Config instance
-  // late final RemoteConfig remoteConfig = RemoteConfig.instance;
-  // Create a DatabaseReference which references a node called txreceipts
-  // late final DatabaseReference _dbRef = FirebaseDatabase(databaseURL:jsonDecode(_remoteConfig.getValue('Connection_Config').asString())['Firebase']['Firebase_Database']).reference();
   // The user's ID which is unique from the Firebase project
   User? user = FirebaseAuth.instance.currentUser;
   bool _isSigningOut = false;
-  SingingCharacter? _character = SingingCharacter.lafayette;
-  List<Map<dynamic, dynamic>> lists = [];
+  List<Map<dynamic, dynamic>> accountList = [];
   List<String> ethList = [];
   List<String> usdList = [];
+
 
   @override
   void initState() {
@@ -54,11 +46,6 @@ class _ProfilePageState extends State<ProfilePage> {
     // Firebase Initialize App Function
     await Firebase.initializeApp();
     WidgetsFlutterBinding.ensureInitialized();
-    // To fetch remote config from Firebase Remote Config
-    // RemoteConfigService _remoteConfigService = RemoteConfigService();
-    // _remoteConfig = await _remoteConfigService.setupRemoteConfig();
-    // print(await web3util.getAccountEthBalance('0x5270d76fe3af7059803c3fbe6a04a6b05edd432b')+'(ETH)');
-    // print(await web3util.getConvEthUSD(await web3util.getAccountEthBalance('0x5270d76fe3af7059803c3fbe6a04a6b05edd432b'))+'(USD)');
   }
 
   Future<String> getEthValue(String address) async {
@@ -86,8 +73,83 @@ class _ProfilePageState extends State<ProfilePage> {
     ),
   );}
 
+  Widget _getAccountVaults(){
+
+    return
+    Column(
+        children: <Widget>[
+          FutureBuilder(
+              future: web3util.dbRef.child('vaults/${user?.uid}').once(),
+              builder: (BuildContext context, AsyncSnapshot snapshot) {
+                if(snapshot.connectionState == ConnectionState.done) {
+                  if(snapshot.data.value == null) {
+                    return const Text('\n No Account Data has existed.', textScaleFactor: 1.5, style: TextStyle(color: Colors.red));
+                  } else {
+                    // 'DataSnapshot' value != null
+                    accountList.clear();
+                    ethList.clear();
+                    usdList.clear();
+                    Map<dynamic, dynamic> values = snapshot.data?.value;
+                    values.forEach((key, values) async {
+                      accountList.add(values);
+                      String ethPrice = await web3util.getAccountEthBalance(accountList[accountList.length-1]['accountAddress']);
+                      ethList.add(ethPrice);
+                      String usdPrice = await web3util.getConvEthUSD(ethPrice);
+                      usdList.add(usdPrice);
+                      print(accountList[accountList.length-1]['accountAddress']);
+                      print(ethList);
+                      print(usdList);
+                      print(ethList.length);
+                      print(usdList.length);
+                    });
+                    return ListView.builder(
+                        primary: false,
+                        shrinkWrap: true,
+                        itemCount: accountList.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Card(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                RichText(
+                                    text: TextSpan(
+                                        children: [
+                                          const TextSpan(
+                                            style: TextStyle(
+                                                color: Colors.black,
+                                                fontSize: 14),
+                                            text: "Address: ",
+                                          ),
+                                          TextSpan(
+                                              style: const TextStyle(
+                                                  color: Colors.blueAccent,
+                                                  fontSize: 14),
+                                              text: '${accountList[index]["accountAddress"]}',
+                                              recognizer: TapGestureRecognizer()
+                                                ..onTap = () {
+                                                setState(() {
+                                                  // print(accountList[index]["accountAddress"]);
+                                                  currentAddress = accountList[index]["accountAddress"];
+                                                });
+                                                }
+                                          ),
+                                        ]
+                                    )),
+                                // Text("Ethereum: " +ethList[index]+" ETH"+"      USD: " +usdList[index]+" \$"),
+                              ],
+                            ),
+                          );
+                        });
+                  }
+                }
+                return const CircularProgressIndicator();
+              }),
+        ]
+    );
+  }
+
   // QRCode Display Widget
-  _qrContentWidget() {
+  Widget _qrContentWidget() {
     return  Container(
       color: const Color(0xFFFFFFFF),
       child: SingleChildScrollView(
@@ -106,7 +168,7 @@ class _ProfilePageState extends State<ProfilePage> {
             Row(
               children: <Widget>[
                 Padding(padding: const EdgeInsets.all(5.0),
-                  child: _getCardWithIcon(widget.passAddressValue),
+                  child: _getCardWithIcon(currentAddress),
                 ),
                 const Padding(padding: EdgeInsets.all(5.0),
                   child: Text("\nCurrent Account Address: ", textScaleFactor: 1.5),
@@ -115,12 +177,12 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             Row(
               children: <Widget>[ Expanded(
-                child: Text(" ${widget.passAddressValue}\n", textScaleFactor: 1.2),
+                child: Text(" $currentAddress\n", textScaleFactor: 1.2),
               ),],
             ),
             Center(
                 child: QrImage(
-                          data: widget.passAddressValue,
+                          data: currentAddress,
                           version: QrVersions.auto,
                           size: 200,
                           gapless: false,
@@ -132,7 +194,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(elevation: 3),
                   onPressed: () {
-                    Clipboard.setData(ClipboardData(text: widget.passAddressValue)).then((value) {
+                    Clipboard.setData(ClipboardData(text: currentAddress)).then((value) {
                       final snackBar = SnackBar(
                           content: const Text('Copied to Clipboard'),
                           action: SnackBarAction(
@@ -157,109 +219,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),],
             ),
-            // Column(
-            //   children: <Widget>[
-            //     RadioListTile<SingingCharacter>(
-            //       title: const Text('Lafayette'),
-            //       value: SingingCharacter.lafayette,
-            //       groupValue: _character,
-            //       onChanged: (SingingCharacter? value) {
-            //         setState(() {
-            //         _character = value;
-            //         print(_character);
-            //         });
-            //       },
-            //     ),
-            //     RadioListTile<SingingCharacter>(
-            //       title: const Text('Thomas Jefferson'),
-            //       value: SingingCharacter.jefferson,
-            //       groupValue: _character,
-            //       onChanged: (SingingCharacter? value) {
-            //         setState(() {
-            //         _character = value;
-            //         print(_character);
-            //        });
-            //       },
-            //     ),
-            //   ],
-            // ),
-
-            Column(
-                children: <Widget>[
-                  FutureBuilder(
-                      future: web3util.dbRef.child('vaults/${user?.uid}').once(),
-                      builder: (BuildContext context, AsyncSnapshot snapshot) {
-                        if(snapshot.connectionState == ConnectionState.done) {
-                          if(snapshot.data.value == null) {
-                            return const Text('\n No Account Data has Existed.', textScaleFactor: 1.5, style: TextStyle(color: Colors.red));
-                          } else {
-                            // 'DataSnapshot' value != null
-                            lists.clear();
-                            ethList.clear();
-                            usdList.clear();
-                            Map<dynamic, dynamic> values = snapshot.data?.value;
-                            values.forEach((key, values) async {
-                              lists.add(values);
-                              String ethPrice = await web3util.getAccountEthBalance(lists[lists.length-1]['accountAddress']);
-                              ethList.add(ethPrice);
-                              String usdPrice = await web3util.getConvEthUSD(ethPrice);
-                              usdList.add(usdPrice);
-                              print(ethList);
-                              print(usdList);
-                            });
-                            return ListView.builder(
-                                primary: false,
-                                shrinkWrap: true,
-                                itemCount: lists.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return Card(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: <Widget>[
-                                        // Text("Date: " + lists[index]["date"] + " , Transaction Status: " + lists[index]["status"].toString()),
-                                        Text("Address: " + lists[index]["accountAddress"]),
-                                        // Text("Ethereum: " +ethList[index]+" ETH"+"      USD: " +usdList[index]+" \$"),
-                                        // Text("Ethereum: " + await web3util.getAccountEthBalance(lists[index]["accountAddress"])),
-                                        // Text("SlotData: " + lists[index]["slotData"]),
-                                        // RichText(
-                                        //     text: TextSpan(
-                                        //         children: [
-                                        //           const TextSpan(
-                                        //             style: TextStyle(
-                                        //                 color: Colors.black,
-                                        //                 fontSize: 14),
-                                        //             text: "Transaction Hash: ",
-                                        //           ),
-                                        //           TextSpan(
-                                        //               style: const TextStyle(
-                                        //                   color: Colors.blueAccent,
-                                        //                   fontSize: 14),
-                                        //               text: '0x${lists[index]["transactionHash"]}',
-                                        //               recognizer: TapGestureRecognizer()
-                                        //                 ..onTap = () async {
-                                        //                   var url = "https://ropsten.etherscan.io/tx/0x${lists[index]["transactionHash"]}";
-                                        //                   if (await canLaunch(url)) {
-                                        //                     await launch(url);
-                                        //                   } else {
-                                        //                     throw 'Could not launch $url';
-                                        //                   }
-                                        //                 }
-                                        //           ),
-                                        //         ]
-                                        //     )),
-                                      ],
-                                    ),
-                                  );
-                                });
-                          }
-                        }
-                        return const CircularProgressIndicator();
-                      }),
-                ]
-            ),
-
-
-
+            // Account Inventory in firebase vaults
+            _getAccountVaults(),
           ],
         ),
       ),
@@ -269,7 +230,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     // No account has imported yet in vault database
-    if(widget.passAddressValue == '') {
+    if(currentAddress == '') {
       // The delay to route BoardMain Page Scaffold
       Future.delayed(const Duration(milliseconds: 100)).then((_) {
         // Navigate to the main screen using a named route.
@@ -329,4 +290,4 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 }
 
-// https://api.flutter.dev/flutter/material/RadioListTile-class.html
+// https://flutter-examples.com/get-selected-radio-button-group-value-in-flutter/
