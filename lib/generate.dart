@@ -16,6 +16,7 @@ class _GeneratedOutputState extends State<GeneratedOutput> {
   var allArrayData=[], arrayData=[];
   // Initialize the Web3DartHelper class from utility packages
   Web3DartHelper web3util = Web3DartHelper();
+  late String myAddress='';
 
   @override
   void initState() {
@@ -26,6 +27,7 @@ class _GeneratedOutputState extends State<GeneratedOutput> {
 
   Future<void> initialSetup() async {
     await web3util.initState();
+    myAddress = await web3util.getAddress();
   }
 
   // Display a snackbar widget

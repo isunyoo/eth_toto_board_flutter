@@ -29,9 +29,9 @@ class _ProfilePageState extends State<ProfilePage> {
   User? user = FirebaseAuth.instance.currentUser;
   bool _isSigningOut = false;
   List<Map<dynamic, dynamic>> accountList = [];
+  List<String> addressList = [];
   List<String> ethList = [];
   List<String> usdList = [];
-
 
   @override
   void initState() {
@@ -46,6 +46,7 @@ class _ProfilePageState extends State<ProfilePage> {
     // Firebase Initialize App Function
     await Firebase.initializeApp();
     WidgetsFlutterBinding.ensureInitialized();
+    await updatePriceValues();
   }
 
   // Jdenticon Display Widget
@@ -69,83 +70,125 @@ class _ProfilePageState extends State<ProfilePage> {
   );}
 
   Future<void> getPriceValues(String address) async {
-    // ethList.clear();
-    // usdList.clear();
+    // addressList.add(address);
+    // print(addressList);
+    // print(addressList.length);
     String ethPrice = await web3util.getAccountEthBalance(address);
     ethList.add(ethPrice);
+    print(ethList);
+    print(ethList.length);
     String usdPrice = await web3util.getConvEthUSD(ethPrice);
     usdList.add(usdPrice);
-    print(ethList);
     print(usdList);
-    print(ethList.length);
     print(usdList.length);
   }
 
-  Widget _getAccountVaults(){
+  Future<void> updatePriceValues() async {
+    addressList.clear();
+    ethList.clear();
+    usdList.clear();
+    List<Map<dynamic, dynamic>> accountList = [];
+    accountList = await web3util.getVaultData();
+    for(int i=0; i<accountList.length; i++){
+      getPriceValues(accountList[i]['accountAddress']);
+    }
 
+    // String ethPrice = await web3util.getAccountEthBalance(address);
+    // ethList.add(ethPrice);
+    // print(ethList);
+    // print(ethList.length);
+    // String usdPrice = await web3util.getConvEthUSD(ethPrice);
+    // usdList.add(usdPrice);
+    // print(usdList);
+    // print(usdList.length);
+  }
+
+  Widget _getAccountVaults(){
     return
-    Column(
-        children: <Widget>[
-          FutureBuilder(
-              future: web3util.dbRef.child('vaults/${user?.uid}').once(),
-              builder: (BuildContext context, AsyncSnapshot snapshot) {
-                if(snapshot.connectionState == ConnectionState.done) {
-                  if(snapshot.data.value == null) {
-                    return const Text('\n No Account Data has existed.', textScaleFactor: 1.5, style: TextStyle(color: Colors.red));
-                  } else {
-                    // 'DataSnapshot' value != null
-                    accountList.clear();
-                    // ethList.clear();
-                    // usdList.clear();
-                    Map<dynamic, dynamic> values = snapshot.data?.value;
-                    values.forEach((key, values) async {
-                      accountList.add(values);
-                      await getPriceValues(accountList[accountList.length-1]['accountAddress']);
-                      // String ethPrice = await web3util.getAccountEthBalance(accountList[accountList.length-1]['accountAddress']);
-                      // ethList.add(ethPrice);
-                      // String usdPrice = await web3util.getConvEthUSD(ethPrice);
-                      // usdList.add(usdPrice);
-                      // print(accountList[accountList.length-1]['accountAddress']);
-                      // print(ethList);
-                      // print(usdList);
-                      // print(ethList.length);
-                      // print(usdList.length);
-                    });
-                    return ListView.builder(
-                        primary: false,
-                        shrinkWrap: true,
-                        itemCount: accountList.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Card(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                RichText(
-                                    text: TextSpan(
-                                        children: [
-                                          const TextSpan(style: TextStyle(color: Colors.black, fontSize: 14), text: "Address: "),
-                                          TextSpan(
-                                              style: const TextStyle(color: Colors.blueAccent, fontSize: 14),
-                                              text: '${accountList[index]["accountAddress"]}',
-                                              recognizer: TapGestureRecognizer()..onTap = () {
-                                                setState(() {
-                                                  currentAddress = accountList[index]["accountAddress"];
-                                                });
-                                              }
-                                          ),
-                                        ]
-                                    )),
-                                Text("Ethereum: " +ethList[index]+" ETH"+"      USD: " +usdList[index]+" \$"),
-                              ],
-                            ),
-                          );
-                        });
+      Column(
+          children: <Widget>[
+            FutureBuilder(
+                future: web3util.dbRef.child('vaults/${user?.uid}').once(),
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
+                  if(snapshot.connectionState == ConnectionState.done) {
+                    if(snapshot.data.value == null) {
+                      return const Text('\n No Account Data has existed.', textScaleFactor: 1.5, style: TextStyle(color: Colors.red));
+                    } else {
+                      // 'DataSnapshot' value != null
+                      accountList.clear();
+                      // ethList.clear();
+                      // usdList.clear();
+                      Map<dynamic, dynamic> values = snapshot.data?.value;
+                      values.forEach((key, values) async {
+                        accountList.add(values);
+                        await getPriceValues(accountList[accountList.length-1]['accountAddress']);
+                        // String ethPrice = await web3util.getAccountEthBalance(accountList[accountList.length-1]['accountAddress']);
+                        // ethList.add(ethPrice);
+                        // String usdPrice = await web3util.getConvEthUSD(ethPrice);
+                        // usdList.add(usdPrice);
+                        // print(accountList[accountList.length-1]['accountAddress']);
+                        // print(ethList);
+                        // print(usdList);
+                        // print(ethList.length);
+                        // print(usdList.length);
+                      });
+                      if(usdList.length == accountList.length){
+                        return ListView.builder(
+                            primary: false,
+                            shrinkWrap: true,
+                            itemCount: accountList.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return Card(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
+                                    RichText(
+                                        text: TextSpan(
+                                            children: [
+                                              const TextSpan(style: TextStyle(color: Colors.black, fontSize: 14), text: "Address: "),
+                                              TextSpan(
+                                                  style: const TextStyle(color: Colors.blueAccent, fontSize: 14),
+                                                  text: '${accountList[index]["accountAddress"]}',
+                                                  recognizer: TapGestureRecognizer()..onTap = () {
+                                                    setState(() async {
+                                                      currentAddress = accountList[index]["accountAddress"];
+                                                    });
+                                                  }
+                                              ),
+                                            ]
+                                        )),
+                                    // Text("Ethereum: " +ethList[index]+" ETH"+"      USD: " +usdList[index]+" \$"),
+                                  ],
+                                ),
+                              );
+                            });
+                      }
+                    }
                   }
-                }
-                return const CircularProgressIndicator();
-              }),
-        ]
-    );
+                  return const CircularProgressIndicator();
+                }),
+          ]
+      );
+
+      // Row(
+      //   children: <Widget>[ Expanded(
+      //       child: ListView.builder(
+      //           primary: false,
+      //           shrinkWrap: true,
+      //           scrollDirection: Axis.vertical,
+      //           itemCount: addressList.length,
+      //           // A Separate Function called from itemBuilder
+      //           itemBuilder: (BuildContext ctxt, int index) {
+      //             return Text("${index + 1}: " + addressList[index] + "\n" +
+      //                 "Ethereum: " + ethList[index] + " ETH" + "      USD: " +
+      //                 usdList[index] + " \$\n", textScaleFactor: 1.2);
+      //           }
+      //       )
+      //   ),
+      //   ],
+      // );
+
+
   }
 
   // QRCode Display Widget
@@ -214,7 +257,7 @@ class _ProfilePageState extends State<ProfilePage> {
             Row(
               children: const <Widget>[ Expanded(
                 child: Text(
-                  "\n My Accounts: ",
+                  "\n My Accounts: \n",
                   textScaleFactor: 1.2,
                 ),
               ),],

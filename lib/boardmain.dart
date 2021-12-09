@@ -95,6 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
     var fileExist = File("${directory.path}/transactionInfoVault.json").existsSync();
     // Fetch a json file
     File file = await File("${directory.path}/transactionInfoVault.json").create();
+    // File file2 = await File("${directory.path}/accountInfoVault.json").create();
     if(!fileExist) {
       String fileContent=json.encode({
         "blockNumber": "0",
@@ -106,7 +107,10 @@ class _MyHomePageState extends State<MyHomePage> {
     // Read the file from the json file
     final contents = await file.readAsString();
     final jsonContents = await json.decode(contents);
+    // final contents2 = await file2.readAsString();
+    // final jsonContents2 = await json.decode(contents2);
     // Fetch content from the json file
+    // myAddress = jsonContents2['accountAddress'];
     storedBlkNum = jsonContents['blockNumber'];
     storedTxHash = jsonContents['transactionHash'];
   }
