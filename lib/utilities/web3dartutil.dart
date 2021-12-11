@@ -19,9 +19,6 @@ class Web3DartHelper {
   List<Map<dynamic, dynamic>> lists = [];
 
   // To fetch remote config from Firebase Remote Config
-  // late final RemoteConfig remoteConfig;
-  // RemoteConfigService remoteConfigService = RemoteConfigService();
-  // late final RemoteConfig remoteConfig = await remoteConfigService.setupRemoteConfig();
   late final RemoteConfig remoteConfig = RemoteConfig.instance;
 
   // Create a DatabaseReference which references a node called dbRef
@@ -33,10 +30,6 @@ class Web3DartHelper {
   String? userId = FirebaseAuth.instance.currentUser?.uid;
 
   Future<void> initState() async {
-    // To fetch remote config from Firebase Remote Config
-    // RemoteConfigService remoteConfigService = RemoteConfigService();
-    // remoteConfig = await remoteConfigService.setupRemoteConfig();
-
     // To fetch local config from assets
     await dotenv.load(fileName: "assets/.env");
 

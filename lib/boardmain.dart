@@ -68,7 +68,7 @@ class _MyHomePageState extends State<MyHomePage> {
       // Navigate to the main screen using a named route.
       Navigator.push(context, MaterialPageRoute(builder: (context) => const ImportKey()));
     } else {
-      currentBlkNum = await web3util.getBlkNum();
+      // currentBlkNum = await web3util.getBlkNum();
       balanceEther = await web3util.getEthBalance();
       balanceUsd = await web3util.getConvUSD();
       arrayLength = await web3util.getArrayLength();
@@ -76,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
       // arrayData = await web3util.getArray(1);
     }
     setState(() {
-      currentBlkNum;
+      // currentBlkNum;
       storedBlkNum;
       storedTxHash;
       myAddress;
@@ -95,7 +95,6 @@ class _MyHomePageState extends State<MyHomePage> {
     var fileExist = File("${directory.path}/transactionInfoVault.json").existsSync();
     // Fetch a json file
     File file = await File("${directory.path}/transactionInfoVault.json").create();
-    // File file2 = await File("${directory.path}/accountInfoVault.json").create();
     if(!fileExist) {
       String fileContent=json.encode({
         "blockNumber": "0",
@@ -107,10 +106,6 @@ class _MyHomePageState extends State<MyHomePage> {
     // Read the file from the json file
     final contents = await file.readAsString();
     final jsonContents = await json.decode(contents);
-    // final contents2 = await file2.readAsString();
-    // final jsonContents2 = await json.decode(contents2);
-    // Fetch content from the json file
-    // myAddress = jsonContents2['accountAddress'];
     storedBlkNum = jsonContents['blockNumber'];
     storedTxHash = jsonContents['transactionHash'];
   }
@@ -124,14 +119,41 @@ class _MyHomePageState extends State<MyHomePage> {
       body: SingleChildScrollView(
         child: Column(children: <Widget>[
           Row(
-            children: <Widget>[ Expanded(
+            children: const <Widget>[ Expanded(
               child: Text(
-                "Wallet Address: $myAddress \nETH Balance: $balanceEther(ETH) \nUSD Balance: $balanceUsd(USD) \nCurrent BlockNum: $currentBlkNum",
+                "\nWallet Address:",
                 textScaleFactor: 1.6,
               ),
             ),
             ],
           ),
+          Row(
+            children: <Widget>[ Expanded(
+              child: Text(
+                myAddress,
+                textScaleFactor: 1.2,
+              ),
+            ),
+            ],
+          ),
+          Row(
+            children: <Widget>[ Expanded(
+              child: Text(
+                "Ethereum : $balanceEther [ETH] \nUSD : $balanceUsd [\$]",
+                textScaleFactor: 1.6,
+              ),
+            ),
+            ],
+          ),
+          // Row(
+          //   children: <Widget>[ Expanded(
+          //     child: Text(
+          //       "Current BlockNum: $currentBlkNum",
+          //       textScaleFactor: 1.6,
+          //     ),
+          //   ),
+          //   ],
+          // ),
           Row(
             children: <Widget>[ Expanded(
                 child: RichText(

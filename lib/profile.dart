@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:jdenticon_dart/jdenticon_dart.dart';
 import 'package:eth_toto_board_flutter/import.dart';
@@ -23,11 +22,13 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  // Selected Account Address
   late String currentAddress = widget.passAddressValue;
   // Initialize the Web3DartHelper class from utility packages
   Web3DartHelper web3util = Web3DartHelper();
   // The user's ID which is unique from the Firebase project
   User? user = FirebaseAuth.instance.currentUser;
+  // Logout Status
   bool _isSigningOut = false;
 
   @override
@@ -40,9 +41,6 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> initialSetup() async {
     // Initialize web3utility
     await web3util.initState();
-    // Firebase Initialize App Function
-    await Firebase.initializeApp();
-    WidgetsFlutterBinding.ensureInitialized();
   }
 
   // Retrieve and update account values
@@ -103,7 +101,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   child: _getCardWithIcon(currentAddress),
                 ),
                 const Padding(padding: EdgeInsets.all(5.0),
-                  child: Text("\nCurrent Account Address: ", textScaleFactor: 1.5),
+                  child: Text("\nSelected Account Address: ", textScaleFactor: 1.5),
                 ),
               ],
             ),
@@ -146,7 +144,7 @@ class _ProfilePageState extends State<ProfilePage> {
             Row(
               children: const <Widget>[ Expanded(
                 child: Text(
-                  "\n My Accounts: ",
+                  "\n My Stored Accounts: ",
                   textScaleFactor: 1.2,
                 ),
               ),],
@@ -197,7 +195,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                             ),
                                           ]
                                       )),
-                                  Text("Ethereum: " +inventory.ethValue+" ETH"+", USD: " +inventory.usdValue+" \$"),
+                                  Text("Ethereum: " +inventory.ethValue+" [ETH]"+", USD: " +inventory.usdValue+" [\$]"),
                                 ],
                               ),
                             );
@@ -227,6 +225,7 @@ class _ProfilePageState extends State<ProfilePage> {
           title: const Text('Wallet Account Information'),
           automaticallyImplyLeading: false,
         ),
+      // QRCode Display Widget Function
         body: _qrContentWidget(),
         floatingActionButton: SpeedDial(
         icon: Icons.menu,
@@ -249,7 +248,6 @@ class _ProfilePageState extends State<ProfilePage> {
               setState(() {
                 _isSigningOut = true;
               });
-              await FirebaseAuth.instance.signOut();
               await FireAuth.signOutWithGoogle(context: context);
               setState(() {
                 _isSigningOut = false;

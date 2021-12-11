@@ -183,22 +183,17 @@ class FireAuth {
     final GoogleSignIn googleSignIn = GoogleSignIn();
 
     try {
-      if (!kIsWeb) {
+      if(!kIsWeb) {
         await googleSignIn.signOut();
       }
       await FirebaseAuth.instance.signOut();
-    } catch (e) {
+    } catch(e) {
       ScaffoldMessenger.of(context).showSnackBar(
         FireAuth.customSnackBar(
           content: 'Error signing out. Try again.',
         ),
       );
     }
-  }
-
-  Widget build(BuildContext context) {
-    return const Scaffold(
-    );
   }
 
 }
