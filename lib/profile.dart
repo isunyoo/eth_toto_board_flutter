@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:collection';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,10 +9,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:jdenticon_dart/jdenticon_dart.dart';
 import 'package:eth_toto_board_flutter/import.dart';
 import 'package:eth_toto_board_flutter/boardmain.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:eth_toto_board_flutter/screens/login.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:eth_toto_board_flutter/models/inventory.dart';
 import 'package:eth_toto_board_flutter/utilities/web3dartutil.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:eth_toto_board_flutter/utilities/authenticator.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -23,11 +27,25 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   // Selected Account Address
-  late String currentAddress = widget.passAddressValue;
+  late String _currentAddress = widget.passAddressValue;
+
   // Initialize the Web3DartHelper class from utility packages
   Web3DartHelper web3util = Web3DartHelper();
+
+  // To fetch remote config from Firebase Remote Config
+  late final RemoteConfig remoteConfig = RemoteConfig.instance;
+
+  // Create a DatabaseReference which references a node called dbRef
+  late final DatabaseReference dbRef = FirebaseDatabase(
+      databaseURL: jsonDecode(remoteConfig.getValue('Connection_Config')
+          .asString())['Firebase']['Firebase_Database']).reference();
+
   // The user's ID which is unique from the Firebase project
   User? user = FirebaseAuth.instance.currentUser;
+
+  // To access the snapshot.key from Vaults DataSnapshot to use a key below 'vaults/${user?.uid}'
+  List<String> childSnapshotKeyList = [];
+
   // Logout Status
   bool _isSigningOut = false;
 
@@ -43,12 +61,37 @@ class _ProfilePageState extends State<ProfilePage> {
     await web3util.initState();
   }
 
+  // Display a snackbar notification widget
+  static SnackBar customSnackBar({required String content}) {
+    return SnackBar(
+      backgroundColor: Colors.black,
+      content: Text(
+        content,
+        style: const TextStyle(color: Colors.redAccent, letterSpacing: 0.5),
+      ),
+    );
+  }
+
   // Retrieve and update account values
-  Future _getInventoryDetails() async {
+  Future<List<InventoryModel>> _getInventoryDetails() async {
     List<InventoryModel> inventoryList = [];
     List<Map<dynamic, dynamic>> accountList = [];
-    accountList = await web3util.getVaultData();
-
+    // Get the key and value properties data from returning DataSnapshot vaults' values
+    await dbRef.child('vaults/${user?.uid}').once().then((DataSnapshot snapshotResult){
+      if(snapshotResult.value == null ) {
+        accountList.clear();
+      } else {
+        final LinkedHashMap hashMapValue = snapshotResult.value;
+        accountList.clear();
+        childSnapshotKeyList.clear();
+        Map<dynamic, dynamic> mapValues = hashMapValue;
+        mapValues.forEach((key, mapValues) {
+          accountList.add(mapValues);
+          // Store each snapshot.key under own firebase UID:
+          childSnapshotKeyList.add(key);
+        });
+      }
+    });
     for(int i=0; i<accountList.length; i++){
       String address = accountList[i]['accountAddress'];
       String ethPrice = await web3util.getAccountEthBalance(address);
@@ -98,7 +141,7 @@ class _ProfilePageState extends State<ProfilePage> {
             Row(
               children: <Widget>[
                 Padding(padding: const EdgeInsets.all(5.0),
-                  child: _getCardWithIcon(currentAddress),
+                  child: _getCardWithIcon(_currentAddress),
                 ),
                 const Padding(padding: EdgeInsets.all(5.0),
                   child: Text("\nSelected Account Address: ", textScaleFactor: 1.5),
@@ -107,12 +150,12 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             Row(
               children: <Widget>[ Expanded(
-                child: Text(" $currentAddress\n", textScaleFactor: 1.2),
+                child: Text(" $_currentAddress\n", textScaleFactor: 1.2),
               ),],
             ),
             Center(
                 child: QrImage(
-                  data: currentAddress,
+                  data: _currentAddress,
                   version: QrVersions.auto,
                   size: 200,
                   gapless: false,
@@ -124,7 +167,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(elevation: 3),
                     onPressed: () {
-                      Clipboard.setData(ClipboardData(text: currentAddress)).then((value) {
+                      Clipboard.setData(ClipboardData(text: _currentAddress)).then((value) {
                         final snackBar = SnackBar(
                           content: const Text('Copied to Clipboard'),
                           action: SnackBarAction(
@@ -189,7 +232,17 @@ class _ProfilePageState extends State<ProfilePage> {
                                                 text: inventory.accountAddress,
                                                 recognizer: TapGestureRecognizer()..onTap = () {
                                                   setState(() {
-                                                    currentAddress = inventory.accountAddress;
+                                                    _currentAddress = inventory.accountAddress;
+                                                    // Get the latest timestamp for vaults' account address
+                                                    int _timestamp = DateTime.now().microsecondsSinceEpoch;
+                                                    // Update timestamp on vaults database by snapshot.key
+                                                    dbRef.child('vaults/${user?.uid}').child(childSnapshotKeyList[index]).update({'timestamp': _timestamp});
+                                                    // Notify to load another account address
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      customSnackBar(
+                                                        content: 'Address($_currentAddress) has changed successfully.',
+                                                      ),
+                                                    );
                                                   });
                                                 }
                                             ),
@@ -211,7 +264,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     // No account has imported yet in vault database
-    if(currentAddress == '') {
+    if(_currentAddress == '') {
       // The delay to route BoardMain Page Scaffold
       Future.delayed(const Duration(milliseconds: 100)).then((_) {
         // Navigate to the main screen using a named route.

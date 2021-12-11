@@ -8,6 +8,7 @@ import 'package:eth_toto_board_flutter/profile.dart';
 import 'package:eth_toto_board_flutter/boardmain.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:eth_toto_board_flutter/models/vaultcontent.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:eth_toto_board_flutter/utilities/remote_config.dart';
 import 'package:eth_toto_board_flutter/utilities/key_encryption.dart';
@@ -177,9 +178,10 @@ class _ImportKeyState extends State<ImportKey> {
           ),
         );
       } else if(lists.isEmpty || _duplicatedStatus==false) {
-        Map<String, String> vaultContent = <String, String>{'accountAddress': _accountAddress, 'encryptedPrivateKey': _encryptedPrivateKey};
+        int _timestamp = DateTime.now().microsecondsSinceEpoch;
+        final vaultContent = VaultContentModel(timestamp: _timestamp, accountAddress: _accountAddress, encryptedPrivateKey: _encryptedPrivateKey);
         // Save to Realtime Database(vaults)
-        await _dbRef.child('vaults/$userId').push().set(vaultContent);
+        await _dbRef.child('vaults/$userId').push().set(vaultContent.toJson());
         ScaffoldMessenger.of(context).showSnackBar(
           customSnackBar(
             content: 'Account($_accountAddress) has imported successfully.',

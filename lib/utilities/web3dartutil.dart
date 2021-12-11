@@ -44,8 +44,8 @@ class Web3DartHelper {
       return IOWebSocketChannel.connect(jsonDecode(remoteConfig.getValue('Connection_Config').asString())['Ropsten']['Ropsten_Websockets']).cast<String>();
     });
 
-    // Retrieve current database snapshot on vaults
-    lists = await getVaultData();
+    // Retrieve current database snapshot on vaults for landing page
+    lists = await getInitialVaultData();
     if(lists.isEmpty){
       // No account has imported yet in vault database
       _privateKey = '';
@@ -68,9 +68,10 @@ class Web3DartHelper {
 
   }
 
-  // Get the key and value properties data from returning DataSnapshot vaults' values
-  Future<List<Map>> getVaultData() async {
-    DataSnapshot snapshotResult = await dbRef.child('vaults/$userId').once();
+  // Get the key and value properties data from returning DataSnapshot vaults' values for landing page
+  Future<List<Map>> getInitialVaultData() async {
+    // Retrieve last one timestamp from vaults datasnapshot
+    DataSnapshot snapshotResult = await dbRef.child('vaults/$userId').orderByChild('timestamp').limitToLast(1).once();
     if(snapshotResult.value == null ) {
       lists.clear();
       return lists;
