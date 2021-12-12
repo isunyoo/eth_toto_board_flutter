@@ -240,7 +240,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                                     // Notify to load another account address
                                                     ScaffoldMessenger.of(context).showSnackBar(
                                                       customSnackBar(
-                                                        content: 'Address($_currentAddress) has changed successfully.',
+                                                        content: 'Account($_currentAddress) has changed successfully.',
                                                       ),
                                                     );
                                                   });
@@ -248,7 +248,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                             ),
                                           ]
                                       )),
-                                  Text("Ethereum: " +inventory.ethValue+" [ETH]"+", USD: " +inventory.usdValue+" [\$]"),
+                                  Text("Ethereum: " +inventory.ethValue+" [ETH]"+" , USD: " +inventory.usdValue+" [\$]"),
                                 ],
                               ),
                             );
@@ -301,7 +301,7 @@ class _ProfilePageState extends State<ProfilePage> {
               setState(() {
                 _isSigningOut = true;
               });
-              // LogOut Function
+              // LogOut Function Call
               await FireAuth.signOutWithGoogle(context: context);
               setState(() {
                 _isSigningOut = false;
