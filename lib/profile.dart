@@ -301,6 +301,7 @@ class _ProfilePageState extends State<ProfilePage> {
               setState(() {
                 _isSigningOut = true;
               });
+              // LogOut Function
               await FireAuth.signOutWithGoogle(context: context);
               setState(() {
                 _isSigningOut = false;
