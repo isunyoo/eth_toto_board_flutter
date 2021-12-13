@@ -166,6 +166,7 @@ class _LoginPageState extends State<LoginPage> {
                 );
               }
               return const Center(
+                // Display a Circular Progress Indicator
                 child: CircularProgressIndicator(),
               );
             },

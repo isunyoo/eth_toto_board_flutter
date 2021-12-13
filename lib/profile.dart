@@ -92,6 +92,7 @@ class _ProfilePageState extends State<ProfilePage> {
         });
       }
     });
+    // Add vaults' inventoryList data with mapping InventoryModel class
     for(int i=0; i<accountList.length; i++){
       String address = accountList[i]['accountAddress'];
       String ethPrice = await web3util.getAccountEthBalance(address);
@@ -207,54 +208,55 @@ class _ProfilePageState extends State<ProfilePage> {
           children: <Widget>[
             FutureBuilder(
                 future: _getInventoryDetails(),
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if(snapshot.connectionState == ConnectionState.done) {
-                    if(!snapshot.hasData) {
+                builder: (BuildContext context, AsyncSnapshot snapshotResult) {
+                  if(snapshotResult.connectionState == ConnectionState.done) {
+                    if(!snapshotResult.hasData) {
                       return const Text('\n No Account Data has existed.', textScaleFactor: 1.5, style: TextStyle(color: Colors.red));
                     } else {
                       // 'DataSnapshot' value != null
-                        return ListView.builder(
-                            primary: false,
-                            shrinkWrap: true,
-                            itemCount: snapshot.data.length,
-                            itemBuilder: (BuildContext context, int index) {
-                            InventoryModel inventory = snapshot.data[index];
-                            return Card(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  RichText(
-                                      text: TextSpan(
-                                          children: [
-                                            TextSpan(style: const TextStyle(color: Colors.black, fontSize: 14), text: "${index + 1}. Address: "),
-                                            TextSpan(
-                                                style: const TextStyle(color: Colors.blueAccent, fontSize: 14),
-                                                text: inventory.accountAddress,
-                                                recognizer: TapGestureRecognizer()..onTap = () {
-                                                  setState(() {
-                                                    _currentAddress = inventory.accountAddress;
-                                                    // Get the latest timestamp for vaults' account address
-                                                    int _timestamp = DateTime.now().microsecondsSinceEpoch;
-                                                    // Update timestamp on vaults database by snapshot.key
-                                                    dbRef.child('vaults/${user?.uid}').child(childSnapshotKeyList[index]).update({'timestamp': _timestamp});
-                                                    // Notify to load another account address
-                                                    ScaffoldMessenger.of(context).showSnackBar(
-                                                      customSnackBar(
-                                                        content: 'Account($_currentAddress) has changed successfully.',
-                                                      ),
-                                                    );
-                                                  });
-                                                }
-                                            ),
-                                          ]
-                                      )),
-                                  Text("Ethereum: " +inventory.ethValue+" [ETH]"+" , USD: " +inventory.usdValue+" [\$]"),
-                                ],
-                              ),
-                            );
-                          });
+                      return ListView.builder(
+                          primary: false,
+                          shrinkWrap: true,
+                          itemCount: snapshotResult.data.length,
+                          itemBuilder: (BuildContext context, int index) {
+                          InventoryModel inventory = snapshotResult.data[index];
+                          return Card(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                RichText(
+                                    text: TextSpan(
+                                        children: [
+                                          TextSpan(style: const TextStyle(color: Colors.black, fontSize: 14), text: "${index + 1}. Address: "),
+                                          TextSpan(
+                                              style: const TextStyle(color: Colors.blueAccent, fontSize: 14),
+                                              text: inventory.accountAddress,
+                                              recognizer: TapGestureRecognizer()..onTap = () {
+                                                setState(() {
+                                                  _currentAddress = inventory.accountAddress;
+                                                  // Get the latest timestamp for vaults' account address
+                                                  int _timestamp = DateTime.now().microsecondsSinceEpoch;
+                                                  // Update timestamp on vaults database by snapshot.key
+                                                  dbRef.child('vaults/${user?.uid}').child(childSnapshotKeyList[index]).update({'timestamp': _timestamp});
+                                                  // Notify to load another account address
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    customSnackBar(
+                                                      content: 'Account($_currentAddress) has changed successfully.',
+                                                    ),
+                                                  );
+                                                });
+                                              }
+                                          ),
+                                        ]
+                                    )),
+                                Text("Ethereum: " +inventory.ethValue+" [ETH]"+" , USD: " +inventory.usdValue+" [\$]"),
+                              ],
+                            ),
+                          );
+                        });
                     }
                   }
+                  // Display a Circular Progress Indicator if the data is not fetched
                   return const CircularProgressIndicator();
                 }),
           ]

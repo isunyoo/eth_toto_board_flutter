@@ -110,6 +110,7 @@ class _HistoryOutputState extends State<HistoryOutput> {
                             });
                       }
                     }
+                    // Display a Circular Progress Indicator if the data is not fetched
                     return const CircularProgressIndicator();
                   }),
             ]
