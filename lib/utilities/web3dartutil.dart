@@ -1,7 +1,9 @@
 import 'dart:math';
 import 'dart:convert';
 import 'dart:collection';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
+import 'package:convert/convert.dart';
 import 'package:flutter/services.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:web_socket_channel/io.dart';
@@ -65,6 +67,12 @@ class Web3DartHelper {
     // String _decryptedPrivateKey = KeyEncrypt().getDecryptionKeyRing(_encryptedPrivateKey, 'my32lengthsupers');
     String _decryptedPrivateKey = KeyEncrypt().getDecryption(_encryptedPrivateKey);
     print('Decrypted Key:  $_decryptedPrivateKey');
+
+    // Test for Tx Input Decode
+    var tx = await ethClient.getTransactionByHash('0x77534ddd3e2841d71b6711ec93a4346cd5798fc151836676ac822a2982b7a4d7');
+    print(tx.input);
+    print(hex.encode(tx.input));
+    print(tx.input.runtimeType);
 
   }
 
@@ -140,6 +148,20 @@ class Web3DartHelper {
     final contract = DeployedContract(ContractAbi.fromJson(abiCode, "TotoSlots"), EthereumAddress.fromHex(contractAddress));
     return contract;
   }
+
+  // Function to decode input data from txhash which has transacted previously
+  // Future<List> queryTransactedInput(String txhash) async {
+  //   // tx = web3.eth.getTransaction(txhash)
+  //   // var transactionInfo = await ethClient.getTransactionReceipt(transactionHash);
+  //   var tx = await ethClient.getTransactionByHash(txhash);
+  //   var txInput = tx.input;
+  //   DeployedContract contract = await loadContract();
+  //   // List funcParams = contract.decode_function_input(tx["input"]);
+  //   List funcParams = contract.event('slotListNumbers').decodeResults(List<String> topics, String data);
+  //   print(funcParams);
+  //   return funcParams;
+  // }
+  // https://ropsten.etherscan.io/address/0x82d85cF1331F9410F84D0B2aaCF5e2753a5afa82
 
   // The submit() function essentially signs and sends a transaction to the blockchain network from web3dart library.
   Future<String> submit(String functionName, List<dynamic> args) async {
