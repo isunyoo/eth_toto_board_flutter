@@ -198,6 +198,22 @@ class Web3DartHelper {
     return result;
   }
 
+  Future<String> submitTotoSlotsData(String functionName, String _issuerAddress, String _issuerUID, String _issuerName, String _issuerEmail, List<dynamic> _slotsData) async {
+    EthPrivateKey credentials = EthPrivateKey.fromHex(_privateKey);
+    DeployedContract contract = await loadContract();
+    final ethFunction = contract.function(functionName);
+    final result = await ethClient.sendTransaction(credentials,
+        Transaction.callContract(
+            contract: contract,
+            function: ethFunction,
+            parameters: [_issuerAddress, _issuerUID, _issuerName, _issuerEmail, _slotsData],
+            maxGas: 6000000
+        ), chainId: 3 // 3:Ropsten, 1337:Development
+    );
+    await ethClient.dispose();
+    return result;
+  }
+
   Future<String> pushArrayData(List<dynamic> args) async {
     // Conversion BigInt Array
     List<dynamic> bigIntsList = [];
@@ -212,6 +228,28 @@ class Web3DartHelper {
     try {
       // Transaction of array_pushData
       var transactionHash = await submit("array_pushData", [bigIntsList]);
+      // Hash of the transaction record return(String)
+      return transactionHash;
+    } catch(e) {
+      // print(e);
+      return '';
+    }
+  }
+
+  Future<String> saveArrayData(String _issuerAddress, String _issuerUID, String _issuerName, String _issuerEmail, List<dynamic> _slotsData) async {
+    // Conversion BigInt Array
+    List<dynamic> bigIntsList = [];
+    for(var row=0; row<_slotsData.length; row++){
+      List<BigInt> bigNumberList=[];
+      for(var column=0; column<_slotsData[row].length; column++){
+        // print(args[row][column]);
+        bigNumberList.add(BigInt.from(_slotsData[row][column]));
+      }
+      bigIntsList.add(bigNumberList);
+    }
+    try {
+      // Transaction of array_pushData
+      var transactionHash = await submitTotoSlotsData("setTotoSlotsData", _issuerAddress, _issuerUID, _issuerName, _issuerEmail, [bigIntsList]);
       // Hash of the transaction record return(String)
       return transactionHash;
     } catch(e) {

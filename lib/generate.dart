@@ -1,5 +1,6 @@
 import 'utilities/web3dartutil.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:eth_toto_board_flutter/output.dart';
 import 'package:eth_toto_board_flutter/boardmain.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
@@ -117,10 +118,12 @@ class _GeneratedOutputState extends State<GeneratedOutput> {
               backgroundColor: Colors.blue,
               onTap: () async {
                 var newSlotData = widget.passedValue1;
-                // FirebaseAuth.instance.currentUser?.uid;
-                // FirebaseAuth.instance.currentUser?.email
-                // FirebaseAuth.instance.currentUser?.displayName
-                var transactionHash = await web3util.pushArrayData(newSlotData);
+                String _address = await web3util.getAddress();
+                String? _uid = FirebaseAuth.instance.currentUser?.uid;
+                String? _email = FirebaseAuth.instance.currentUser?.email;
+                String? _displayName = FirebaseAuth.instance.currentUser?.displayName;
+                // var transactionHash = await web3util.pushArrayData(newSlotData);
+                var transactionHash = await web3util.saveArrayData(_address, _uid!, _email!, _displayName!, newSlotData);
                 // Insufficient funds for ethereum account for transaction
                 if(transactionHash == ''){
                   ScaffoldMessenger.of(context).showSnackBar(

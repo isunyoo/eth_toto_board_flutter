@@ -59,9 +59,6 @@ class _OutputState extends State<Output> {
     // To fetch remote config from Firebase Remote Config
     RemoteConfigService _remoteConfigService = RemoteConfigService();
     _remoteConfig = await _remoteConfigService.setupRemoteConfig();
-
-
-
   }
 
   // AlertDialog Wiget
