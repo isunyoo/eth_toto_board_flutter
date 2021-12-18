@@ -69,11 +69,7 @@ class Web3DartHelper {
     print('Decrypted Key:  $_decryptedPrivateKey');
 
     // Test for Tx Input Decode
-    var tx = await ethClient.getTransactionByHash('0x77534ddd3e2841d71b6711ec93a4346cd5798fc151836676ac822a2982b7a4d7');
-    print(tx.input);
-    print(hex.encode(tx.input));
-    print(tx.input.runtimeType);
-
+    await queryTransactedInput('0x77534ddd3e2841d71b6711ec93a4346cd5798fc151836676ac822a2982b7a4d7');
   }
 
   // Get the key and value properties data from returning DataSnapshot vaults' values for landing page
@@ -142,7 +138,7 @@ class Web3DartHelper {
 
   // Functions for reading the smart contract and submitting a transaction.
   Future<DeployedContract> loadContract() async {
-    String abiCode = await rootBundle.loadString("assets/abi.json");
+    String abiCode = await rootBundle.loadString("assets/TotoSlots.json");
     // String contractAddress = dotenv.get('Development_Contract_Address');
     String contractAddress = remoteConfig.getString('Ropsten_Contract_Address');
     final contract = DeployedContract(ContractAbi.fromJson(abiCode, "TotoSlots"), EthereumAddress.fromHex(contractAddress));
@@ -151,16 +147,38 @@ class Web3DartHelper {
 
   // Function to decode input data from txhash which has transacted previously
   // Future<List> queryTransactedInput(String txhash) async {
-  //   // tx = web3.eth.getTransaction(txhash)
-  //   // var transactionInfo = await ethClient.getTransactionReceipt(transactionHash);
-  //   var tx = await ethClient.getTransactionByHash(txhash);
-  //   var txInput = tx.input;
-  //   DeployedContract contract = await loadContract();
-  //   // List funcParams = contract.decode_function_input(tx["input"]);
-  //   List funcParams = contract.event('slotListNumbers').decodeResults(List<String> topics, String data);
-  //   print(funcParams);
-  //   return funcParams;
-  // }
+  Future<void> queryTransactedInput(String txhash) async {
+    var tx = await ethClient.getTransactionByHash(txhash);
+    print(tx);
+    print(tx.runtimeType);
+    print(tx.input);
+    print(hex.encode(tx.input));
+    print(tx.input.runtimeType);  // Uint8List
+    var txInput = tx.input;
+    DeployedContract contract = await loadContract();
+    // List funcParams = contract.decode_function_input(tx["input"]);
+    // var funcParams = contract.event('slotListNumbers').decodeResults(List<String> topics, String data);
+    // print(funcParams);
+
+    // // extracting some functions and events that we'll need later
+    // final txEvent = contract.event('slotListNumbers');
+    // // listen for the Transfer event when it's emitted by the contract above
+    // final subscription = ethClient
+    //     .events(FilterOptions.events(contract: contract, event: txEvent))
+    //     .take(1)
+    //     .listen((event) {
+    //   final decoded = txEvent.decodeResults(event.topics, event.data);
+    //
+    //   final from = decoded[0] as EthereumAddress;
+    //   final to = decoded[1] as EthereumAddress;
+    //   final value = decoded[2] as BigInt;
+    //   final input = decoded[3] as BigInt;
+    //   print('$from sent $value MetaCoins to $to input $input');
+    // });
+
+    // return funcParams;
+  }
+  // https://github.com/simolus3/web3dart/blob/development/example/contracts.dart
   // https://ropsten.etherscan.io/address/0x82d85cF1331F9410F84D0B2aaCF5e2753a5afa82
 
   // The submit() function essentially signs and sends a transaction to the blockchain network from web3dart library.

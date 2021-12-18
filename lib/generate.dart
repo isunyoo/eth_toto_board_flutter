@@ -117,6 +117,9 @@ class _GeneratedOutputState extends State<GeneratedOutput> {
               backgroundColor: Colors.blue,
               onTap: () async {
                 var newSlotData = widget.passedValue1;
+                // FirebaseAuth.instance.currentUser?.uid;
+                // FirebaseAuth.instance.currentUser?.email
+                // FirebaseAuth.instance.currentUser?.displayName
                 var transactionHash = await web3util.pushArrayData(newSlotData);
                 // Insufficient funds for ethereum account for transaction
                 if(transactionHash == ''){
