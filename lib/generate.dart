@@ -122,6 +122,7 @@ class _GeneratedOutputState extends State<GeneratedOutput> {
                 String? _email = FirebaseAuth.instance.currentUser?.email;
                 String? _displayName = FirebaseAuth.instance.currentUser?.displayName;
 
+                // The submit() function essentially signs and sends a transaction to the blockchain network from web3dart library.
                 // var transactionHash = await web3util.pushArrayData(newSlotData);
                 var transactionHash = await web3util.saveArrayData(_uid!, _email!, _displayName!, newSlotData);
                 // Insufficient funds for ethereum account for transaction

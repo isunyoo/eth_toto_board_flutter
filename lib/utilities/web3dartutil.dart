@@ -204,20 +204,12 @@ class Web3DartHelper {
     EthPrivateKey credentials = EthPrivateKey.fromHex(_privateKey);
     DeployedContract contract = await loadContract();
     final ethFunction = contract.function(functionName);
-    // List<dynamic> args = [];
-    // args.add(await credentials.extractAddress());
-    // args.add(_issuerUID);
-    // args.add(_issuerName);
-    // args.add(_issuerEmail);
-    // args.add(_slotsData);
-    // print(args);
     final result = await ethClient.sendTransaction(credentials,
         Transaction.callContract(
             contract: contract,
             function: ethFunction,
-            // parameters: args,
             parameters: [await credentials.extractAddress(), _issuerUID, _issuerName, _issuerEmail, _slotsData],
-            gasPrice: EtherAmount.fromUnitAndValue(EtherUnit.gwei, 20),
+            // gasPrice: EtherAmount.fromUnitAndValue(EtherUnit.gwei, 20),
             nonce: await ethClient.getTransactionCount(await credentials.extractAddress(), atBlock: const BlockNum.pending()),
             maxGas: 6000000
         ),
@@ -262,7 +254,7 @@ class Web3DartHelper {
     }
     try {
       // Transaction of array_pushData
-      var transactionHash = await submitTotoSlotsData("setTotoSlotsData", _issuerUID, _issuerName, _issuerEmail, [bigIntsList]);
+      var transactionHash = await submitTotoSlotsData("setTotoSlotsData", _issuerUID, _issuerName, _issuerEmail, bigIntsList);
       // Hash of the transaction record return(String)
       return transactionHash;
     } catch(e) {
