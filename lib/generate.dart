@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'utilities/web3dartutil.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -121,10 +122,11 @@ class _GeneratedOutputState extends State<GeneratedOutput> {
                 String? _uid = FirebaseAuth.instance.currentUser?.uid;
                 String? _email = FirebaseAuth.instance.currentUser?.email;
                 String? _displayName = FirebaseAuth.instance.currentUser?.displayName;
+                String _issuerTime = DateFormat("yyyy-MM-dd HH:mm:ss").format(DateTime.now())+"(SGT)";
 
                 // The submit() function essentially signs and sends a transaction to the blockchain network from web3dart library.
                 // var transactionHash = await web3util.pushArrayData(newSlotData);
-                var transactionHash = await web3util.saveArrayData(_uid!, _email!, _displayName!, newSlotData);
+                var transactionHash = await web3util.saveArrayData(_uid!, _email!, _displayName!, newSlotData, _issuerTime);
                 // Insufficient funds for ethereum account for transaction
                 if(transactionHash == ''){
                   ScaffoldMessenger.of(context).showSnackBar(

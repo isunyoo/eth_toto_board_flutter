@@ -200,7 +200,7 @@ class Web3DartHelper {
     return result;
   }
 
-  Future<String> submitTotoSlotsData(String functionName, String _issuerUID, String _issuerName, String _issuerEmail, List<dynamic> _slotsData) async {
+  Future<String> submitTotoSlotsData(String functionName, String _issuerUID, String _issuerName, String _issuerEmail, List<dynamic> _slotsData, String _issuerTime) async {
     EthPrivateKey credentials = EthPrivateKey.fromHex(_privateKey);
     DeployedContract contract = await loadContract();
     final ethFunction = contract.function(functionName);
@@ -208,7 +208,7 @@ class Web3DartHelper {
         Transaction.callContract(
             contract: contract,
             function: ethFunction,
-            parameters: [await credentials.extractAddress(), _issuerUID, _issuerName, _issuerEmail, _slotsData],
+            parameters: [await credentials.extractAddress(), _issuerUID, _issuerName, _issuerEmail, _slotsData, _issuerTime],
             // gasPrice: EtherAmount.fromUnitAndValue(EtherUnit.gwei, 20),
             nonce: await ethClient.getTransactionCount(await credentials.extractAddress(), atBlock: const BlockNum.pending()),
             maxGas: 6000000
@@ -241,7 +241,7 @@ class Web3DartHelper {
     }
   }
 
-  Future<String> saveArrayData(String _issuerUID, String _issuerName, String _issuerEmail, List<dynamic> _slotsData) async {
+  Future<String> saveArrayData(String _issuerUID, String _issuerName, String _issuerEmail, List<dynamic> _slotsData, String _issuerTime) async {
     // Conversion BigInt Array
     List<dynamic> bigIntsList = [];
     for(var row=0; row<_slotsData.length; row++){
@@ -253,8 +253,8 @@ class Web3DartHelper {
       bigIntsList.add(bigNumberList);
     }
     try {
-      // Transaction of array_pushData
-      var transactionHash = await submitTotoSlotsData("setTotoSlotsData", _issuerUID, _issuerName, _issuerEmail, bigIntsList);
+      // Transaction of setTotoSlotsData
+      var transactionHash = await submitTotoSlotsData("setTotoSlotsData", _issuerUID, _issuerName, _issuerEmail, bigIntsList, _issuerTime);
       // Hash of the transaction record return(String)
       return transactionHash;
     } catch(e) {

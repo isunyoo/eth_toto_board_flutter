@@ -54,6 +54,10 @@
       {
         "name": "_slotsData",
         "type": "uint256[6][]"
+      },
+      {
+        "name": "_issuerTime",
+        "type": "string"
       }
     ],
     "name": "setTotoSlotsData",
@@ -94,7 +98,7 @@
       },
       {
         "name": "",
-        "type": "uint256"
+        "type": "string"
       }
     ],
     "payable": false,
