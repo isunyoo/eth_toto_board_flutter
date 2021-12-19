@@ -1,11 +1,11 @@
 import 'dart:math';
 import 'dart:convert';
 import 'dart:collection';
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart';
 import 'package:convert/convert.dart';
 import 'package:flutter/services.dart';
 import 'package:web3dart/web3dart.dart';
+import 'package:flutter/foundation.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -191,24 +191,37 @@ class Web3DartHelper {
             contract: contract,
             function: ethFunction,
             parameters: args,
+            nonce: await ethClient.getTransactionCount(await credentials.extractAddress(), atBlock: const BlockNum.pending()),
             maxGas: 6000000
-        ), chainId: 3 // 3:Ropsten, 1337:Development
+        ),
+        chainId: 3 // 3:Ropsten, 1337:Development
     );
     await ethClient.dispose();
     return result;
   }
 
-  Future<String> submitTotoSlotsData(String functionName, String _issuerAddress, String _issuerUID, String _issuerName, String _issuerEmail, List<dynamic> _slotsData) async {
+  Future<String> submitTotoSlotsData(String functionName, String _issuerUID, String _issuerName, String _issuerEmail, List<dynamic> _slotsData) async {
     EthPrivateKey credentials = EthPrivateKey.fromHex(_privateKey);
     DeployedContract contract = await loadContract();
     final ethFunction = contract.function(functionName);
+    // List<dynamic> args = [];
+    // args.add(await credentials.extractAddress());
+    // args.add(_issuerUID);
+    // args.add(_issuerName);
+    // args.add(_issuerEmail);
+    // args.add(_slotsData);
+    // print(args);
     final result = await ethClient.sendTransaction(credentials,
         Transaction.callContract(
             contract: contract,
             function: ethFunction,
-            parameters: [_issuerAddress, _issuerUID, _issuerName, _issuerEmail, _slotsData],
+            // parameters: args,
+            parameters: [await credentials.extractAddress(), _issuerUID, _issuerName, _issuerEmail, _slotsData],
+            gasPrice: EtherAmount.fromUnitAndValue(EtherUnit.gwei, 20),
+            nonce: await ethClient.getTransactionCount(await credentials.extractAddress(), atBlock: const BlockNum.pending()),
             maxGas: 6000000
-        ), chainId: 3 // 3:Ropsten, 1337:Development
+        ),
+        chainId: 3 // 3:Ropsten, 1337:Development
     );
     await ethClient.dispose();
     return result;
@@ -236,7 +249,7 @@ class Web3DartHelper {
     }
   }
 
-  Future<String> saveArrayData(String _issuerAddress, String _issuerUID, String _issuerName, String _issuerEmail, List<dynamic> _slotsData) async {
+  Future<String> saveArrayData(String _issuerUID, String _issuerName, String _issuerEmail, List<dynamic> _slotsData) async {
     // Conversion BigInt Array
     List<dynamic> bigIntsList = [];
     for(var row=0; row<_slotsData.length; row++){
@@ -249,7 +262,7 @@ class Web3DartHelper {
     }
     try {
       // Transaction of array_pushData
-      var transactionHash = await submitTotoSlotsData("setTotoSlotsData", _issuerAddress, _issuerUID, _issuerName, _issuerEmail, [bigIntsList]);
+      var transactionHash = await submitTotoSlotsData("setTotoSlotsData", _issuerUID, _issuerName, _issuerEmail, [bigIntsList]);
       // Hash of the transaction record return(String)
       return transactionHash;
     } catch(e) {

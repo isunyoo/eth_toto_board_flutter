@@ -118,12 +118,12 @@ class _GeneratedOutputState extends State<GeneratedOutput> {
               backgroundColor: Colors.blue,
               onTap: () async {
                 var newSlotData = widget.passedValue1;
-                String _address = await web3util.getAddress();
                 String? _uid = FirebaseAuth.instance.currentUser?.uid;
                 String? _email = FirebaseAuth.instance.currentUser?.email;
                 String? _displayName = FirebaseAuth.instance.currentUser?.displayName;
+
                 // var transactionHash = await web3util.pushArrayData(newSlotData);
-                var transactionHash = await web3util.saveArrayData(_address, _uid!, _email!, _displayName!, newSlotData);
+                var transactionHash = await web3util.saveArrayData(_uid!, _email!, _displayName!, newSlotData);
                 // Insufficient funds for ethereum account for transaction
                 if(transactionHash == ''){
                   ScaffoldMessenger.of(context).showSnackBar(
