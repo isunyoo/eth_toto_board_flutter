@@ -19,6 +19,18 @@
     "type": "function"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "name": "_from",
+        "type": "address"
+      }
+    ],
+    "name": "saveTotoSlotsData",
+    "type": "event"
+  },
+  {
     "constant": true,
     "inputs": [],
     "name": "getOwner",
