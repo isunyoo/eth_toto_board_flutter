@@ -169,11 +169,11 @@ class Web3DartHelper {
     //     .listen((event) {
     //       final decoded = txTotoEvent.decodeResults(event.topics!, event.data!);
     //       print(decoded);
-          // final from = decoded[0] as EthereumAddress;
-          // final to = decoded[1] as EthereumAddress;
-          // final value = decoded[2] as BigInt;
-          // final input = decoded[3] as BigInt;
-          // print('$from sent $value MetaCoins to $to input $input');
+    // final from = decoded[0] as EthereumAddress;
+    // final to = decoded[1] as EthereumAddress;
+    // final value = decoded[2] as BigInt;
+    // final input = decoded[3] as BigInt;
+    // print('$from sent $value MetaCoins to $to input $input');
     // });
     // await subscription.asFuture();
     // await subscription.cancel();
@@ -300,7 +300,7 @@ class Web3DartHelper {
     return arrayData;
   }
 
-   Future<List<dynamic>> getAllArray() async {
+  Future<List<dynamic>> getAllArray() async {
     // Transaction of array_popAllData
     List<dynamic> result = await query("array_popAllData", []);
     // Returns list of results, in this case a list with all the arrays
