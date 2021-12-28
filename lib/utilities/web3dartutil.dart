@@ -160,25 +160,27 @@ class Web3DartHelper {
     // var funcParams = totoContract.event('saveTotoSlotsData').decodeResults(List<String> topics, String data);
     // print(funcParams);
 
-    // Extracting some functions and events that we'll need later
-    final txTotoEvent = totoContract.event('saveTotoSlotsData');
-    // Listen for the saveTotoSlotsData event when it's emitted by the contract process
-    final subscription = ethClient
-        .events(FilterOptions.events(contract: totoContract, event: txTotoEvent))
-        .take(1)
-        .listen((event) {
-          final decoded = txTotoEvent.decodeResults(event.topics, event.data);
-          final from = decoded[0] as EthereumAddress;
-          final to = decoded[1] as EthereumAddress;
-          final value = decoded[2] as BigInt;
-          final input = decoded[3] as BigInt;
-          print('$from sent $value MetaCoins to $to input $input');
-    });
-    await subscription.asFuture();
-    await subscription.cancel();
-    await ethClient.dispose();
+    // // Extracting some functions and events that we'll need later
+    // final txTotoEvent = totoContract.event('saveTotoSlotsData');
+    // // Listen for the saveTotoSlotsData event when it's emitted by the contract process
+    // final subscription = ethClient
+    //     .events(FilterOptions.events(contract: totoContract, event: txTotoEvent))
+    //     .take(1)
+    //     .listen((event) {
+    //       final decoded = txTotoEvent.decodeResults(event.topics!, event.data!);
+    //       print(decoded);
+          // final from = decoded[0] as EthereumAddress;
+          // final to = decoded[1] as EthereumAddress;
+          // final value = decoded[2] as BigInt;
+          // final input = decoded[3] as BigInt;
+          // print('$from sent $value MetaCoins to $to input $input');
+    // });
+    // await subscription.asFuture();
+    // await subscription.cancel();
+    // await ethClient.dispose();
   }
   // https://github.com/simolus3/web3dart/blob/development/example/contracts.dart
+  // https://issueexplorer.com/issue/simolus3/web3dart/168
   // https://ropsten.etherscan.io/address/0x82d85cF1331F9410F84D0B2aaCF5e2753a5afa82
 
   // The submit() function essentially signs and sends a transaction to the blockchain network from web3dart library.
