@@ -48,27 +48,27 @@
     "constant": false,
     "inputs": [
       {
-        "name": "_address",
+        "name": "issuerAddress",
         "type": "address"
       },
       {
-        "name": "_issuerUID",
+        "name": "issuerUID",
         "type": "string"
       },
       {
-        "name": "_issuerName",
+        "name": "issuerName",
         "type": "string"
       },
       {
-        "name": "_issuerEmail",
+        "name": "issuerEmail",
         "type": "string"
       },
       {
-        "name": "_slotsData",
+        "name": "slotsData",
         "type": "uint256[6][]"
       },
       {
-        "name": "_issuerTime",
+        "name": "issuerTime",
         "type": "string"
       }
     ],
