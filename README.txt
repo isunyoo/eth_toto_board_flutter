@@ -44,7 +44,6 @@ $ flutter build apk --obfuscate --split-debug-info=/<project-name>/<directory>
    }
 }
 
-
  FirebaseUser user=FirebaseAuth.getInstance().getCurrentUser();
  getUid()
  https://stackoverflow.com/questions/54000825/how-to-get-the-current-user-id-from-firebase-in-flutter
