@@ -64,3 +64,4 @@ $ flutter build apk --obfuscate --split-debug-info=/<project-name>/<directory>
       }
     }
   }
+
